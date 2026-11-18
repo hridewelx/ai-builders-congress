@@ -1,119 +1,280 @@
 {% extends "base.html" %}
-{% block title %}{{ tr('rep.title') }}{% endblock %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
+{% block title %}{{ tr('rep.title') }} — {{ lot.lot_code }}{% endblock %}
 {% block heading %}{{ tr('rep.title') }}{% endblock %}
 {% block subheading %}{{ lot.lot_code }} · {{ tr('rep.one_page') }}{% endblock %}
 {% block content %}
 {% include "_lotnav.html" %}
 
-<div class="btnrow no-print" style="margin-bottom:14px">
-  <a class="btn primary" href="/lots/{{ lot.id }}/report.pdf">{{ tr('common.download_pdf') }}</a>
-  <button class="btn" type="button" data-print>{{ tr('common.print') }}</button>
-  <a class="btn ghost" href="/lots/{{ lot.id }}/decision">{{ tr('dec.title') }} →</a>
+{# --- Action Bar: Download PDF, Print, Decision Center Link --- #}
+<div class="btnrow no-print" style="margin-bottom:18px;justify-content:space-between;align-items:center">
+  <div class="row" style="gap:10px">
+    <a class="btn primary" href="/lots/{{ lot.id }}/report.pdf" style="display:inline-flex;align-items:center;gap:6px">
+      {{ icons.icon('download', 15) }}
+      <span>{{ tr('common.download_pdf') }}</span>
+    </a>
+    <button class="btn" type="button" data-print style="display:inline-flex;align-items:center;gap:6px">
+      {{ icons.icon('printer', 15) }}
+      <span>{{ tr('common.print') }}</span>
+    </button>
+  </div>
+  <div>
+    <a class="btn ghost" href="/lots/{{ lot.id }}/decision">
+      ← {{ tr('dec.title') }}
+    </a>
+  </div>
 </div>
 
-<div class="card" id="reportSheet" style="max-width:860px;margin:0 auto">
-  <div class="pad" style="padding:34px 38px">
-    <div class="between" style="align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:14px">
+{# --- Official One-Page Inspection Certificate Sheet --- #}
+<div class="card" id="reportSheet" style="max-width:880px;margin:0 auto;box-shadow:0 4px 18px rgba(0,0,0,0.04);background:var(--card-bg)">
+  <div class="pad" style="padding:36px 42px">
+    {# Header Row: Brand, Title, Metadata #}
+    <div class="between" style="align-items:flex-start;border-bottom:2px solid var(--text);padding-bottom:16px">
       <div>
-        <div style="font-weight:800;letter-spacing:.18em;font-size:11px;color:var(--muted)">LOTLINE</div>
-        <h2 style="font-size:23px;margin-top:5px">{{ tr('rep.title') }}</h2>
+        <div style="font-weight:800;letter-spacing:.2em;font-size:12px;color:var(--muted)">LOTLINE · QUALITY CONTROL</div>
+        <h1 style="font-size:24px;font-weight:800;margin:6px 0 2px;letter-spacing:-0.02em;color:var(--text)">
+          {{ tr('rep.title') }}
+        </h1>
         <div class="small dim">{{ tr('app.tagline') }}</div>
       </div>
       <div style="text-align:right">
-        <div class="mono" style="font-size:15px">{{ rc.lot_code }}</div>
-        <div class="small dim">{{ 'Decision' if lang=='en' else 'সিদ্ধান্ত' }} #{{ rc.sequence }} · {{ rc.created_at }}</div>
-        <div class="small dim">{{ 'engine' if lang=='en' else 'ইঞ্জিন' }} {{ rc.engine_version }}</div>
+        <div class="mono" style="font-size:16px;font-weight:700;color:var(--text)">{{ rc.lot_code }}</div>
+        <div class="small dim" style="margin-top:2px">
+          {{ 'Decision Record' if lang=='en' else 'সিদ্ধান্ত রেকর্ড' }} #{{ rc.sequence }} · {{ rc.created_at[:16] }}
+        </div>
+        <div class="small dim mono" style="font-size:11px">Engine: {{ rc.engine_version }} · Model: {{ rc.model }}</div>
       </div>
     </div>
 
-    <div class="row" style="margin:16px 0 6px">
-      <span class="badge {{ rc.outcome }}" style="font-size:12px;padding:5px 11px"><span class="dot"></span>{{ tr('out.' ~ rc.outcome) }}</span>
-      {% if rc.override %}<span class="badge HOLD" style="font-size:12px;padding:5px 11px">{{ tr('dec.overridden') }}</span>{% endif %}
-      <span class="small dim">{{ rc.product }} · {{ rc.buyer }}</span>
+    {# Two-Line Disposition Banner #}
+    <div style="margin:20px 0 16px;padding:16px 20px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line)">
+      <div class="between" style="align-items:center">
+        <div>
+          <div class="small dim" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600">
+            {{ 'System Recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}
+          </div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:10px">
+            <span class="badge {{ rc.outcome }}" style="font-size:14px;padding:4px 12px;font-weight:700">
+              <span class="dot"></span>{{ tr('out.' ~ rc.outcome) }}
+            </span>
+            <span class="small dim">{{ rc.product }} · {{ rc.buyer }}</span>
+          </div>
+        </div>
+
+        <div style="text-align:right">
+          <div class="small dim" style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600">
+            {{ 'Final Disposition' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত' }}
+          </div>
+          <div style="margin-top:4px">
+            {% if rc.override and rc.override.approved %}
+              <span class="badge {{ rc.override.final_disposition.replace('OVERRIDE_','') }}" style="font-size:14px;padding:4px 12px;font-weight:700">
+                <span class="dot"></span>{{ rc.override.final_disposition.replace('OVERRIDE_','') }} (OVERRIDE)
+              </span>
+            {% else %}
+              <span class="badge {{ rc.outcome }}" style="font-size:14px;padding:4px 12px;font-weight:700">
+                <span class="dot"></span>{{ tr('out.' ~ rc.outcome) }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Override Notice if present #}
+      {% if rc.override %}
+      <div class="note warn" style="margin-top:14px;margin-bottom:0">
+        <div class="small">
+          <b>OVERRIDE RECORD:</b> System recommended <b>{{ rc.outcome }}</b>, Supervisor requested <b>{{ rc.override.final_disposition.replace('OVERRIDE_','') }}</b>.
+          <div style="margin-top:3px"><i>Reason:</i> {{ rc.override.reason }}</div>
+          {% if not rc.override.approved %}
+            <div style="margin-top:4px;font-weight:600;color:var(--amber-ink)">
+              ⚠️ {{ 'Awaiting second-Supervisor approval. The system recommendation remains the legal disposition until approved.' if lang=='en' else '⚠️ দ্বিতীয় সুপারভাইজারের অনুমোদনের অপেক্ষায়। অনুমোদিত না হওয়া পর্যন্ত সিস্টেম সুপারিশই কার্যকর থাকবে।' }}
+            </div>
+          {% else %}
+            <div style="margin-top:4px;color:var(--success)">
+              ✓ {{ 'Approved by second supervisor. Final disposition is now effective.' if lang=='en' else '✓ দ্বিতীয় সুপারভাইজার কর্তৃক অনুমোদিত। চূড়ান্ত সিদ্ধান্ত কার্যকর।' }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
     </div>
-    {% if rc.override %}
-    <div class="note warn" style="margin:8px 0">
-      <b>OVERRIDDEN — system: {{ rc.outcome }}, supervisor: {{ rc.override.final_disposition.replace('OVERRIDE_','') }}.</b>
-      {{ rc.override.reason }}
-      {% if not rc.override.approved %} <b>Pending second-Supervisor approval; the system outcome remains in force.</b>{% endif %}
-    </div>
-    {% endif %}
-    <p class="small muted">
-      {% if rc.outcome == 'ACCEPT' %}{{ tr('rep.statistical') }}
-      {% elif rc.outcome == 'REJECT' %}{{ 'At least one class reached its rejection number. The sample failed the plan.' if lang=='en' else 'অন্তত একটি শ্রেণি তার বাতিল সংখ্যায় পৌঁছেছে। নমুনা প্ল্যানে ব্যর্থ।' }}
-      {% elif rc.outcome == 'HOLD' %}{{ 'The sampling rule cannot be applied yet. The blocking reasons are listed below.' if lang=='en' else 'স্যাম্পলিং নিয়ম এখনো প্রয়োগ করা যায় না। কারণ নিচে দেওয়া।' }}
-      {% else %}{{ 'A person must decide. This case is outside the system\'s competence.' if lang=='en' else 'মানুষকে সিদ্ধান্ত নিতে হবে। এই বিষয় সিস্টেমের সক্ষমতার বাইরে।' }}{% endif %}
+
+    {# Statistical Explanation #}
+    <p class="small muted" style="margin:12px 0 20px;line-height:1.5">
+      {% if rc.outcome == 'ACCEPT' %}
+        {{ tr('rep.statistical') }}
+      {% elif rc.outcome == 'REJECT' %}
+        {{ 'At least one defect class reached its rejection number (Re). The sample failed the acceptance sampling criteria.' if lang=='en' else 'অন্তত একটি ডিফেক্ট শ্রেণি তার বাতিল সংখ্যায় (Re) পৌঁছেছে। নমুনা গ্রহণযোগ্যতা মানদণ্ডে ব্যর্থ হয়েছে।' }}
+      {% elif rc.outcome == 'HOLD' %}
+        {{ 'The sampling decision rule cannot be evaluated yet. Inspection prerequisites are incomplete. The blocking reasons are listed below.' if lang=='en' else 'স্যাম্পলিং সিদ্ধান্ত নিয়ম এখনো প্রয়োগ করা যায় না। প্রয়োজনীয় ধাপ বাকি আছে। কারণ নিচে দেওয়া।' }}
+      {% else %}
+        {{ 'A human authority must decide. This case involves conditions outside automated deterministic competence.' if lang=='en' else 'কর্তৃপক্ষকে সিদ্ধান্ত নিতে হবে। এই বিষয় স্বয়ংক্রিয় নিয়মের সক্ষমতার বাইরে।' }}
+      {% endif %}
     </p>
 
-    <div class="grid cols-2" style="gap:20px;margin-top:16px">
+    {# Grid: Sampling Plan vs Defect Counts Breakdown #}
+    <div class="grid cols-2" style="gap:24px;margin-top:20px">
+      {# Sampling Plan Parameters #}
       <div>
-        <div class="lbl" style="margin-bottom:7px">{{ tr('lot.plan') }}</div>
+        <div class="lbl" style="margin-bottom:8px;font-weight:700">{{ tr('lot.plan') }}</div>
         {% if rc.plan %}
         <table class="table" style="font-size:12px">
           <tbody>
-            <tr><td class="dim">n entered / effective</td><td class="right mono">{{ rc.plan.n }} / {{ rc.n_effective }}</td></tr>
-            <tr><td class="dim">{{ tr('plan.mode') }}</td><td class="right mono">{{ rc.plan.counting_mode }}</td></tr>
+            <tr>
+              <td class="dim">Sample Size (n entered / effective)</td>
+              <td class="right mono font-mono" style="font-weight:600">{{ rc.plan.n }} / {{ rc.n_effective }}</td>
+            </tr>
+            <tr>
+              <td class="dim">{{ tr('plan.mode') }}</td>
+              <td class="right mono font-mono">{{ rc.plan.counting_mode }}</td>
+            </tr>
             {% for c in ['critical','major','minor'] %}
-            <tr><td class="dim">{{ tr('plan.' ~ c) }}</td><td class="right mono">Ac {{ rc.plan[c].ac }} / Re {{ rc.plan[c].re }}</td></tr>
+            <tr>
+              <td class="dim">{{ tr('plan.' ~ c) }}</td>
+              <td class="right mono font-mono">Ac {{ rc.plan[c].ac }} / Re {{ rc.plan[c].re }}</td>
+            </tr>
             {% endfor %}
-            <tr><td class="dim">{{ tr('plan.source_edition') }}</td><td class="right">{{ rc.plan.source_edition or '—' }}</td></tr>
-            <tr><td class="dim">{{ tr('plan.source_ref') }}</td><td class="right">{{ rc.plan.source_reference or '—' }}</td></tr>
+            <tr>
+              <td class="dim">{{ tr('plan.source_edition') }}</td>
+              <td class="right">{{ rc.plan.source_edition or '—' }}</td>
+            </tr>
+            <tr>
+              <td class="dim">{{ tr('plan.source_ref') }}</td>
+              <td class="right">{{ rc.plan.source_reference or '—' }}</td>
+            </tr>
           </tbody>
         </table>
-        <div class="small dim" style="margin-top:7px">{{ tr('lot.plan_assumption') }}</div>
+        <div class="small dim" style="margin-top:8px;font-size:11px;line-height:1.4">
+          <b>{{ tr('lot.plan_assumption') }}:</b>
+          {{ 'Single sampling, normal inspection, General Inspection Level II (ISO 2859-1 / ANSI ASQ Z1.4). Default parameters are an assumption, not a standard lookup.' if lang=='en' else 'সিঙ্গেল স্যাম্পলিং, নরমাল ইন্সপেকশন, জেনারেল ইন্সপেকশন লেভেল II (ISO 2859-1 / ANSI ASQ Z1.4)। ডিফল্ট প্যারামিটার একটি অনুমান।' }}
+        </div>
         {% else %}
         <div class="note bad">{{ 'No sampling plan is configured.' if lang=='en' else 'কোনো স্যাম্পলিং প্ল্যান নেই।' }}</div>
         {% endif %}
       </div>
+
+      {# Defect Counts & Class Limits #}
       <div>
-        <div class="lbl" style="margin-bottom:7px">{{ tr('dec.counts') }}</div>
+        <div class="lbl" style="margin-bottom:8px;font-weight:700">{{ tr('dec.counts') }}</div>
         <table class="table" style="font-size:12px">
-          <thead><tr><th></th><th class="num">{{ tr('dec.count') }}</th><th class="num">Ac</th><th class="num">Re</th><th class="right"></th></tr></thead>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th class="num">{{ tr('dec.count') }}</th>
+              <th class="num">Ac</th>
+              <th class="num">Re</th>
+              <th class="right">Status</th>
+            </tr>
+          </thead>
           <tbody>
             {% for c in ['critical','major','minor'] %}
             <tr>
-              <td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
-              <td class="num" style="font-weight:700">{{ rc.counts[c] }}</td>
-              <td class="num dim">{{ rc.class_status[c].ac if rc.class_status else '—' }}</td>
-              <td class="num dim">{{ rc.class_status[c].re if rc.class_status else '—' }}</td>
-              <td class="right">{{ rc.class_status[c].status if rc.class_status else '' }}</td>
+              <td>
+                <span class="badge {{ c }}" style="font-size:11px">{{ tr('plan.' ~ c) }}</span>
+              </td>
+              <td class="num font-mono" style="font-weight:700">{{ rc.counts[c] }}</td>
+              <td class="num dim font-mono">{{ rc.class_status[c].ac if rc.class_status else '—' }}</td>
+              <td class="num dim font-mono">{{ rc.class_status[c].re if rc.class_status else '—' }}</td>
+              <td class="right">
+                {% if rc.class_status and rc.class_status[c].status == 'FAIL' %}
+                  <span class="badge REJECT" style="font-size:10.5px">FAIL</span>
+                {% elif rc.class_status and rc.class_status[c].status == 'PASS' %}
+                  <span class="badge ACCEPT" style="font-size:10.5px">PASS</span>
+                {% else %}
+                  <span class="dim">—</span>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <div class="small dim" style="margin-top:7px">
-          {{ tr('common.units') }} {{ rc.units_present }}/{{ rc.required_units }} · {{ 'views pending' if lang=='en' else 'বাকি ভিউ' }} {{ rc.views_pending }}
+        <div class="small dim" style="margin-top:8px;font-size:11px">
+          {{ tr('common.units') }}: <b>{{ rc.units_present }}/{{ rc.required_units }}</b> · {{ 'Views pending' if lang=='en' else 'বাকি ভিউ' }}: <b>{{ rc.views_pending }}</b>
         </div>
       </div>
     </div>
 
-    <div style="margin-top:16px">
-      <div class="lbl" style="margin-bottom:7px">{{ tr('common.reasons') }}</div>
-      <ul class="small" style="margin:0;padding-left:18px">
+    {# Decision Reasons List #}
+    <div style="margin-top:22px">
+      <div class="lbl" style="margin-bottom:8px;font-weight:700">{{ tr('common.reasons') }}</div>
+      <ul class="small" style="margin:0;padding-left:18px;line-height:1.6">
         {% for r in rc.reasons %}
-        <li><span class="mono">{{ r.code }}</span> — {{ reason(r.code) }}</li>
+        <li>
+          <span class="mono font-mono" style="font-weight:600;color:var(--text)">{{ r.code }}</span> —
+          <span>{{ reason(r.code) }}</span>
+        </li>
         {% endfor %}
       </ul>
     </div>
 
-    <div style="margin-top:16px">
-      <div class="lbl" style="margin-bottom:7px">{{ 'Evidence' if lang=='en' else 'প্রমাণ' }}</div>
-      <ul class="small muted" style="margin:0;padding-left:18px">
-        <li>{{ 'Critical non-visual check' if lang=='en' else 'ক্রিটিক্যাল নন-ভিজ্যুয়াল চেক' }}: <b>{{ rc.nonvisual }}</b></li>
-        <li>{{ 'Images' if lang=='en' else 'ছবি' }}: {{ rc.images }} · {{ tr('common.units') }}: {{ rc.units }} · detector: {{ rc.model }}</li>
-        <li>{{ 'Detector domains' if lang=='en' else 'ডিটেক্টর ডোমেইন' }}: {{ rc.model_domains }}</li>
-        <li>{{ tr('dec.manual') }}: {{ 'yes' if rc.manual else 'no' }} · selection: {{ rc.selection }}</li>
-        <li>Snapshot SHA-256: <span class="mono">{{ rc.snapshot_hash }}</span></li>
-        <li>{{ 'The critical class covers visible defects only. A photo cannot prove needle or metal absence.' if lang=='en' else 'ক্রিটিক্যাল শ্রেণি শুধু দৃশ্যমান ত্রুটি কভার করে। ছবি সুই বা ধাতুর অনুপস্থিতি প্রমাণ করতে পারে না।' }}</li>
-      </ul>
+    {# Evidence Integrity & System Gates #}
+    <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">
+      <div class="lbl" style="margin-bottom:8px;font-weight:700">{{ 'Evidence Integrity & Gates' if lang=='en' else 'প্রমাণ ইন্টিগ্রিটি ও গেইটস' }}</div>
+      <div class="grid cols-2" style="gap:16px;font-size:11.5px">
+        <ul class="list" style="margin:0">
+          <li>
+            <div class="grow">
+              <span class="dim">{{ 'Critical non-visual check:' if lang=='en' else 'ক্রিটিক্যাল নন-ভিজ্যুয়াল চেক:' }}</span>
+              <b>{{ rc.nonvisual|upper }}</b>
+            </div>
+          </li>
+          <li>
+            <div class="grow">
+              <span class="dim">{{ 'Working images:' if lang=='en' else 'কাজের ছবি:' }}</span>
+              <span>{{ rc.images }} photos across {{ rc.units }} sample units</span>
+            </div>
+          </li>
+          <li>
+            <div class="grow">
+              <span class="dim">{{ 'Detector model:' if lang=='en' else 'ডিটেক্টর মডেল:' }}</span>
+              <span class="mono">{{ rc.model }}</span>
+            </div>
+          </li>
+        </ul>
+
+        <ul class="list" style="margin:0">
+          <li>
+            <div class="grow">
+              <span class="dim">{{ 'Manual review fallback:' if lang=='en' else 'ম্যানুয়াল রিভিউ বিকল্প:' }}</span>
+              <span>{{ 'Yes' if rc.manual else 'No' }}</span>
+            </div>
+          </li>
+          <li>
+            <div class="grow">
+              <span class="dim">{{ 'Selection method:' if lang=='en' else 'স্যাম্পলিং পদ্ধতি:' }}</span>
+              <span>{{ rc.selection }}</span>
+            </div>
+          </li>
+          <li>
+            <div class="grow">
+              <span class="dim">SHA-256:</span>
+              <span class="mono font-mono" style="font-size:10px">{{ rc.snapshot_hash[:28] }}…</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="small dim" style="margin-top:10px;font-size:11px;color:var(--muted)">
+        <i>* {{ 'The critical class covers visible defects only. Photo evidence cannot prove needle or metal absence.' if lang=='en' else 'ক্রিটিক্যাল শ্রেণি শুধু দৃশ্যমান ত্রুটি কভার করে। ছবি সুই বা ধাতুর অনুপস্থিতি প্রমাণ করতে পারে না।' }}</i>
+      </div>
     </div>
 
-    <div class="grid cols-2" style="margin-top:26px;gap:30px">
-      <div class="small dim">Inspector: ____________________________</div>
-      <div class="small dim">Supervisor: ___________________________</div>
+    {# Sign-Off Signatures #}
+    <div class="grid cols-2" style="margin-top:34px;gap:40px;padding-top:20px;border-top:1px solid var(--line)">
+      <div>
+        <div class="small dim" style="margin-bottom:28px">Inspector Signature / Date:</div>
+        <div style="border-bottom:1px solid var(--text);width:90%"></div>
+      </div>
+      <div>
+        <div class="small dim" style="margin-bottom:28px">Supervisor Signature / Date:</div>
+        <div style="border-bottom:1px solid var(--text);width:90%"></div>
+      </div>
     </div>
-    <div class="small dim" style="margin-top:18px;border-top:1px solid var(--line);padding-top:10px;font-size:10.5px">
-      {{ 'This report renders one stored decision row. It contains no reconstructed sampling table, no percentage allowance, and no claim of calibration or certification. AQL schemes were designed for a continuing series of lots. Generated by the Lotline demo build for the International AI Builders Congress 2026.' if lang=='en' else 'এই রিপোর্ট একটি সংরক্ষিত সিদ্ধান্ত রেকর্ড দেখায়। এতে পুনর্গঠিত স্যাম্পলিং টেবিল, শতাংশ অনুমতি বা ক্যালিব্রেশন/সার্টিফিকেশনের দাবি নেই।' }}
+
+    {# Legal & Build Disclaimer Footer #}
+    <div class="small dim" style="margin-top:22px;border-top:1px solid var(--line);padding-top:12px;font-size:10px;line-height:1.4">
+      {{ 'This report renders one stored decision row. It contains no reconstructed sampling table, no percentage allowance, and no claim of calibration or certification. AQL schemes were designed for a continuing series of lots. Generated by the Lotline demo build for the International AI Builders Congress 2026.' if lang=='en' else 'এই রিপোর্ট একটি সংরক্ষিত সিদ্ধান্ত রেকর্ড দেখায়। এতে কোনো পুনর্গঠিত স্যাম্পলিং টেবিল, শতাংশ অনুমতি বা ক্যালিব্রেশন/সার্টিফিকেশনের দাবি নেই। আন্তর্জাতিক এআই বিল্ডার্স কংগ্রেস ২০২৬-এর জন্য লটলাইন ডেমো বিল্ড দ্বারা তৈরি।' }}
     </div>
   </div>
 </div>

@@ -1,8 +1,8 @@
 # PROGRESS — Lotline frontend build
 
 **Instruction:** `docs/LOTLINE_BUILD.md` (v4)
-**Current phase:** 2b — Plan, Decision Center, Override flow (complete; Checkpoint B reached)
-**Checkpoint:** A approved; B reached (pending owner approval)
+**Current phase:** 3 — P1 screens: Dashboard, Lots list, Create Lot, Audit log, Report view (complete)
+**Checkpoint:** A approved; B approved; Phase 3 complete
 **Last updated:** 18 November 2026
 **Repo:** `D:\ai-builders-congress`
 
@@ -14,8 +14,8 @@
 | 1 Foundation | **Done** | 15% | Tokens, Inter, logos, component macros, shell, login, reason codes, showcase, DataTable/dialog/toast/tooltip |
 | 2a Lot detail, Capture, Review | **Done** | 25% | P0 screens upgraded: Control Center, Capture/Upload, Image Review & Defect Confirmation, Review Queue |
 | 2b Plan, Decision Center | **Done** | 20% | Upgraded Sampling Plan, Decision Center, PRD §9.4 reason codes, 2-supervisor override & approval flow |
-| 3 P1 screens | Not started | 15% | Lots list, Reports, Buyer summary, Audit log, Evidence export (Awaiting Checkpoint B approval) |
-| 4 P2 screens | Not started | 7% | Calibration & Metrics, Admin |
+| 3 P1 screens | **Done** | 15% | Dashboard, Lots list, Create Lot, Audit log, Report view, Buyer summary, Evidence export |
+| 4 P2 screens | In progress | 7% | Calibration & Metrics, Admin |
 | 5 QA + demo dry-run | Not started | 13% | Full click-path test, bilingual parity verification, responsiveness |
 
 ## Done
@@ -120,14 +120,55 @@ Added: `tests/test_p2a_pages.py`.
 - **All 4 decision outcomes verified:** ACCEPT (Lot 2), REJECT (Lot 1), HOLD (Lot 3, 5), ESCALATE (Lot 4).
 - **Override safety verified:** Self-approval forbidden, second supervisor approve/refuse actions verified.
 
-## Changed files (Phase 2b)
+### Phase 3 (complete)
+- **Dashboard (`templates/dashboard.html`)**:
+  - Live metric KPI cards (`ui.metric_card`): Open Lots, Lots on HOLD, Lots on ESCALATE, Decided Lots with audit count.
+  - High-Risk Overrides awaiting second-Supervisor banner (only renders unapproved overrides for Supervisor/Admin with one-click "Review & Decide" action).
+  - Admin System Operational Integrity & Alert Status block (inference engine health, append-only SQLite audit integrity, role QC security enforcement).
+  - Active Lots grid featuring two-line disposition (System recommendation vs Final disposition), sample progress bars ($k/n$), and direct lot links.
+  - Right rail: 4-step pipeline guide (`Photo Capture -> AI Proposes -> Human Confirms -> Deterministic Engine`) and on-device autoencoder model card with illustrative AI label.
+- **Lots List (`templates/lots.html`)**:
+  - Filter bar with search query (`q`), lot state (`open`, `decided`, `reopened`, `archived`), decision outcome (`ACCEPT`, `REJECT`, `HOLD`, `ESCALATE`), and active filter reset button.
+  - Role-gated "+ New Lot" button visible to Inspector and Supervisor, hidden from Admin.
+  - Table displaying Lot Code with color badge, Buyer, Product, Lot Size ($N$), Sample Progress ($k/n$ units, reviewed/views), Status, Two-Line Disposition, and quick action links (Overview, Decision, Report).
+  - Empty state with clear filters action.
+- **Create Lot (`templates/lot_new.html`)**:
+  - Branded creation card with structured form for lot code (uppercase, unique), color, buyer, product, integer lot size ($\ge 1$), and selection method.
+  - Error state alerts: `?err=exists` ("Lot code already exists") and `?err=invalid` ("Invalid lot details").
+  - Mandatory disclaimer note on selection method ("Lotline cannot verify that garments were drawn at random...").
+  - Right-rail inspection lifecycle educational guide.
+- **Audit Log (`templates/audit.html`)**:
+  - Search query filter for action, actor, or entity.
+  - Admin-only CSV export button (`GET /audit.csv`) with download icon.
+  - Visual distinction for denied/refused/failed events (`audit.denied`, `auth.denied`, `override.refused`).
+  - Expandable before $\to$ after state payload viewer rendering formatted, safe JSON diffs.
+- **Inspection Report & Buyer Summary & Evidence Export (`templates/report.html` & `templates/admin.html`)**:
+  - Official one-page inspection certificate sheet with server-rendered PDF download (`/lots/{id}/report.pdf`) and print trigger (`data-print`).
+  - Two-line disposition banner (System Recommendation vs Final Disposition) with override status and second-supervisor approval tracking.
+  - Buyer summary and product specifications card.
+  - Sampling plan summary with mandatory ISO 2859-1 Level II assumption disclaimer.
+  - Defect counts vs class limits ($Ac/Re$) table with PASS/FAIL badges.
+  - Evidence integrity and gates block with SHA-256 snapshot hash, working images count, critical non-visual check status, and scope limitation note.
+  - Inspector and Supervisor signature blocks.
+  - Buyer quality specifications & clause mapping summary in `admin.html?tab=clauses`.
 
-Modified: `templates/plan.html`, `templates/decision.html`, `static/app.js`, `PROGRESS.md`.
-Added: `tests/test_p2b_pages.py`.
+## Verification
 
-## Checkpoint B: Awaiting Owner Approval
+- **Backend tests:** `python -m pytest -q` → **48 passed** (36 engine tests + 4 Phase 2a tests + 3 Phase 2b tests + 5 Phase 3 tests in `tests/test_p3_pages.py`).
+- **Role page matrix:** Verified across `inspector`, `supervisor`, `admin` roles in both `en` and `bn`.
+- **Admin restrictions verified:** Admin cannot create lots, cannot access QC capture/review, cannot access report routes (403), but can export audit CSV.
+- **Two-line disposition verified:** Consistently rendered on Dashboard, Lots list, Lot cockpit, Decision Center, and Report view.
 
-Phase 2b is complete and verified. As mandated by the phased roadmap, execution is paused at **Checkpoint B** for owner review before starting Phase 3 (P1 screens).
+## Changed files (Phase 3)
+
+Modified: `templates/dashboard.html`, `templates/lots.html`, `templates/lot_new.html`, `templates/audit.html`, `templates/report.html`, `templates/admin.html`, `PROGRESS.md`.
+Added: `tests/test_p3_pages.py`.
+
+## Next: Phase 4 (P2 screens)
+
+- **Report view & Configuration:** Final polish on configuration (products, buyers, read-only clauses).
+- **User management (`templates/admin.html`):** User list, role changes, reset password, account enable/disable.
+- Stop at Phase 5 for full QA and live demo dry-run.
 
 ## Blockers
 

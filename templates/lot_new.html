@@ -1,68 +1,176 @@
 {% extends "base.html" %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
 {% block title %}{{ tr('newlot.title') }}{% endblock %}
 {% block heading %}{{ tr('newlot.title') }}{% endblock %}
 {% block subheading %}{{ tr('newlot.subtitle') }}{% endblock %}
 {% block content %}
+
+{# --- Query Param Error Alerts --- #}
+{% set err = request.query_params.get('err') %}
+{% if err == 'exists' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-triangle', 16) }}</span>
+    <div>
+      <b>{{ 'Lot code already exists' if lang=='en' else 'লট কোডটি ইতিমধ্যে ব্যবহৃত হয়েছে' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'A lot with this code is already registered in the system. Lot codes must be unique across the organization.' if lang=='en' else 'এই কোডের একটি লট ইতিমধ্যে নিবন্ধিত আছে। পুরো প্রতিষ্ঠানে লট কোড একক (ইউনিক) হতে হবে।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'invalid' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-circle', 16) }}</span>
+    <div>
+      <b>{{ 'Invalid lot details' if lang=='en' else 'লটের তথ্যে ত্রুটি রয়েছে' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'Please fill in all required fields. Lot code cannot be blank, and lot size must be an integer of at least 1.' if lang=='en' else 'সকল আবশ্যক ঘর পূরণ করুন। লট কোড খালি রাখা যাবে না এবং লট সাইজ অবশ্যই কমপক্ষে ১ হতে হবে।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="split">
+  {# Form Card #}
   <div class="card">
-    <div class="card-h"><h3>{{ tr('common.details') }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('plus-circle', 16) }}
+        <span>{{ tr('common.details') }}</span>
+      </h3>
+    </div>
     <div class="pad">
-      <form method="post" action="/lots/new">
+      <form method="post" action="/lots/new" id="newLotForm">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <div class="grid cols-2" style="gap:0 16px">
-          <div class="field">
-            <label>{{ tr('newlot.code') }}</label>
-            <input name="lot_code" required placeholder="LT-2026-019" style="text-transform:uppercase">
+
+        <div class="grid cols-2" style="gap:14px 16px">
+          {# Lot Code #}
+          <div class="field" style="margin:0">
+            <label for="lot-code">{{ tr('newlot.code') }} <span class="req">*</span></label>
+            <input id="lot-code" name="lot_code" required placeholder="LT-2026-020" style="text-transform:uppercase;font-family:var(--font-mono)" autocomplete="off">
+            <div class="hint">{{ 'Unique identifier for the production lot' if lang=='en' else 'উৎপাদন লটের জন্য একক শনাক্তকারী কোড' }}</div>
           </div>
-          <div class="field">
-            <label>{{ tr('newlot.color') }}</label>
-            <input name="color" placeholder="Navy">
+
+          {# Color #}
+          <div class="field" style="margin:0">
+            <label for="lot-color">{{ tr('newlot.color') }}</label>
+            <input id="lot-color" name="color" placeholder="Navy / Black / Olive">
+            <div class="hint">{{ 'Primary shade or dye color' if lang=='en' else 'প্রধান শেড বা রঙের নাম' }}</div>
           </div>
-          <div class="field">
-            <label>{{ tr('newlot.buyer') }}</label>
-            <select name="buyer_id" required>
-              {% for b in buyers %}<option value="{{ b.id }}">{{ b.name }} · {{ b.country }}</option>{% endfor %}
+
+          {# Buyer #}
+          <div class="field" style="margin:0">
+            <label for="lot-buyer">{{ tr('newlot.buyer') }} <span class="req">*</span></label>
+            <select id="lot-buyer" name="buyer_id" required>
+              <option value="" disabled selected>{{ 'Select buyer…' if lang=='en' else 'ক্রেতা নির্বাচন করুন…' }}</option>
+              {% for b in buyers %}
+              <option value="{{ b.id }}">{{ b.name }} · {{ b.country }}</option>
+              {% endfor %}
             </select>
+            <div class="hint">{{ 'Determines acceptance clauses and defect severity' if lang=='en' else 'গ্রহণযোগ্যতার ক্লজ ও ডিফেক্ট সিরিয়িটি নির্ধারণ করে' }}</div>
           </div>
-          <div class="field">
-            <label>{{ tr('newlot.product') }}</label>
-            <select name="product_id" required>
-              {% for p in products %}<option value="{{ p.id }}">{{ p.name }} · {{ p.family }}</option>{% endfor %}
+
+          {# Product #}
+          <div class="field" style="margin:0">
+            <label for="lot-product">{{ tr('newlot.product') }} <span class="req">*</span></label>
+            <select id="lot-product" name="product_id" required>
+              <option value="" disabled selected>{{ 'Select product…' if lang=='en' else 'পণ্য নির্বাচন করুন…' }}</option>
+              {% for p in products %}
+              <option value="{{ p.id }}">{{ p.name }} · {{ p.family }}</option>
+              {% endfor %}
             </select>
+            <div class="hint">{{ 'Garment style family and inspection profile' if lang=='en' else 'পোশাকের স্টাইল ও ইন্সপেকশন প্রোফাইল' }}</div>
           </div>
-          <div class="field">
-            <label>{{ tr('newlot.size') }}</label>
-            <input name="lot_size" type="number" min="1" value="240" required>
+
+          {# Lot Size (N) #}
+          <div class="field" style="margin:0">
+            <label for="lot-size">{{ tr('newlot.size') }} (N) <span class="req">*</span></label>
+            <input id="lot-size" name="lot_size" type="number" min="1" value="240" required>
+            <div class="hint">{{ 'Total pieces in lot (integer ≥ 1)' if lang=='en' else 'লটের মোট সংখ্যা (পূর্ণসংখ্যা ≥ ১)' }}</div>
           </div>
-          <div class="field">
-            <label>{{ tr('newlot.selection') }}</label>
-            <select name="selection_method">
-              <option value="self-declared random">self-declared random</option>
-              <option value="operator choice">operator choice</option>
-              <option value="not recorded">not recorded</option>
+
+          {# Selection Method #}
+          <div class="field" style="margin:0">
+            <label for="lot-selection">{{ tr('newlot.selection') }}</label>
+            <select id="lot-selection" name="selection_method">
+              <option value="self-declared random">{{ 'self-declared random' if lang=='en' else 'স্ব-ঘোষিত র্যান্ডম' }}</option>
+              <option value="operator choice">{{ 'operator choice' if lang=='en' else 'অপারেটরের পছন্দ' }}</option>
+              <option value="not recorded">{{ 'not recorded' if lang=='en' else 'নথিভুক্ত নয়' }}</option>
             </select>
+            <div class="hint">{{ 'Sampling method applied on the floor' if lang=='en' else 'ফ্লোরে প্রয়োগকৃত স্যাম্পলিং পদ্ধতি' }}</div>
           </div>
         </div>
-        <div class="note warn" style="margin:6px 0 14px">
-          {{ 'Lotline cannot verify that garments were drawn at random. The selection method is stored and printed as self-declared.' if lang=='en' else 'লটলাইন যাচাই করতে পারে না যে গার্মেন্টস এলোমেলোভাবে নেওয়া হয়েছে। পদ্ধতিটি স্ব-ঘোষিত হিসেবে সংরক্ষণ ও প্রিন্ট হয়।' }}
+
+        {# Mandatory Disclaimer Note #}
+        <div class="note warn" style="margin:16px 0">
+          <div class="row" style="gap:8px;align-items:flex-start">
+            <span style="color:var(--amber-ink);margin-top:2px">{{ icons.icon('info', 16) }}</span>
+            <div class="small dim">
+              {{ 'Lotline cannot verify that garments were drawn at random. The selection method is stored and printed as self-declared.' if lang=='en' else 'লটলাইন স্বাধীনভাবে নিশ্চিত করতে পারে না যে নমুনা এলোমেলোভাবে সংগ্রহ করা হয়েছে। স্যাম্পলিং পদ্ধতি স্ব-ঘোষিত হিসেবে সংরক্ষিত ও রিপোর্টে মুদ্রিত হয়।' }}
+            </div>
+          </div>
         </div>
-        <div class="btnrow">
-          <button class="btn primary">{{ tr('newlot.submit') }}</button>
+
+        {# Form Actions #}
+        <div class="btnrow" style="gap:10px">
+          <button class="btn primary" type="submit">{{ tr('newlot.submit') }}</button>
           <a class="btn ghost" href="/lots">{{ tr('common.cancel') }}</a>
         </div>
       </form>
     </div>
   </div>
 
+  {# Right Rail: Inspection Lifecycle Guide #}
   <div class="card">
-    <div class="card-h"><h3>{{ 'What happens next' if lang=='en' else 'এরপর কী' }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px;font-size:14px">
+        {{ icons.icon('compass', 16) }}
+        <span>{{ 'What happens next' if lang=='en' else 'এরপরের ধাপসমূহ' }}</span>
+      </h3>
+    </div>
     <div class="pad-sm">
-      <div class="list">
-        <li><span class="badge ghost">1</span><div class="grow"><b>{{ tr('lot.plan') }}</b><div class="small dim">{{ 'A Supervisor enters n and Ac/Re. Without a plan the lot stays HOLD.' if lang=='en' else 'সুপারভাইজার n ও Ac/Re দেন। প্ল্যান ছাড়া লট HOLD থাকে।' }}</div></div></li>
-        <li><span class="badge ghost">2</span><div class="grow"><b>{{ tr('lot.capture') }}</b><div class="small dim">{{ 'Register sampled garments and photograph front and back.' if lang=='en' else 'নমুনা গার্মেন্টস নিবন্ধন করে সামনে ও পিছনের ছবি তুলুন।' }}</div></div></li>
-        <li><span class="badge ghost">3</span><div class="grow"><b>{{ tr('lot.review') }}</b><div class="small dim">{{ 'Every proposal needs a human answer. A blank review is never a pass.' if lang=='en' else 'প্রতিটি প্রস্তাবের মানব উত্তর দরকার। খালি পর্যালোচনা কখনো পাস নয়।' }}</div></div></li>
-        <li><span class="badge ghost">4</span><div class="grow"><b>{{ tr('lot.decision') }}</b><div class="small dim">{{ 'The engine compares confirmed counts with the entered limits.' if lang=='en' else 'ইঞ্জিন নিশ্চিত গণনা ও দেওয়া সীমা তুলনা করে।' }}</div></div></li>
-      </div>
+      <ul class="list">
+        <li>
+          <span class="badge ghost">1</span>
+          <div class="grow">
+            <b>{{ tr('lot.plan') }}</b>
+            <div class="small dim">
+              {{ 'A Supervisor configures sample size n and per-class Ac/Re limits. Without an active plan the lot remains on HOLD.' if lang=='en' else 'সুপারভাইজার নমুনা আকার n এবং প্রতিটি ক্লাসে Ac/Re সীমা দেন। প্ল্যান ছাড়া লট HOLD থাকে।' }}
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="badge ghost">2</span>
+          <div class="grow">
+            <b>{{ tr('lot.capture') }}</b>
+            <div class="small dim">
+              {{ 'Inspectors register garments and upload front and back photos using phone cameras.' if lang=='en' else 'ইন্সপেক্টররা ফোন ক্যামেরা দিয়ে সামনে ও পিছনের ছবি তুলবেন।' }}
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="badge ghost">3</span>
+          <div class="grow">
+            <b>{{ tr('lot.review') }}</b>
+            <div class="small dim">
+              {{ 'Inspectors review on-device AI proposals. Every proposal requires human verification; blank reviews are never an automatic pass.' if lang=='en' else 'ইন্সপেক্টর এআই প্রস্তাব যাচাই করবেন। খালি পর্যালোচনা কখনো স্বয়ংক্রিয় পাস নয়।' }}
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="badge ghost">4</span>
+          <div class="grow">
+            <b>{{ tr('lot.decision') }}</b>
+            <div class="small dim">
+              {{ 'The deterministic decision engine evaluates confirmed defect counts against the configured plan limits.' if lang=='en' else 'ডিসিশন ইঞ্জিন নিশ্চিত ডিফেক্ট সংখ্যা ও প্ল্যান সীমা তুলনা করে সিদ্ধান্ত প্রস্তুত করে।' }}
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

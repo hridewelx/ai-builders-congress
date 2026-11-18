@@ -1,42 +1,59 @@
 {% extends "base.html" %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
 {% block title %}{{ tr('nav.lots') }}{% endblock %}
 {% block heading %}{{ tr('lots.title') }}{% endblock %}
 {% block subheading %}{{ tr('dash.subtitle') }}{% endblock %}
 {% block content %}
 
-<div class="card" style="margin-bottom:16px">
+{# --- Filter Bar & Quick Actions --- #}
+<div class="card" style="margin-bottom:18px">
   <div class="pad-sm">
-    <form method="get" class="inline">
-      <div class="field" style="flex:2">
-        <label>{{ tr('common.search') }}</label>
-        <input name="q" value="{{ q }}" placeholder="{{ tr('lots.code') }} / {{ tr('lots.buyer') }}">
+    <form method="get" action="/lots" class="inline" style="flex-wrap:wrap;gap:12px;align-items:flex-end">
+      <div class="field" style="flex:2;min-width:220px;margin:0">
+        <label for="filter-q">{{ tr('common.search') }}</label>
+        <div style="position:relative">
+          <input id="filter-q" name="q" value="{{ q }}" placeholder="{{ tr('lots.code') }} / {{ tr('lots.buyer') }} / {{ tr('lots.product') }}">
+        </div>
       </div>
-      <div class="field">
-        <label>{{ tr('common.status') }}</label>
-        <select name="state">
+
+      <div class="field" style="min-width:140px;margin:0">
+        <label for="filter-state">{{ tr('common.status') }}</label>
+        <select id="filter-state" name="state">
           <option value="">{{ tr('common.all') }}</option>
           {% for s in ['open','decided','reopened','archived'] %}
-          <option value="{{ s }}" {{ 'selected' if state==s }}>{{ s }}</option>
+          <option value="{{ s }}" {{ 'selected' if state==s }}>{{ s|capitalize }}</option>
           {% endfor %}
         </select>
       </div>
-      <div class="field">
-        <label>{{ tr('common.outcome') }}</label>
-        <select name="outcome">
+
+      <div class="field" style="min-width:140px;margin:0">
+        <label for="filter-outcome">{{ tr('common.outcome') }}</label>
+        <select id="filter-outcome" name="outcome">
           <option value="">{{ tr('common.all') }}</option>
           {% for o in ['ACCEPT','REJECT','HOLD','ESCALATE'] %}
           <option value="{{ o }}" {{ 'selected' if outcome==o }}>{{ tr('out.' ~ o) }}</option>
           {% endfor %}
         </select>
       </div>
-      <button class="btn primary">{{ tr('common.filter') }}</button>
+
+      <div class="btnrow" style="margin:0;gap:8px">
+        <button class="btn primary" type="submit">{{ tr('common.filter') }}</button>
+        {% if q or state or outcome %}
+        <a class="btn ghost" href="/lots">{{ 'Reset' if lang=='en' else 'রিসেট' }}</a>
+        {% endif %}
+      </div>
+
       {% if user.role in ('inspector','supervisor') %}
-      <a class="btn" href="/lots/new">+ {{ tr('nav.new_lot') }}</a>
+      <div class="right" style="margin-left:auto">
+        <a class="btn primary" href="/lots/new">+ {{ tr('nav.new_lot') }}</a>
+      </div>
       {% endif %}
     </form>
   </div>
 </div>
 
+{# --- Lots Table --- #}
 <div class="card">
   {% if cards %}
   <div class="tblwrap">
@@ -49,31 +66,113 @@
           <th class="num">{{ tr('lots.size') }}</th>
           <th>{{ tr('lot.progress') }}</th>
           <th>{{ tr('common.status') }}</th>
-          <th>{{ tr('common.outcome') }}</th>
-          <th></th>
+          <th>{{ 'Two-Line Disposition' if lang=='en' else 'টু-লাইন ডিসপোজিশন' }}</th>
+          <th class="right">{{ tr('common.actions') }}</th>
         </tr>
       </thead>
       <tbody>
         {% for c in cards %}
         <tr>
-          <td><a href="/lots/{{ c.id }}" style="font-weight:650">{{ c.lot_code }}</a><div class="small dim">{{ c.color }}</div></td>
-          <td>{{ c.buyer_name }}</td>
-          <td class="muted">{{ c.product_name }}</td>
-          <td class="num">{{ c.lot_size }}</td>
-          <td style="min-width:150px">
-            <div class="bar"><i style="width:{{ c.progress.pct_views }}%"></i></div>
-            <div class="meta"><span>{{ c.progress.units }}/{{ c.progress.required_units or '—' }}</span><span>{{ c.progress.reviewed }}/{{ c.progress.views }}</span></div>
+          {# Lot Code & Color #}
+          <td>
+            <a href="/lots/{{ c.id }}" style="font-weight:700;color:var(--text);font-size:14px;text-decoration:none">
+              {{ c.lot_code }}
+            </a>
+            <div class="small dim" style="margin-top:2px">{{ c.color }}</div>
           </td>
-          <td><span class="badge {{ 'decided' if c.status=='decided' else 'open' }}"><span class="dot"></span>{{ c.status }}</span></td>
-          <td>{% if c.final %}<span class="badge {{ c.final }}"><span class="dot"></span>{{ tr('out.' ~ c.final) }}</span>{% else %}<span class="dim">—</span>{% endif %}</td>
-          <td class="right"><a class="btn sm ghost" href="/lots/{{ c.id }}">{{ tr('common.open') }}</a></td>
+
+          {# Buyer #}
+          <td>
+            <span style="font-weight:550">{{ c.buyer_name }}</span>
+          </td>
+
+          {# Product #}
+          <td class="muted">
+            {{ c.product_name }}
+          </td>
+
+          {# Lot Size #}
+          <td class="num font-mono">
+            {{ c.lot_size }}
+          </td>
+
+          {# Progress Bar & Numbers #}
+          <td style="min-width:160px">
+            <div class="bar" style="height:6px"><i style="width:{{ c.progress.pct_views }}%"></i></div>
+            <div class="meta" style="font-size:11px;margin-top:4px">
+              <span>{{ c.progress.units }}/{{ c.progress.required_units or '—' }} {{ tr('common.units')|lower }}</span>
+              <span>{{ c.progress.reviewed }}/{{ c.progress.views }} {{ tr('lot.views_reviewed') }}</span>
+            </div>
+          </td>
+
+          {# Status (Open vs Decided) #}
+          <td>
+            {% if c.status == 'decided' %}
+              <span class="badge decided"><span class="dot"></span>{{ tr('dash.decided') }}</span>
+            {% else %}
+              <span class="badge open"><span class="dot"></span>{{ tr('common.open') }}</span>
+            {% endif %}
+          </td>
+
+          {# Two-Line Disposition #}
+          <td style="min-width:180px">
+            <div style="font-size:11.5px;line-height:1.4">
+              <div class="row" style="gap:6px;align-items:center">
+                <span class="dim" style="font-size:10.5px">{{ 'Rec:' if lang=='en' else 'সুপারিশ:' }}</span>
+                {% if c.decision %}
+                  {{ ui.decision_badge(c.decision.outcome, tr('out.' ~ c.decision.outcome)) }}
+                {% else %}
+                  <span class="dim">—</span>
+                {% endif %}
+              </div>
+              <div class="row" style="gap:6px;align-items:center;margin-top:3px">
+                <span class="dim" style="font-size:10.5px;font-weight:600">{{ 'Final:' if lang=='en' else 'চূড়ান্ত:' }}</span>
+                {% if c.final %}
+                  {{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
+                  {% if c.override and not c.override.effective %}
+                    <span class="badge HOLD" style="font-size:10px;padding:1px 5px">{{ 'Pending' if lang=='en' else 'মুলতুবি' }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="dim">—</span>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+
+          {# Actions #}
+          <td class="right" style="white-space:nowrap">
+            <div class="btnrow" style="justify-content:flex-end;gap:5px">
+              <a class="btn sm ghost" href="/lots/{{ c.id }}" title="{{ tr('common.open') }}">
+                {{ tr('common.open') }} →
+              </a>
+              {% if c.decision %}
+              <a class="btn sm ghost" href="/lots/{{ c.id }}/decision" title="{{ tr('dec.title') }}">
+                {{ icons.icon('clipboard-check', 13) }}
+              </a>
+              {% endif %}
+              {% if user.role != 'admin' and c.status == 'decided' %}
+              <a class="btn sm ghost" href="/lots/{{ c.id }}/report" title="{{ tr('rep.title') }}">
+                {{ icons.icon('file-text', 13) }}
+              </a>
+              {% endif %}
+            </div>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <div class="empty"><b>{{ tr('lots.empty') }}</b></div>
+  <div class="pad" style="padding:48px 24px">
+    {{ ui.empty_state(
+      tr('lots.empty'),
+      'Try adjusting your search criteria or clear your filters.' if lang=='en' else 'আপনার অনুসন্ধানের ফিল্টার পরিবর্তন করুন বা রিসেট করুন।',
+      icon_name='search'
+    ) }}
+    <div style="text-align:center;margin-top:16px">
+      <a class="btn ghost sm" href="/lots">{{ 'Clear All Filters' if lang=='en' else 'সকল ফিল্টার মুছুন' }}</a>
+    </div>
+  </div>
   {% endif %}
 </div>
 {% endblock %}

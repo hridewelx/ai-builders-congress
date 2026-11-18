@@ -1,44 +1,150 @@
 {% extends "base.html" %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
 {% block title %}{{ tr('audit.title') }}{% endblock %}
 {% block heading %}{{ tr('audit.title') }}{% endblock %}
 {% block subheading %}{{ tr('audit.immutable') }}{% endblock %}
 {% block content %}
 
-<div class="card" style="margin-bottom:14px">
+{# --- Audit Filter & Admin Export Action --- #}
+<div class="card" style="margin-bottom:18px">
   <div class="pad-sm">
-    <form method="get" class="inline">
-      <div class="field" style="flex:3"><label>{{ tr('common.search') }}</label><input name="q" value="{{ q }}" placeholder="decision.computed / lot / actor"></div>
-      <button class="btn primary">{{ tr('common.filter') }}</button>
-      {% if can_export %}<a class="btn" href="/audit.csv">↓ CSV</a>{% endif %}
+    <form method="get" action="/audit" class="inline" style="flex-wrap:wrap;gap:12px;align-items:flex-end">
+      <div class="field" style="flex:3;min-width:260px;margin:0">
+        <label for="audit-q">{{ tr('common.search') }}</label>
+        <input id="audit-q" name="q" value="{{ q }}" placeholder="{{ 'Search by action (e.g. decision.computed, override.created) or actor...' if lang=='en' else 'অ্যাকশন বা ব্যবহারকারীর নাম দিয়ে খুঁজুন...' }}">
+      </div>
+
+      <div class="btnrow" style="margin:0;gap:8px">
+        <button class="btn primary" type="submit">{{ tr('common.filter') }}</button>
+        {% if q %}
+        <a class="btn ghost" href="/audit">{{ 'Reset' if lang=='en' else 'রিসেট' }}</a>
+        {% endif %}
+      </div>
+
+      {% if can_export %}
+      <div class="right" style="margin-left:auto">
+        <a class="btn primary" href="/audit.csv" style="display:inline-flex;align-items:center;gap:6px">
+          {{ icons.icon('download', 14) }}
+          <span>{{ 'Export Immutable CSV' if lang=='en' else 'অপরিবর্তনীয় সিএসভি ডাউনলোড' }}</span>
+        </a>
+      </div>
+      {% endif %}
     </form>
   </div>
 </div>
 
+{# --- Audit Events Table --- #}
 <div class="card">
+  {% if rows %}
   <div class="tblwrap">
     <table class="table">
-      <thead><tr><th>#</th><th>{{ tr('common.time') }}</th><th>{{ tr('audit.actor') }}</th><th>{{ tr('audit.action') }}</th><th>{{ tr('audit.entity') }}</th><th>{{ 'Before → after' if lang=='en' else 'আগে → পরে' }}</th></tr></thead>
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th style="width:170px">{{ tr('common.time') }}</th>
+          <th style="width:160px">{{ tr('audit.actor') }}</th>
+          <th style="width:180px">{{ tr('audit.action') }}</th>
+          <th style="width:130px">{{ tr('audit.entity') }}</th>
+          <th>{{ 'Audit Payload (Before → After)' if lang=='en' else 'অডিট পেলোড (আগে → পরে)' }}</th>
+        </tr>
+      </thead>
       <tbody>
         {% for r in rows %}
-        <tr>
-          <td class="dim mono">{{ r.id }}</td>
-          <td class="small dim" style="white-space:nowrap">{{ r.at }}</td>
-          <td><b class="small">{{ r.actor_label }}</b></td>
-          <td><span class="badge ghost">{{ r.action }}</span></td>
-          <td class="small dim">{{ r.entity }}{% if r.entity_id %} #{{ r.entity_id }}{% endif %}</td>
-          <td style="max-width:420px">
-            {% if r.after %}
-            <details><summary class="small" style="cursor:pointer;color:var(--muted)">{{ 'view payload' if lang=='en' else 'পেলোড দেখুন' }}</summary>
-              <pre class="mono small" style="white-space:pre-wrap;margin:6px 0;color:var(--dim)">{{ r.after }}</pre>
+        {% set is_denied = ('denied' in r.action|lower or 'refused' in r.action|lower or 'failed' in r.action|lower) %}
+        <tr style="{{ 'background:rgba(214,69,69,0.03)' if is_denied else '' }}">
+          {# Event ID #}
+          <td class="dim mono font-mono" style="font-size:12px">
+            {{ r.id }}
+          </td>
+
+          {# Timestamp #}
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            {{ r.at }}
+          </td>
+
+          {# Actor #}
+          <td>
+            <div style="font-weight:600;font-size:13px">{{ r.actor_label }}</div>
+            {% if r.actor_user_id %}
+            <div class="small dim mono" style="font-size:10.5px">UID #{{ r.actor_user_id }}</div>
+            {% endif %}
+          </td>
+
+          {# Action #}
+          <td>
+            {% if is_denied %}
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>{{ r.action }}</span>
+            {% elif 'override' in r.action %}
+              <span class="badge HOLD" style="font-size:11px"><span class="dot"></span>{{ r.action }}</span>
+            {% elif 'decision' in r.action or 'created' in r.action %}
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>{{ r.action }}</span>
+            {% else %}
+              <span class="badge ghost" style="font-size:11px">{{ r.action }}</span>
+            {% endif %}
+          </td>
+
+          {# Entity #}
+          <td class="small">
+            <span class="mono" style="font-weight:600">{{ r.entity }}</span>
+            {% if r.entity_id %}
+            <span class="dim mono">#{{ r.entity_id }}</span>
+            {% endif %}
+          </td>
+
+          {# Payload (Before -> After) #}
+          <td style="max-width:440px">
+            {% if r.before or r.after %}
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                {{ icons.icon('code', 13) }}
+                <span>
+                  {% if r.before and r.after %}
+                    {{ 'View state diff' if lang=='en' else 'পরিবর্তন দেখুন' }}
+                  {% elif r.after %}
+                    {{ 'View snapshot payload' if lang=='en' else 'পেলোড দেখুন' }}
+                  {% else %}
+                    {{ 'View prior state' if lang=='en' else 'পূর্বাবস্থা দেখুন' }}
+                  {% endif %}
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                {% if r.before %}
+                <div style="margin-bottom:6px">
+                  <span class="small dim" style="font-weight:600;color:var(--danger)">BEFORE:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{{ r.before }}</pre>
+                </div>
+                {% endif %}
+                {% if r.after %}
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{{ r.after }}</pre>
+                </div>
+                {% endif %}
+              </div>
             </details>
-            {% else %}<span class="dim">—</span>{% endif %}
+            {% else %}
+            <span class="dim mono small">—</span>
+            {% endif %}
           </td>
         </tr>
-        {% else %}
-        <tr><td colspan="6"><div class="empty">{{ tr('common.none') }}</div></td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+  {% else %}
+  <div class="pad" style="padding:48px 24px">
+    {{ ui.empty_state(
+      tr('common.none'),
+      'No audit events match your search query.' if lang=='en' else 'আপনার অনুসন্ধানের সাথে কোনো অডিট ইভেন্ট মেলেনি।',
+      icon_name='file-text'
+    ) }}
+    {% if q %}
+    <div style="text-align:center;margin-top:16px">
+      <a class="btn ghost sm" href="/audit">{{ 'Clear Search' if lang=='en' else 'অনুসন্ধান মুছুন' }}</a>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
