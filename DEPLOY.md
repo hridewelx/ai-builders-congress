@@ -67,8 +67,8 @@ docker run -p 8077:8077 -v lotline_data:/data lotline
 ## Before a *real* pilot (not the demo)
 
 1. `LOTLINE_DEMO=0`, real accounts, password rotation, `LOTLINE_SECURE_COOKIE=1`.
-2. Replace SQLite with PostgreSQL (`app/db.py` schema is already normalised).
-3. Move vision to the InferenceWorker/Vision split in `SYSTEM_DESIGN_v1_2.md`.
+2. Replace SQLite with PostgreSQL (`app/core/db.py` schema is already normalised).
+3. Move vision to the InferenceWorker/Vision split in `docs/spec/SYSTEM_DESIGN_v1_2.md`.
 4. Calibrate the detector on a labelled factory holdout and publish the model card.
 5. Back up `/data` (evidence files are content-addressed and hash-checked; losing
    them turns every affected decision into `HOLD_EVIDENCE_INTEGRITY`).

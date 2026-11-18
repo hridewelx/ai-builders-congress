@@ -18,7 +18,7 @@ no network calls at runtime.
 
 **AI proposes defects. A human confirms them. A deterministic rule decides.**
 
-- `app/engine.py` must be a pure function: only `hashlib` and `json` may be
+- `app/domain/engine.py` must be a pure function: only `hashlib` and `json` may be
   imported. It receives a plan, lot evidence, units with views, and
   human-confirmed defects. It returns an outcome, counts, class status,
   completeness, and an ordered list of reason codes.
@@ -77,7 +77,7 @@ audit_event, model_version, model_selftest, model_activation`.
 
 ### 4. Vision
 
-Implement a real, small, honest detector in `app/vision.py` using numpy + Pillow:
+Implement a real, small, honest detector in `app/services/vision.py` using numpy + Pillow:
 an unsupervised autoencoder trained only on synthetic **clean** knit patches
 (procedural texture), scored by per-patch reconstruction residual, with robust
 z-scoring (median/MAD), connected components, IoU dedupe, and top-k boxes.
@@ -193,7 +193,8 @@ Then, in a browser:
 
 ## Expected output
 
-A repository with `app/` (engine, vision, service, security, db, main, report,
-i18n, seed), `templates/`, `static/`, `tests/`, `README.md`, `PITCH.md`,
-`DEPLOY.md`, a Dockerfile, and seed data. The engine must be readable in one
+A repository with `app/` (`domain/engine.py`, `core/db.py`, `core/security.py`,
+`services/{vision,review,report,seed}.py`, `web/{pages,deps,routes}`, `main.py`),
+`templates/`, `static/`, `tests/`, `scripts/build_dataset.py`, `ml/`, `README.md`,
+`PITCH.md`, `DEPLOY.md`, a Dockerfile, and seed data. The engine must be readable in one
 sitting: that is the point of the product.

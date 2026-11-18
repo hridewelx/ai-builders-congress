@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app import engine  # noqa: E402
+from app.domain import engine  # noqa: E402
 
 PLAN = {
     "n": 8,

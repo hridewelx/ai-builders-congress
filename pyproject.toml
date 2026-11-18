@@ -1,0 +1,17 @@
+# Tool configuration only. Dependencies stay in requirements.txt so the Docker
+# image and a judge's laptop install exactly the same set.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["docs/spec", "data"]
+
+[tool.ruff.lint]
+select = ["F", "E9", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

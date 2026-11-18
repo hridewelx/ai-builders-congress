@@ -27,7 +27,7 @@ Built for the **International AI Builders Congress 2026 · IndustrySphere AI
 
 This is enforced structurally, not by policy text:
 
-1. `app/engine.py` is a pure function. It imports only `hashlib` and `json`
+1. `app/domain/engine.py` is a pure function. It imports only `hashlib` and `json`
    (there is a test that parses its AST and fails if anything else appears).
    It cannot call a model, a database or the network.
 2. The engine never sees a proposal. It sees **human-confirmed defects**, the
@@ -41,10 +41,10 @@ This is enforced structurally, not by policy text:
 
 | Layer | Who decides | Can it approve a lot? |
 |---|---|---|
-| Vision model (`app/vision.py`) | proposes boxes + a type guess | **no** |
+| Vision model (`app/services/vision.py`) | proposes boxes + a type guess | **no** |
 | Inspector | confirms / edits / rejects each box, marks the view | **no** |
 | Supervisor | sets the plan, second-reviews rejected criticals, overrides | **only via an audited two-person override** |
-| Engine (`app/engine.py`) | counts confirmed defects, compares Ac/Re, returns the outcome | **this is the only decision-maker** |
+| Engine (`app/domain/engine.py`) | counts confirmed defects, compares Ac/Re, returns the outcome | **this is the only decision-maker** |
 
 ---
 
@@ -56,6 +56,8 @@ python -m app.seed          # 6 lots, 70 staged photos, ~25 s (first run trains 
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8077
 ```
 
+Or with make: `make seed`, `make run`, `make test`, `make data`, `make reset`.
+
 or `run.bat` (Windows) / `./run.sh`.
 
 Open <http://127.0.0.1:8077> and press **Inspector**, **Supervisor** or
@@ -64,6 +66,7 @@ The seeded password is `QualityFloor2026!`.
 
 ```bash
 python -m pytest -q         # 36 engine tests, ~40 ms
+python -m ruff check app    # import order, undefined names, dead code
 ```
 
 `python -m app.seed --force` rebuilds the demo from scratch.
@@ -125,12 +128,13 @@ UI and in the PDF report.
 ```
 browser ── TLS ──▶ FastAPI (app/main.py)
                      │  Argon2id · server sessions · CSRF · Origin check · role gate
-                     ├──▶ app/service.py ──▶ app/engine.py   (pure, deterministic)
-                     │        │                   └─ 15 reason codes, precedence
-                     │        ├──▶ app/db.py       (SQLite WAL, append-only decisions)
-                     │        └──▶ app/report.py   (one-page PDF, snapshot hash)
-                     ├──▶ app/vision.py            (numpy autoencoder, in-process)
-                     └──▶ app/security.py          (login delay, policy, revocation)
+                     ├──▶ app/web/routes/          (auth · lots · capture · review · decisions · reports · admin)
+                     ├──▶ app/services/review.py ──▶ app/domain/engine.py  (pure, deterministic)
+                     │        │                         └─ 15 reason codes, precedence
+                     │        ├──▶ app/core/db.py          (SQLite WAL, append-only decisions)
+                     │        └──▶ app/services/report.py  (one-page PDF, snapshot hash)
+                     ├──▶ app/services/vision.py  (numpy autoencoder, in-process)
+                     └──▶ app/core/security.py    (Argon2id · sessions · CSRF · login delay)
 ```
 
 Production topology from `SYSTEM_DESIGN_v1_2.md` §11 — Proxy → API →
@@ -196,26 +200,51 @@ decision, because it changes the count.
 ## Repository map
 
 ```
-app/engine.py      pure decision engine + 15 reason codes + precedence
-app/vision.py      unsupervised knit-defect detector (numpy) + self-test
-app/service.py     evidence assembly, decision rows, overrides, timeline
-app/security.py    Argon2id, sessions, CSRF, login delay, password policy
-app/db.py          SQLite schema (organization … model_activation), audit helper
-app/main.py        FastAPI routes, role gates, upload hardening, PDF endpoints
-app/report.py      one-page FPDF report (Bangla-capable font fallback)
-app/i18n.py        English + Bangla strings
-templates/         Jinja2 screens (dashboard, lot, plan, capture, review, decision,
-                   report, admin, audit, how, login)
-static/            design system CSS + review-workspace JS
-tests/             36 deterministic engine tests
-lotline/*.md       the original 13.6k-line specification set this build implements
+app/
+  main.py                 application factory: error handlers, middleware, routers
+  config.py               paths, upload limits, demo flag — every setting in one place
+  domain/engine.py        pure decision engine + 15 reason codes + precedence
+  core/db.py              SQLite schema (organization … model_activation), audit helper
+  core/security.py        Argon2id, sessions, CSRF, login delay, password policy
+  services/review.py      evidence assembly, decision rows, overrides, timeline
+  services/vision.py      unsupervised knit-defect detector (numpy) + self-test
+  services/report.py      one-page FPDF report (Bangla-capable font fallback)
+  services/seed.py        demo data generator (idempotent, --force to rebuild)
+  web/pages.py            template environment + shared context
+  web/deps.py             sessions, role gates, CSRF, write permissions
+  web/routes/             auth · dashboard · lots · capture · review · decisions · reports · admin · system
+  i18n.py                 English + Bangla strings
+scripts/build_dataset.py  build or download the staged dataset, verify every hash
+ml/                       GPU workstream (owner: Hridoy) — dataset, train, evaluate, export
+templates/                Jinja2 screens
+static/                   design system CSS + review-workspace JS
+tests/                    36 deterministic engine tests
+docs/spec/                the original 13.6k-line specification set this build implements
+tools/                    specification cross-document audit (legacy, kept for provenance)
 ```
+
+Old import paths (`app.engine`, `app.service`, `app.db`, …) still work through
+thin re-export shims, so branches written before the restructure keep running.
+
+### Data
+
+`data/` is generated, never committed:
+
+```bash
+python scripts/build_dataset.py            # staged dataset + manifest with SHA-256 per file
+python scripts/build_dataset.py --verify   # integrity check
+python -m app.seed --force                 # demo database, evidence images, model card
+```
+
+Directories created at runtime: `data/lotline.db`, `data/store/` (content-addressed
+evidence), `data/models/` (detector + model card), `data/dataset/v1/` (staged set).
+See `docs/DATA.md` for provenance, splits and the honest limits of the data.
 
 ---
 
 ## Production path
 
-1. Swap SQLite for PostgreSQL 18 using the schema in `app/db.py` (already
+1. Swap SQLite for PostgreSQL 18 using the schema in `app/core/db.py` (already
    normalised, FKs and CHECK constraints in place).
 2. Split vision into the InferenceWorker/Vision containers per the documented
    privilege split; the model interface is already a pure function of bytes.

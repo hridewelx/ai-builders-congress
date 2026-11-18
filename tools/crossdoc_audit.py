@@ -1,5 +1,6 @@
 import re, json, collections
-O='/mnt/user-data/outputs/'
+import os
+O=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'docs','spec')+os.sep
 F={'PRD':'PRD_v0_3.md','SEC':'security-v0_4.md','SD':'SYSTEM_DESIGN_v1_2.md','RP':'lotline_research_prompt_v3_1.md'}
 T={k:open(O+v,encoding='utf-8').read() for k,v in F.items()}
 out=[]
