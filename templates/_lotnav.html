@@ -1,12 +1,13 @@
-<div class="tabs">
-  <a href="/lots/{{ lot.id }}" class="{{ 'on' if request.url.path == '/lots/' ~ lot.id }}">{{ tr('lot.overview') }}</a>
+<nav class="tabs" aria-label="{{ 'Lot sections' if lang=='en' else 'লট বিভাগ' }}">
+  <a href="/lots/{{ lot.id }}" class="{{ 'on' if request.url.path == '/lots/' ~ lot.id }}"{% if request.url.path == '/lots/' ~ lot.id %} aria-current="page"{% endif %}>{{ tr('lot.overview') }}</a>
   {% if user.role != 'admin' %}
-  <a href="/lots/{{ lot.id }}/plan" class="{{ 'on' if request.url.path.endswith('/plan') }}">{{ tr('lot.plan') }}</a>
-  <a href="/lots/{{ lot.id }}/capture" class="{{ 'on' if request.url.path.endswith('/capture') }}">{{ tr('lot.capture') }}</a>
-  <a href="/lots/{{ lot.id }}/review" class="{{ 'on' if request.url.path.endswith('/review') }}">{{ tr('lot.review') }}</a>
+  <a href="/lots/{{ lot.id }}/plan" class="{{ 'on' if request.url.path.endswith('/plan') }}"{% if request.url.path.endswith('/plan') %} aria-current="page"{% endif %}>{{ tr('lot.plan') }}</a>
+  <a href="/lots/{{ lot.id }}/capture" class="{{ 'on' if request.url.path.endswith('/capture') }}"{% if request.url.path.endswith('/capture') %} aria-current="page"{% endif %}>{{ tr('lot.capture') }}</a>
+  <a href="/lots/{{ lot.id }}/review" class="{{ 'on' if request.url.path.endswith('/review') }}"{% if request.url.path.endswith('/review') %} aria-current="page"{% endif %}>{{ tr('lot.review') }}</a>
   {% endif %}
-  <a href="/lots/{{ lot.id }}/decision" class="{{ 'on' if request.url.path.endswith('/decision') }}">{{ tr('lot.decision') }}</a>
+  <a href="/lots/{{ lot.id }}/decision" class="{{ 'on' if request.url.path.endswith('/decision') }}"{% if request.url.path.endswith('/decision') %} aria-current="page"{% endif %}>{{ tr('lot.decision') }}</a>
+  <a href="/lots/{{ lot.id }}#history">{{ 'History' if lang=='en' else 'ইতিহাস' }}</a>
   {% if user.role != 'admin' %}
-  <a href="/lots/{{ lot.id }}/report" class="{{ 'on' if request.url.path.endswith('/report') }}">{{ tr('lot.report') }}</a>
+  <a href="/lots/{{ lot.id }}/report" class="{{ 'on' if request.url.path.endswith('/report') }}"{% if request.url.path.endswith('/report') %} aria-current="page"{% endif %}>{{ tr('lot.report') }}</a>
   {% endif %}
-</div>
+</nav>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="40" viewBox="0 0 204 40" role="img" aria-label="Lotline">
+  <rect width="36" height="36" y="2" rx="8.5" fill="#B7F36B"/>
+  <path d="M9.5 14.5v-3h3M23.5 11.5h3v3M26.5 25.5v3h-3M12.5 28.5h-3v-3" fill="none" stroke="#101E2B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m13 20 3.2 3.2 6.8-7.6" fill="none" stroke="#101E2B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="48" y="27.5" fill="#FFFFFF" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="1.5">LOTLINE</text>
+</svg>

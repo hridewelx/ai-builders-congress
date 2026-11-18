@@ -1,82 +1,164 @@
-{% macro icon(name) -%}
-{% if name == 'grid' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-{% elif name == 'layers' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5L21 12"/><path d="m3 16.5 9 4.5 9-4.5"/></svg>
-{% elif name == 'plus' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-{% elif name == 'shield' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4.5 6v6c0 4.4 3.1 7.6 7.5 9 4.4-1.4 7.5-4.6 7.5-9V6L12 3Z"/><path d="m9 12 2 2 4-4"/></svg>
-{% elif name == 'list' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.2"/><circle cx="4" cy="12" r="1.2"/><circle cx="4" cy="18" r="1.2"/></svg>
-{% elif name == 'spark' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/></svg>
-{% elif name == 'book' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
-{% elif name == 'lock' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-{% endif %}
-{%- endmacro %}
+{% import "components/icons.html" as icons with context %}
+{% import "components/ui.html" as ui with context %}
 <!doctype html>
 <html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
   <title>{% block title %}Lotline{% endblock %} · Lotline</title>
   <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/app.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23D8FF63'/%3E%3Cpath d='M20 16v32h25' stroke='%230A0F18' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 {% if user %}
+<a class="skip-link" href="#main-content">{{ 'Skip to content' if lang=='en' else 'মূল বিষয়বস্তুতে যান' }}</a>
+{% set tab_name = tab|default('') %}
 <div class="shell">
-  <aside class="rail">
-    <a class="brand" href="/">
-      <span class="mark">L</span>
-      <span><b>{{ tr('app.name') }}</b><span>Knitwear QC</span></span>
-    </a>
-    <nav class="nav">
-      <a href="/" class="{{ 'on' if active=='dashboard' }}">{{ icon('grid') }}<span class="lbl">{{ tr('nav.dashboard') }}</span></a>
-      <a href="/lots" class="{{ 'on' if active=='lots' }}">{{ icon('layers') }}<span class="lbl">{{ tr('nav.lots') }}</span></a>
-      {% if user.role in ('inspector','supervisor') %}
-      <a href="/lots/new" class="{{ 'on' if active=='newlot' }}">{{ icon('plus') }}<span class="lbl">{{ tr('nav.new_lot') }}</span></a>
+  <aside class="rail" id="sidebar" aria-label="{{ 'Primary navigation' if lang=='en' else 'প্রধান নেভিগেশন' }}">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="{{ 'Collapse sidebar' if lang=='en' else 'সাইডবার ছোট করুন' }}" aria-expanded="true" aria-controls="sidebar">
+        {{ icons.icon('panel-left-close', 17) }}
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="{{ 'Close menu' if lang=='en' else 'মেনু বন্ধ করুন' }}">
+        {{ icons.icon('x', 17) }}
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="{{ 'Primary' if lang=='en' else 'প্রধান' }}">
+      <div class="nav-group">
+        <a href="/" class="{{ 'on' if active=='dashboard' }}"{% if active=='dashboard' %} aria-current="page"{% endif %}>
+          {{ icons.icon('layout-dashboard') }}<span class="lbl">{{ tr('nav.dashboard') }}</span>
+        </a>
+        <a href="/lots" class="{{ 'on' if active=='lots' }}"{% if active=='lots' %} aria-current="page"{% endif %}>
+          {{ icons.icon('layers') }}<span class="lbl">{{ tr('nav.lots') }}</span>
+        </a>
+      </div>
+
+      {% if user.role in ('admin','supervisor') %}
+      <div class="nav-group">
+        <div class="nav-label">{{ 'Workspace' if lang=='en' else 'ওয়ার্কস্পেস' }}</div>
+        <span class="nav-item is-disabled" aria-disabled="true" title="{{ 'Products, buyers and clause editing are not available in this build. The clause list is read-only on the Admin panel.' if lang=='en' else 'এই বিল্ডে পণ্য, ক্রেতা ও ক্লজ সম্পাদনা নেই। অ্যাডমিন প্যানেলে ক্লজ তালিকা শুধু পড়া যায়।' }}">
+          {{ icons.icon('settings') }}<span class="lbl">{{ 'Configuration' if lang=='en' else 'কনফিগারেশন' }}</span>
+          <span class="nav-soon">{{ 'Soon' if lang=='en' else 'শীঘ্রই' }}</span>
+        </span>
+      </div>
       {% endif %}
-      <a href="/how" class="{{ 'on' if active=='how' }}">{{ icon('book') }}<span class="lbl">{{ tr('nav.how') }}</span></a>
-      {% if user.role in ('supervisor','admin') %}
-      <a href="/audit" class="{{ 'on' if active=='audit' }}">{{ icon('list') }}<span class="lbl">{{ tr('nav.audit') }}</span></a>
-      {% endif %}
-      {% if user.role == 'admin' %}
-      <a href="/admin" class="{{ 'on' if active=='admin' }}">{{ icon('shield') }}<span class="lbl">{{ tr('nav.admin') }}</span></a>
+
+      {% if user.role in ('supervisor','admin') or user.role == 'admin' %}
+      <div class="nav-group">
+        <div class="nav-label">{{ 'Oversight' if lang=='en' else 'তদারকি' }}</div>
+        {% if user.role in ('supervisor','admin') %}
+        <a href="/audit" class="{{ 'on' if active=='audit' }}"{% if active=='audit' %} aria-current="page"{% endif %}>
+          {{ icons.icon('scroll-text') }}<span class="lbl">{{ tr('nav.audit') }}</span>
+        </a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+        <a href="/admin?tab=users" class="{{ 'on' if active=='admin' and tab_name=='users' }}"{% if active=='admin' and tab_name=='users' %} aria-current="page"{% endif %}>
+          {{ icons.icon('users') }}<span class="lbl">{{ 'User management' if lang=='en' else 'ব্যবহারকারী ব্যবস্থাপনা' }}</span>
+        </a>
+        {% endif %}
+      </div>
       {% endif %}
     </nav>
+
     <div class="spacer"></div>
     <div class="railcard">
       <b>{{ tr('dash.principle') }}</b>
-      {{ tr('app.tagline') }}
-      <div style="margin-top:7px"><span class="badge ghost"><span class="dot" style="background:var(--green)"></span>demo · staged data</span></div>
+      {{ 'Every count, reason and override is recorded.' if lang=='en' else 'প্রতিটি গণনা, কারণ ও ওভাররাইড রেকর্ড হয়।' }}
+      <div>{{ ui.demo_tag(tr('lot.demo_data'), 'demo', 'Demo build with staged synthetic garment photos.') }}</div>
     </div>
-    <div class="userbox">
-      <span class="avatar">{{ user.display_name[:1] }}</span>
-      <div class="who"><b>{{ user.display_name }}</b><span>{{ tr('common.' ~ user.role) }}</span></div>
-      <form method="post" action="/logout" style="margin-left:auto">
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
+      <div class="who">
+        <b>{{ user.display_name }}</b>
+        <span>{{ tr('common.' ~ user.role) }}</span>
+      </div>
+      <form method="post" action="/logout">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <button class="btn sm ghost" title="{{ tr('nav.logout') }}">⏻</button>
+        <button class="btn sm ghost" type="submit" title="{{ tr('nav.logout') }}" aria-label="{{ tr('nav.logout') }}">{{ icons.icon('log-out', 16) }}</button>
       </form>
     </div>
   </aside>
+  <div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
 
   <div class="main">
     <header class="topbar">
-      <div style="min-width:0">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="{{ 'Open menu' if lang=='en' else 'মেনু খুলুন' }}" aria-expanded="false" aria-controls="sidebar">
+        {{ icons.icon('menu', 20) }}
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="{{ 'Breadcrumb' if lang=='en' else 'ব্রেডক্রাম্ব' }}">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          {% if active == 'dashboard' %}<span>{{ tr('nav.dashboard') }}</span>
+          {% elif active == 'lots' %}<span>{{ tr('nav.lots') }}</span>
+          {% elif active == 'audit' %}<span>{{ tr('nav.audit') }}</span>
+          {% elif active == 'admin' %}<span>{{ tr('nav.admin') }}</span>
+          {% elif active == 'how' %}<span>{{ tr('nav.how') }}</span>
+          {% else %}<span>{{ tr('nav.dashboard') }}</span>{% endif %}
+        </nav>
         <h1>{% block heading %}{{ tr('nav.dashboard') }}{% endblock %}</h1>
         <div class="sub">{% block subheading %}{% endblock %}</div>
       </div>
-      <div class="right">
-        <a class="btn sm ghost" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}">{{ 'বাংলা' if lang=='en' else 'English' }}</a>
-        <span class="badge ghost">{{ tr('common.' ~ user.role) }}</span>
+      <div class="top-actions">
+        <span class="top-demo">{{ ui.demo_tag(tr('lot.demo_data'), 'demo') }}</span>
+        <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
+          {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
+        </a>
+        <span class="role-pill">{{ tr('common.' ~ user.role) }}</span>
+        <details class="user-menu">
+          <summary aria-label="{{ 'Account menu' if lang=='en' else 'অ্যাকাউন্ট মেনু' }}">
+            <span class="avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
+            <span class="user-name">{{ user.display_name }}</span>
+            {{ icons.icon('chevron-down', 14) }}
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>{{ user.display_name }}</b>
+              <span>{{ user.email }}</span>
+            </div>
+            <a href="/how">{{ icons.icon('help-circle', 16) }}{{ tr('nav.how') }}</a>
+            <a href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}">
+              {{ icons.icon('languages', 16) }}{{ 'বাংলা দেখুন' if lang=='en' else 'View in English' }}
+            </a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button type="submit">{{ icons.icon('log-out', 16) }}{{ tr('nav.logout') }}</button>
+            </form>
+          </div>
+        </details>
       </div>
     </header>
-    <main class="content">
-      {% if ok %}<div class="note ok" style="margin-bottom:14px">{{ tr('flash.' ~ ok) }}</div>{% endif %}
-      {% if err %}<div class="note bad" style="margin-bottom:14px">{{ tr('err.' ~ err) }}</div>{% endif %}
+
+    {% if user.role == 'admin' and active in ('dashboard','admin') %}
+    <div class="admin-alert" role="status">
+      {{ icons.icon('triangle-alert', 16) }}
+      <div>
+        <b>{{ 'System alert feed unavailable in this build.' if lang=='en' else 'এই বিল্ডে সিস্টেম অ্যালার্ট ফিড নেই।' }}</b>
+        {{ 'Inference, disk and backup alerts are not exposed by the current backend. Admin health data remains on the Admin panel.' if lang=='en' else 'ইনফারেন্স, ডিস্ক ও ব্যাকআপ অ্যালার্ট বর্তমান ব্যাকএন্ডে নেই। অ্যাডমিন স্বাস্থ্য তথ্য অ্যাডমিন প্যানেলে আছে।' }}
+      </div>
+    </div>
+    {% endif %}
+
+    <main class="content" id="main-content">
+      {% if ok %}<div class="note ok" style="margin-bottom:14px" role="status">{{ tr('flash.' ~ ok) }}</div>{% endif %}
+      {% if err %}<div class="note bad" style="margin-bottom:14px" role="alert">{{ tr('err.' ~ err) }}</div>{% endif %}
       {% block content %}{% endblock %}
     </main>
-    <div class="foot">
-      Lotline demo build · {{ tr('app.tagline') }} · staged garment images, no real buyer or personal data ·
-      <a href="/how" style="color:var(--muted)">{{ tr('nav.how') }}</a>
-    </div>
+    <footer class="foot">
+      <span>{{ 'Demo build · staged synthetic photos · no real buyer or personal data.' if lang=='en' else 'ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।' }}</span>
+      <span class="demo-tag demo-tag-ai">{{ icons.icon('info', 12) }}{{ 'Illustrative, not model output' if lang=='en' else 'দৃষ্টান্তমূলক, মডেলের আউটপুট নয়' }}</span>
+      <a href="/how">{{ tr('nav.how') }}</a>
+    </footer>
   </div>
 </div>
 {% else %}

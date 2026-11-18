@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Lotline">
+  <rect width="64" height="64" rx="15" fill="#101E2B"/>
+  <path d="M17 23v-5h5M42 18h5v5M47 41v5h-5M22 46h-5v-5" fill="none" stroke="#B7F36B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m23 32.5 5.6 5.6 12-13.4" fill="none" stroke="#FFFFFF" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

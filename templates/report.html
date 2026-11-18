@@ -7,7 +7,7 @@
 
 <div class="btnrow no-print" style="margin-bottom:14px">
   <a class="btn primary" href="/lots/{{ lot.id }}/report.pdf">{{ tr('common.download_pdf') }}</a>
-  <button class="btn" onclick="window.print()">{{ tr('common.print') }}</button>
+  <button class="btn" type="button" data-print>{{ tr('common.print') }}</button>
   <a class="btn ghost" href="/lots/{{ lot.id }}/decision">{{ tr('dec.title') }} →</a>
 </div>
 

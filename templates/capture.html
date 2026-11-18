@@ -58,7 +58,7 @@
           <div class="small dim">
             {{ 'photo stored' if v.inference_status=='ok' else v.inference_status }}
             {% if v.open_proposals %}<div>{{ v.open_proposals }} {{ 'open proposals' if lang=='en' else 'খোলা প্রস্তাব' }}</div>{% endif %}
-            <a class="small" style="color:var(--lime)" href="/review/{{ v.image.id }}">{{ tr('rev.title') }} →</a>
+            <a class="small" style="color:var(--accent-text)" href="/review/{{ v.image.id }}">{{ tr('rev.title') }} →</a>
           </div>
           {% else %}
           <div class="small dim">{{ 'No photo yet.' if lang=='en' else 'এখনো ছবি নেই।' }}</div>

@@ -12,12 +12,12 @@
   </div>
   <div class="kpi">
     <div class="lbl">{{ tr('dash.hold') }}</div>
-    <div class="n" style="color:var(--amber)">{{ counters.HOLD }}</div>
+    <div class="n" style="color:var(--amber-ink)">{{ counters.HOLD }}</div>
     <div class="meta"><span>{{ tr('out.HOLD') }}</span><span>{{ 'awaiting evidence' if lang=='en' else 'প্রমাণের অপেক্ষায়' }}</span></div>
   </div>
   <div class="kpi">
     <div class="lbl">{{ tr('dash.escalate') }}</div>
-    <div class="n" style="color:var(--violet)">{{ counters.ESCALATE }}</div>
+    <div class="n" style="color:var(--blue-ink)">{{ counters.ESCALATE }}</div>
     <div class="meta"><span>{{ tr('out.ESCALATE') }}</span><span>{{ 'a person decides' if lang=='en' else 'মানুষ সিদ্ধান্ত নেয়' }}</span></div>
   </div>
   <div class="kpi">
@@ -81,7 +81,7 @@
     <div class="card">
       <div class="card-h"><h3>{{ tr('dash.model') }}</h3><div class="right"><span class="badge {{ 'ACCEPT' if model_ok else 'HOLD' }}"><span class="dot"></span>{{ 'self-test passed' if model_ok else 'check model' }}</span></div></div>
       <div class="pad-sm">
-        <div class="mono" style="color:var(--lime)">{{ model }}</div>
+        <div class="mono" style="color:var(--accent-text)">{{ model }}</div>
         <div class="small dim" style="margin-top:4px">{{ 'Unsupervised autoencoder · CPU · in-process · no cloud calls' if lang=='en' else 'আনসুপারভাইজড অটোএনকোডার · সিপিইউ · প্রসেসের ভেতরে · ক্লাউড কল নেই' }}</div>
         <div class="grid cols-3" style="gap:9px;margin-top:12px">
           <div class="kpi" style="padding:10px"><div class="lbl">{{ 'photos' if lang=='en' else 'ছবি' }}</div><div class="n" style="font-size:20px">{{ stats.images }}</div></div>

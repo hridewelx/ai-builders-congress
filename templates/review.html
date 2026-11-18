@@ -128,8 +128,8 @@
             {{ 'box' if lang=='en' else 'বক্স' }} {{ (p.x1*100)|round(1) }}%, {{ (p.y1*100)|round(1) }}% →
             {{ (p.x2*100)|round(1) }}%, {{ (p.y2*100)|round(1) }}%
             {% if p.clause_ref %} · {{ 'clause' if lang=='en' else 'ক্লজ' }} {{ p.clause_ref }}{% endif %}
-            {% if p.confirmed_type and not p.severity %} · <span style="color:var(--amber)">{{ tr('rev.unmapped') }}</span>{% endif %}
-            {% if p.second_review == 'pending' %} · <span style="color:var(--violet)">{{ tr('rev.second_review') }}</span>{% endif %}
+            {% if p.confirmed_type and not p.severity %} · <span style="color:var(--amber-ink)">{{ tr('rev.unmapped') }}</span>{% endif %}
+            {% if p.second_review == 'pending' %} · <span style="color:var(--blue-ink)">{{ tr('rev.second_review') }}</span>{% endif %}
           </div>
 
           {% if p.review_state == 'proposed' and can_write %}

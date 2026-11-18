@@ -1,58 +1,98 @@
 {% extends "base.html" %}
-{% block title %}Sign in{% endblock %}
+{% import "components/icons.html" as icons with context %}
+{% block title %}{{ tr('login.title') }}{% endblock %}
 {% block anon %}
 <div class="login">
-  <div class="left">
+  <section class="left" aria-labelledby="login-headline">
+    <div class="login-brand">
+      <img src="/static/brand/logo-full-light.svg" alt="Lotline">
+      <div class="meta-note">{{ 'Inspect Intelligently. Decide Consistently. Deliver Confidently.' if lang=='en' else 'বুদ্ধিমানের সঙ্গে পরিদর্শন। ধারাবাহিকভাবে সিদ্ধান্ত। আত্মবিশ্বাসের সঙ্গে ডেলিভারি।' }}</div>
+    </div>
+
     <div>
-      <div class="row" style="gap:14px">
-        <span class="mark" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,var(--lime),#9BEA4F);color:#0A0F18;font-weight:800;font-size:20px">L</span>
-        <span style="font-weight:700;letter-spacing:.14em;font-size:11px;color:var(--muted)">LOTLINE · DEMO BUILD</span>
-      </div>
-      <h1>{{ 'AI proposes.<br>Humans confirm.'|safe if lang=='en' else 'এআই প্রস্তাব দেয়।<br>মানুষ নিশ্চিত করে।'|safe }}<br><em>{{ 'The rule decides.' if lang=='en' else 'নিয়ম সিদ্ধান্ত দেয়।' }}</em></h1>
+      <h1 id="login-headline">
+        {{ 'AI proposes.<br>Humans verify.'|safe if lang=='en' else 'এআই প্রস্তাব দেয়।<br>মানুষ যাচাই করে।'|safe }}<br>
+        <em>{{ 'The engine decides.' if lang=='en' else 'ইঞ্জিন সিদ্ধান্ত দেয়।' }}</em>
+      </h1>
       <p class="lead">
-        {{ 'A knitwear lot-acceptance decision you can defend: every photo, every confirmation, every count and the exact rule that produced the outcome.' if lang=='en' else 'একটি নিটওয়্যার লট-গ্রহণ সিদ্ধান্ত যা আপনি প্রমাণ করতে পারবেন: প্রতিটি ছবি, প্রতিটি নিশ্চিতকরণ, প্রতিটি গণনা এবং ঠিক যে নিয়মে ফলাফল এসেছে।' }}
+        {{ 'A knitwear lot-acceptance decision you can defend: every photo, every human confirmation, every count, and the exact rule that produced the outcome.' if lang=='en' else 'একটি নিটওয়্যার লট-গ্রহণ সিদ্ধান্ত যা আপনি প্রমাণ করতে পারবেন: প্রতিটি ছবি, প্রতিটি মানব নিশ্চিতকরণ, প্রতিটি গণনা এবং ঠিক যে নিয়মে ফলাফল এসেছে।' }}
       </p>
-      <div class="proof">
+      <div class="proof" aria-label="{{ 'Build facts' if lang=='en' else 'বিল্ড তথ্য' }}">
         <div><b>4</b><span>{{ 'outcomes, never guessed' if lang=='en' else 'ফলাফল, কখনো অনুমান নয়' }}</span></div>
         <div><b>0</b><span>{{ 'AI approvals' if lang=='en' else 'এআই অনুমোদন' }}</span></div>
         <div><b>100%</b><span>{{ 'auditable changes' if lang=='en' else 'অডিটযোগ্য পরিবর্তন' }}</span></div>
       </div>
     </div>
-    <div class="muted small">
+
+    <div class="meta-note">
       {{ 'International AI Builders Congress 2026 · IndustrySphere challenge · staged demo data' if lang=='en' else 'ইন্টারন্যাশনাল এআই বিল্ডার্স কংগ্রেস ২০২৬ · ইন্ডাস্ট্রিস্ফিয়ার · স্টেজ করা ডেমো ডেটা' }}
     </div>
-  </div>
+  </section>
 
-  <div class="auth">
-    <form method="post" action="/login">
-      <div class="pill" style="margin-bottom:18px"><span class="dot"></span>{{ tr('login.demo_note') }}</div>
-      <h2 style="font-size:24px;margin-bottom:4px">{{ tr('login.title') }}</h2>
-      <p class="muted small" style="margin-bottom:18px">{{ tr('login.subtitle') }}</p>
-      {% if err %}<div class="note bad" style="margin-bottom:12px">{{ tr('err.' ~ err) }}</div>{% endif %}
-      <div class="field">
-        <label for="email">{{ tr('login.email') }}</label>
-        <input id="email" name="email" type="email" autocomplete="username" required placeholder="inspector@lotline.demo">
+  <section class="auth" aria-labelledby="signin-title">
+    <div class="auth-card">
+      <div class="between" style="margin-bottom:18px">
+        <span class="pill"><span class="dot" aria-hidden="true"></span>{{ 'Demo build · staged data' if lang=='en' else 'ডেমো বিল্ড · স্টেজ করা ডেটা' }}</span>
+        <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next=/login" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
+          {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
+        </a>
       </div>
-      <div class="field">
-        <label for="password">{{ tr('login.password') }}</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••••">
-      </div>
-      <button class="btn primary" style="width:100%;padding:11px">{{ tr('login.submit') }}</button>
 
-      <div style="margin:20px 0 10px;display:flex;align-items:center;gap:10px">
-        <span style="height:1px;flex:1;background:var(--line)"></span>
-        <span class="small dim">{{ tr('login.demo') }}</span>
-        <span style="height:1px;flex:1;background:var(--line)"></span>
+      <h2 id="signin-title">{{ tr('login.title') }}</h2>
+      <p class="subtitle">{{ tr('login.subtitle') }}</p>
+
+      {% if err %}
+      <div class="note bad" role="alert" style="margin-bottom:14px">
+        {{ tr('login.rl') if err == 'rl' else tr('login.failed') }}
       </div>
-      <div class="btnrow" style="display:grid;grid-template-columns:1fr 1fr 1fr">
-        <a class="btn sm" href="/demo/inspector">{{ tr('common.inspector') }}</a>
-        <a class="btn sm" href="/demo/supervisor">{{ tr('common.supervisor') }}</a>
-        <a class="btn sm" href="/demo/admin">{{ tr('common.admin') }}</a>
+      {% endif %}
+
+      <form method="post" action="/login">
+        <div class="field">
+          <label for="email">{{ tr('login.email') }}</label>
+          <input id="email" name="email" type="email" autocomplete="username" required placeholder="inspector@lotline.demo" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="password">{{ tr('login.password') }}</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••••">
+        </div>
+        <button class="btn primary lg" type="submit" style="width:100%">{{ tr('login.submit') }}</button>
+      </form>
+
+      <div class="divider"><span></span><b>{{ tr('login.demo') }}</b><span></span></div>
+
+      <div class="demo-grid">
+        <a class="demo-role" href="/demo/inspector">
+          <span class="demo-initial" aria-hidden="true">IN</span>
+          <span><b>{{ tr('common.inspector') }}</b><span>inspector@lotline.demo</span></span>
+        </a>
+        <a class="demo-role" href="/demo/supervisor">
+          <span class="demo-initial" aria-hidden="true">A</span>
+          <span><b>{{ 'Supervisor A' if lang=='en' else 'সুপারভাইজার এ' }}</b><span>supervisor@lotline.demo</span></span>
+        </a>
+        <a class="demo-role" href="/demo/admin">
+          <span class="demo-initial" aria-hidden="true">AD</span>
+          <span><b>{{ tr('common.admin') }}</b><span>admin@lotline.demo</span></span>
+        </a>
+        <form method="post" action="/login" style="margin:0">
+          <input type="hidden" name="email" value="lead@lotline.demo">
+          <input type="hidden" name="password" value="QualityFloor2026!">
+          <button class="demo-role" type="submit">
+            <span class="demo-initial" aria-hidden="true">B</span>
+            <span><b>{{ 'Supervisor B · approver' if lang=='en' else 'সুপারভাইজার বি · অনুমোদনকারী' }}</b><span>lead@lotline.demo</span></span>
+          </button>
+        </form>
       </div>
-      <p class="hint" style="margin-top:12px">
-        {{ 'Seeded accounts share one demo password: QualityFloor2026! — sign in above if you prefer the form.' if lang=='en' else 'সিড করা অ্যাকাউন্টের ডেমো পাসওয়ার্ড: QualityFloor2026! — চাইলে ফর্ম দিয়েও সাইন ইন করুন।' }}
+
+      <p class="password-hint">
+        {{ 'Seeded accounts share one demo password:' if lang=='en' else 'সিড করা অ্যাকাউন্টের একই ডেমো পাসওয়ার্ড:' }}
+        <code>QualityFloor2026!</code>
+        {{ '— sign in above if you prefer the form.' if lang=='en' else '— চাইলে উপরের ফর্মেও সাইন ইন করতে পারেন।' }}
       </p>
-    </form>
-  </div>
+      <p class="password-hint">
+        {{ 'Temporary-password changes are not available in this build; the backend has no change-password route yet.' if lang=='en' else 'এই বিল্ডে অস্থায়ী পাসওয়ার্ড পরিবর্তন নেই; ব্যাকএন্ডে এখনো পাসওয়ার্ড পরিবর্তনের রুট নেই।' }}
+      </p>
+    </div>
+  </section>
 </div>
 {% endblock %}

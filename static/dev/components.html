@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>Component foundation · Lotline</title>
+  <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/app.css">
+  <style>
+    .dev-wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 70px; }
+    .dev-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+    .dev-head img { width: 160px; height: auto; }
+    .dev-section { margin-top: 26px; }
+    .dev-section > h2 { font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 9px; }
+    .dev-section > h2 span { font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 8px; background: var(--surface); }
+    .dev-grid { display: grid; gap: 16px; }
+    .dev-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dev-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .swatch { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface); }
+    .swatch i { display: block; height: 46px; }
+    .swatch div { padding: 7px 9px; font-size: 10.5px; color: var(--muted); }
+    .swatch b { display: block; color: var(--text); font-size: 11.5px; }
+    .stack-demo { display: flex; flex-direction: column; gap: 10px; }
+    .btn-demo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    @media (max-width: 760px) { .dev-grid.two, .dev-grid.three { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="dev-wrap">
+  <header class="dev-head">
+    <div>
+      <img src="/static/brand/logo-full.svg" alt="Lotline">
+      <div class="small muted" style="margin-top:8px">Foundation component and state showcase. Development only — not linked from the product shell.</div>
+    </div>
+    <div class="btnrow">
+      <span class="demo-tag demo-tag-demo"><span class="demo-dot"></span>Demo build</span>
+      <span class="demo-tag demo-tag-ai">Illustrative, not model output</span>
+      <a class="btn" href="/login">Back to sign in</a>
+    </div>
+  </header>
+
+  <section class="dev-section">
+    <h2>Brand and tokens <span>01</span></h2>
+    <div class="card pad">
+      <div class="swatches">
+        <div class="swatch"><i style="background:#101E2B"></i><div><b>Midnight Navy</b>#101E2B</div></div>
+        <div class="swatch"><i style="background:#172A3A"></i><div><b>Deep Navy</b>#172A3A</div></div>
+        <div class="swatch"><i style="background:#B7F36B"></i><div><b>Electric Lime</b>#B7F36B</div></div>
+        <div class="swatch"><i style="background:#F6F8FA"></i><div><b>Background</b>#F6F8FA</div></div>
+        <div class="swatch"><i style="background:#FFFFFF"></i><div><b>Surface</b>#FFFFFF</div></div>
+        <div class="swatch"><i style="background:#182230"></i><div><b>Text primary</b>#182230</div></div>
+        <div class="swatch"><i style="background:#64748B"></i><div><b>Text secondary</b>#64748B</div></div>
+        <div class="swatch"><i style="background:#E5EAF0"></i><div><b>Border</b>#E5EAF0</div></div>
+        <div class="swatch"><i style="background:#16834A"></i><div><b>Success</b>#16834A</div></div>
+        <div class="swatch"><i style="background:#D99020"></i><div><b>Warning</b>#D99020</div></div>
+        <div class="swatch"><i style="background:#D64545"></i><div><b>Danger</b>#D64545</div></div>
+        <div class="swatch"><i style="background:#4263A8"></i><div><b>Info</b>#4263A8</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Buttons <span>02</span></h2>
+    <div class="card pad">
+      <div class="btn-demo">
+        <button class="btn primary" type="button">Primary action</button>
+        <button class="btn" type="button">Secondary</button>
+        <button class="btn subtle" type="button">Subtle</button>
+        <button class="btn ghost" type="button">Ghost</button>
+        <button class="btn danger" type="button">Destructive</button>
+        <button class="btn primary" type="button" disabled>Disabled</button>
+      </div>
+      <div class="btn-demo" style="margin-top:14px">
+        <button class="btn primary sm" type="button">Small primary</button>
+        <button class="btn sm" type="button">Small secondary</button>
+        <button class="btn primary lg" type="button">Large primary</button>
+        <button class="btn lg" type="button">Large secondary</button>
+        <button class="btn sm ghost" type="button" aria-label="Icon button">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          With icon
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Forms <span>03</span></h2>
+    <div class="dev-grid two">
+      <div class="card pad">
+        <div class="field">
+          <label for="demo-name">Default input</label>
+          <input id="demo-name" placeholder="LT-2026-019">
+          <div class="hint">A hint explains the expected value.</div>
+        </div>
+        <div class="field has-error">
+          <label for="demo-error">Error state</label>
+          <input id="demo-error" value="not a lot code" aria-invalid="true" aria-describedby="demo-error-msg">
+          <div class="field-error" id="demo-error-msg">Use the format LT-YYYY-NNN.</div>
+        </div>
+        <div class="field">
+          <label for="demo-disabled">Disabled</label>
+          <input id="demo-disabled" value="Read-only value" disabled>
+        </div>
+      </div>
+      <div class="card pad">
+        <div class="field">
+          <label for="demo-select">Select</label>
+          <select id="demo-select">
+            <option>Highest class only</option>
+            <option>Every class</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="demo-textarea">Notes</label>
+          <textarea id="demo-textarea" placeholder="Optional context for the reviewer"></textarea>
+        </div>
+        <label class="check"><input type="checkbox" checked> Include the critical non-visual check</label>
+        <label class="check" style="margin-top:8px"><input type="checkbox"> Send for a second opinion</label>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Status and decision badges <span>04</span></h2>
+    <div class="card pad stack-demo">
+      <div class="btn-demo">
+        <span class="badge open"><span class="dot"></span>Open</span>
+        <span class="badge decided"><span class="dot"></span>Decided</span>
+        <span class="badge reopened"><span class="dot"></span>Reopened</span>
+        <span class="badge archived"><span class="dot"></span>Archived</span>
+        <span class="badge ghost">Neutral</span>
+      </div>
+      <div class="btn-demo">
+        <span class="badge badge-ai">Possible critical</span>
+        <span class="badge badge-confirmed"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>Human-confirmed</span>
+        <span class="badge badge-rejected">Rejected proposal</span>
+        <span class="badge badge-pending"><span class="dot"></span>Pending approval</span>
+        <span class="badge critical">critical</span>
+        <span class="badge major">major</span>
+        <span class="badge minor">minor</span>
+      </div>
+      <div class="btn-demo">
+        <span class="badge decision-badge decision-accept"><span class="dot"></span>ACCEPT</span>
+        <span class="badge decision-badge decision-reject"><span class="dot"></span>REJECT</span>
+        <span class="badge decision-badge decision-hold"><span class="dot"></span>HOLD</span>
+        <span class="badge decision-badge decision-escalate"><span class="dot"></span>ESCALATE</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Metric cards <span>05</span></h2>
+    <div class="grid cols-4">
+      <div class="kpi accent"><div class="lbl">Garments registered</div><div class="n">8<small> / 8</small></div><div class="meta"><span>sample complete</span><span>100%</span></div></div>
+      <div class="kpi"><div class="lbl">Views reviewed</div><div class="n">14<small> / 16</small></div><div class="meta"><span>2 pending</span><span>87%</span></div></div>
+      <div class="kpi is-warning"><div class="lbl">On hold</div><div class="n">2</div><div class="meta"><span>awaiting evidence</span><span>HOLD</span></div></div>
+      <div class="kpi is-danger"><div class="lbl">Escalated</div><div class="n">1</div><div class="meta"><span>a person decides</span><span>ESCALATE</span></div></div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Pipeline stepper <span>06</span></h2>
+    <div class="card pad">
+      <ol class="pipeline">
+        <li class="pipeline-step is-done"><span class="pipeline-dot">✓</span><span class="pipeline-copy"><span class="pipeline-label">AI Detection</span><span class="pipeline-value">12 of 12 inferred</span></span></li>
+        <li class="pipeline-step is-active" aria-current="step"><span class="pipeline-dot">2</span><span class="pipeline-copy"><span class="pipeline-label">Human Review</span><span class="pipeline-value">9 of 12 reviewed</span></span></li>
+        <li class="pipeline-step is-pending"><span class="pipeline-dot">3</span><span class="pipeline-copy"><span class="pipeline-label">Decision Engine</span><span class="pipeline-value">No decision yet</span></span></li>
+      </ol>
+      <ol class="pipeline" style="margin-bottom:0">
+        <li class="pipeline-step is-failed"><span class="pipeline-dot">×</span><span class="pipeline-copy"><span class="pipeline-label">AI Detection</span><span class="pipeline-value">Detector unavailable — manual review</span></span></li>
+        <li class="pipeline-step is-done"><span class="pipeline-dot">✓</span><span class="pipeline-copy"><span class="pipeline-label">Human Review</span><span class="pipeline-value">Complete</span></span></li>
+        <li class="pipeline-step is-stale"><span class="pipeline-dot">↻</span><span class="pipeline-copy"><span class="pipeline-label">Decision Engine</span><span class="pipeline-value">Stale — recompute</span></span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Tabs and dropdown <span>07</span></h2>
+    <div class="dev-grid two">
+      <div class="card pad">
+        <nav class="tabs" aria-label="Example sections">
+          <a href="#" class="on" aria-current="page">Overview</a>
+          <a href="#">Plan</a>
+          <a href="#">Capture</a>
+          <a href="#">Review <span class="tab-count">3</span></a>
+          <a href="#">Decision</a>
+          <a href="#">Report</a>
+        </nav>
+        <p class="small muted" style="margin:0">Inspection lives inside the lot. Tabs scroll horizontally on narrow screens instead of overflowing the page.</p>
+      </div>
+      <div class="card pad" style="min-height:150px">
+        <details class="user-menu" open>
+          <summary>
+            <span class="avatar">F</span>
+            <span class="user-name">Farhan Ahmed</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head"><b>Farhan Ahmed</b><span>supervisor@lotline.demo</span></div>
+            <a href="#">How it works</a>
+            <a href="#">বাংলা দেখুন</a>
+            <button type="button">Sign out</button>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Data table <span>08</span></h2>
+    <div class="card" data-table data-page-size="5">
+      <div class="table-toolbar">
+        <div class="search-mini">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input data-table-filter placeholder="Filter lots, buyers or outcomes">
+        </div>
+        <span class="count" data-table-count></span>
+      </div>
+      <div class="tblwrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-sort>Lot</th>
+              <th data-sort>Buyer</th>
+              <th data-sort>Units</th>
+              <th data-sort>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>LT-2026-014</td><td>H&amp;M</td><td>8 / 8</td><td><span class="badge REJECT"><span class="dot"></span>REJECT</span></td></tr>
+            <tr><td>LT-2026-015</td><td>Zara</td><td>8 / 8</td><td><span class="badge ACCEPT"><span class="dot"></span>ACCEPT</span></td></tr>
+            <tr><td>LT-2026-016</td><td>Uniqlo</td><td>5 / 8</td><td><span class="badge HOLD"><span class="dot"></span>HOLD</span></td></tr>
+            <tr><td>LT-2026-017</td><td>Sakura Knit</td><td>8 / 8</td><td><span class="badge ESCALATE"><span class="dot"></span>ESCALATE</span></td></tr>
+            <tr><td>LT-2026-018</td><td>H&amp;M</td><td>0 / 8</td><td><span class="badge HOLD"><span class="dot"></span>HOLD</span></td></tr>
+            <tr><td>LT-2026-019</td><td>Zara</td><td>6 / 8</td><td><span class="badge ghost">Open</span></td></tr>
+            <tr><td>LT-2026-020</td><td>Uniqlo</td><td>8 / 8</td><td><span class="badge HOLD"><span class="dot"></span>HOLD</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-pagination" data-table-pagination></div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Dialogs, confirm, toasts and tooltips <span>09</span></h2>
+    <div class="card pad">
+      <div class="btn-demo">
+        <button class="btn" type="button" data-dialog-open="demo-dialog">Open dialog</button>
+        <button class="btn danger" type="button" data-dialog-open="demo-confirm">Open confirm</button>
+        <button class="btn sm" type="button" data-toast-show="toast-success">Show success toast</button>
+        <button class="btn sm" type="button" data-toast-show="toast-error">Show error toast</button>
+        <span class="tooltip-wrap" data-tooltip="Severity is assigned by the buyer clause, never by the detector." tabindex="0">What assigns severity?</span>
+      </div>
+      <p class="small muted" style="margin:14px 0 0">Dialogs use the native <code>&lt;dialog&gt;</code> element, close on Escape or backdrop click, and restore focus to the opener. Toasts are announced with <code>role="status"</code>.</p>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Empty, skeleton and error states <span>10</span></h2>
+    <div class="dev-grid three">
+      <div class="card">
+        <div class="empty-state">
+          <span class="empty-icon">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </span>
+          <b>No proposals. This is not a pass.</b>
+          <p>Review the photo by hand and mark the view. Manual review is never blocked.</p>
+          <a class="btn sm" href="#">Review the photo</a>
+        </div>
+      </div>
+      <div class="card pad">
+        <div class="skeleton-stack" aria-hidden="true">
+          <span class="skeleton skeleton-title"></span>
+          <span class="skeleton" style="width:96%"></span>
+          <span class="skeleton" style="width:82%"></span>
+          <span class="skeleton" style="width:68%"></span>
+        </div>
+        <div class="small muted" style="margin-top:14px">Loading state for an asynchronous view.</div>
+      </div>
+      <div class="card pad">
+        <div class="error-state" role="alert">
+          <span class="error-icon">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 20h18L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          </span>
+          <div>
+            <b>Nothing was saved.</b>
+            <p>The server did not confirm the change. Your evidence is unchanged.</p>
+            <button class="btn sm" type="button">Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Timeline and demo labels <span>11</span></h2>
+    <div class="dev-grid two">
+      <div class="card pad-sm">
+        <ul class="timeline">
+          <li class="timeline-item is-success"><span class="timeline-dot"></span><div class="timeline-body"><div class="a">Photo stored</div><div class="m">inspector@lotline.demo · 10:42</div></div></li>
+          <li class="timeline-item"><span class="timeline-dot"></span><div class="timeline-body"><div class="a">Proposal confirmed</div><div class="m">supervisor@lotline.demo · 10:44</div></div></li>
+          <li class="timeline-item is-warning"><span class="timeline-dot"></span><div class="timeline-body"><div class="a">Override requested</div><div class="m">awaiting a different Supervisor · 10:46</div></div></li>
+        </ul>
+      </div>
+      <div class="card pad stack-demo">
+        <div><span class="demo-tag demo-tag-demo"><span class="demo-dot"></span>Demo data · staged images</span></div>
+        <div><span class="demo-tag demo-tag-ai">Illustrative, not model output</span></div>
+        <div class="note warn"><b>Demo build.</b> Staged synthetic photos only. No real buyer, factory or personal data.</div>
+        <div class="note info"><b>AI proposes. Humans verify. The engine decides.</b> The browser renders server values and never computes a decision, severity or count.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>Reason codes <span>12</span></h2>
+    <div class="card pad">
+      <div class="btn-demo" style="margin-bottom:12px">
+        <span class="reason-chip"><span class="mono">HOLD_PLAN_MISSING</span><span class="reason-chip-title">Plan missing</span></span>
+        <span class="reason-chip"><span class="mono">REJECT_LIMIT_REACHED</span><span class="reason-chip-title">Rejection limit reached</span></span>
+        <span class="reason-chip"><span class="mono">ACCEPT_PLAN_MET</span><span class="reason-chip-title">Plan met</span></span>
+      </div>
+      <div class="reason-row">
+        <div class="reason-row-head"><span class="mono">ESCALATE_UNMAPPED_CLAUSE</span><b>No buyer clause</b></div>
+        <p>A confirmed defect has no mapped buyer clause. The engine cannot assign a severity, so a person must decide.</p>
+        <div class="reason-row-next"><span>Next step:</span> A Supervisor maps the clause, then the decision is recomputed.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-section">
+    <h2>AI proposal vs human confirmation <span>13</span></h2>
+    <div class="card pad">
+      <div class="workspace">
+        <div class="viewer" style="min-height:250px;width:100%;background:#141c24;border-radius:10px;position:relative">
+          <div class="box" style="left:12%;top:18%;width:26%;height:28%"><span class="tag">AI · hole · 0.62</span></div>
+          <div class="box confirmed" style="left:48%;top:44%;width:24%;height:24%"><span class="tag">✓ human · hole</span></div>
+          <div class="box crit" style="left:18%;top:66%;width:20%;height:18%"><span class="tag">AI · possible critical</span></div>
+        </div>
+        <div class="stack-demo">
+          <div class="prop"><div class="top"><div class="row" style="gap:7px"><b style="font-size:13px">hole</b><span class="badge badge-ai">open proposal</span></div><span class="score">0.62</span></div><div class="small muted" style="margin-top:5px">Dashed box + AI chip. Score is uncalibrated.</div></div>
+          <div class="prop"><div class="top"><div class="row" style="gap:7px"><b style="font-size:13px">hole</b><span class="badge badge-confirmed">confirmed</span><span class="badge major">major</span></div><span class="score">human</span></div><div class="small muted" style="margin-top:5px">Solid box + check. Severity is looked up from the buyer clause.</div></div>
+          <div class="prop"><div class="top"><div class="row" style="gap:7px"><b style="font-size:13px">oil stain</b><span class="badge badge-rejected">rejected</span></div><span class="score">—</span></div><div class="small muted" style="margin-top:5px">Grey, struck-through label. Rejection never changes a count.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<dialog class="dialog" id="demo-dialog" aria-labelledby="demo-dialog-title">
+  <div class="dialog-head">
+    <h2 id="demo-dialog-title">Confirm the critical non-visual check</h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="dialog-body">
+    <p>This action records a human confirmation. It does not approve or reject the lot; the deterministic engine still decides.</p>
+  </div>
+  <div class="dialog-actions">
+    <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+    <button class="btn primary" type="button" data-dialog-close>Record check</button>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog-sm" id="demo-confirm" aria-labelledby="demo-confirm-title" data-confirm-toast="toast-saved">
+  <div class="dialog-head">
+    <h2 id="demo-confirm-title">Request an override?</h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="dialog-body">
+    <span class="confirm-icon">
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 20h18L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    </span>
+    <p>An override to ACCEPT over a system REJECT is high risk. It takes effect only after a different active Supervisor approves it.</p>
+  </div>
+  <div class="dialog-actions">
+    <button class="btn ghost" type="button" data-dialog-close>Cancel</button>
+    <button class="btn danger" type="button" data-dialog-confirm>Request override</button>
+  </div>
+</dialog>
+
+<div class="toast is-success" id="toast-success" role="status" aria-live="polite">
+  <span class="toast-icon">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m9 11 3 3L22 4"/></svg>
+  </span>
+  <span><b>Saved.</b> The server confirmed the change.</span>
+  <button class="icon-btn" type="button" data-toast-close aria-label="Dismiss">
+    <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<div class="toast is-danger" id="toast-error" role="status" aria-live="polite">
+  <span class="toast-icon">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+  </span>
+  <span><b>Nothing was saved.</b> The server could not confirm the action. Retry.</span>
+  <button class="icon-btn" type="button" data-toast-close aria-label="Dismiss">
+    <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<div class="toast is-info" id="toast-saved" role="status" aria-live="polite">
+  <span class="toast-icon">
+    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+  </span>
+  <span><b>Demo only.</b> No override was requested or saved.</span>
+  <button class="icon-btn" type="button" data-toast-close aria-label="Dismiss">
+    <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
