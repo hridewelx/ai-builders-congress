@@ -15,19 +15,104 @@
   <a href="/audit">{{ tr('admin.audit') }} ↗</a>
 </div>
 
-{% if request.query_params.get('temp') %}
+{# --- Alerts for User Management & Actions --- #}
+{% set err = request.query_params.get('err') %}
+{% set ok = request.query_params.get('ok') %}
+{% set temp = request.query_params.get('temp') %}
+
+{% if temp %}
+<div class="note ok" style="margin-bottom:16px;border-color:var(--success)">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--success);margin-top:2px">{{ icons.icon('check-circle', 16) }}</span>
+    <div>
+      <b>{{ 'Temporary Password Generated' if lang=='en' else 'অস্থায়ী পাসওয়ার্ড তৈরি হয়েছে' }}</b>
+      <div style="margin-top:4px;display:flex;align-items:center;gap:10px">
+        <span class="mono font-mono" style="font-size:16px;font-weight:750;background:var(--subtle);padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--line)">{{ temp }}</span>
+        <span class="small dim">{{ 'Copy now; this password is shown only once and requires a change at first login.' if lang=='en' else 'এখনই কপি করুন; এটি শুধুমাত্র একবার দেখানো হবে এবং প্রথম লগইনে পরিবর্তন করতে হবে।' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'last_admin' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('shield-alert', 16) }}</span>
+    <div>
+      <b>{{ 'Cannot disable last active administrator' if lang=='en' else 'একমাত্র সক্রিয় অ্যাডমিন নিষ্ক্রিয় করা যাবে না' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'The system requires at least one active administrator at all times to manage security credentials, models, and accounts.' if lang=='en' else 'নিরাপত্তা, মডেল এবং অ্যাকাউন্ট ব্যবস্থাপনার জন্য সিস্টেমে সর্বদা অন্তত একজন সক্রিয় অ্যাডমিন আবশ্যক।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'self_role' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-circle', 16) }}</span>
+    <div>
+      <b>{{ 'Cannot modify your own administrative role' if lang=='en' else 'নিজের অ্যাডমিন ভূমিকা পরিবর্তন করা যাবে না' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'Self-demotion is forbidden to prevent accidental administration lockouts. Ask another active administrator to modify your permissions.' if lang=='en' else 'সিস্টেম থেকে ভুলবশত লকআউট হওয়া রোধ করতে নিজের ভূমিকা পরিবর্তন নিষিদ্ধ। অন্য সক্রিয় অ্যাডমিনের সাহায্য নিন।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'policy' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('lock', 16) }}</span>
+    <div>
+      <b>{{ 'Password policy requirements not met' if lang=='en' else 'পাসওয়ার্ড সিকিউরিটি নীতি পূরণ হয়নি' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'Passwords must be at least 15 characters long, cannot match common dictionary patterns, and must not contain account names or system context words.' if lang=='en' else 'পাসওয়ার্ড কমপক্ষে ১৫ অক্ষরের হতে হবে এবং সাধারণ শব্দ বা অ্যাকাউন্টের নাম ধারণ করতে পারবে না।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'invalid' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-triangle', 16) }}</span>
+    <div>
+      <b>{{ 'Invalid user details submitted' if lang=='en' else 'প্রদত্ত তথ্য সঠিক নয়' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'A valid unique email address and a supported role (inspector, supervisor, admin) are required.' if lang=='en' else 'একটি একক বৈধ ইমেইল ঠিকানা এবং সমর্থিত ভূমিকা নির্বাচন আবশ্যক।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif ok == 'saved' %}
 <div class="note ok" style="margin-bottom:16px">
-  {{ tr('flash.temp') }} <span class="mono" style="font-size:15px;font-weight:700">{{ request.query_params.get('temp') }}</span>
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--success);margin-top:2px">{{ icons.icon('check-circle', 16) }}</span>
+    <div>
+      <b>{{ 'User account updated successfully' if lang=='en' else 'ব্যবহারকারীর তথ্য সফলভাবে সংরক্ষিত হয়েছে' }}</b>
+      <div class="small dim" style="margin-top:2px">
+        {{ 'Changes are effective immediately. Active sessions for this user have been invalidated.' if lang=='en' else 'পরিবর্তনটি কার্যকর হয়েছে এবং সক্রিয় সেশন বাতিল করা হয়েছে।' }}
+      </div>
+    </div>
+  </div>
 </div>
 {% endif %}
 
 {# ==================== USERS TAB ==================== #}
 {% if tab == 'users' %}
+{% set active_admins = [] %}
+{% for u in users %}
+  {% if u.role == 'admin' and u.status == 'active' %}
+    {% set _ = active_admins.append(u) %}
+  {% endif %}
+{% endfor %}
+
 <div class="split">
+  {# Users Table #}
   <div class="card">
     <div class="card-h">
-      <h3>{{ tr('admin.users') }}</h3>
-      <div class="right"><span class="chip">{{ users|length }}</span></div>
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('users', 16) }}
+        <span>{{ tr('admin.users') }}</span>
+      </h3>
+      <div class="right"><span class="chip">{{ users|length }} {{ 'accounts' if lang=='en' else 'অ্যাকাউন্ট' }}</span></div>
     </div>
     <div class="tblwrap">
       <table class="table" id="users">
@@ -41,31 +126,53 @@
         </thead>
         <tbody>
           {% for u in users %}
+          {% set is_last_admin = (u.role == 'admin' and u.status == 'active' and active_admins|length <= 1) %}
+          {% set is_self = (u.id == user.id) %}
           <tr>
+            {# Display Name and Email #}
             <td>
-              <b>{{ u.display_name }}</b>
-              <div class="small dim mono" style="font-size:11px">{{ u.email }}</div>
+              <div style="font-weight:650;color:var(--text)">{{ u.display_name }}</div>
+              <div class="small dim mono font-mono" style="font-size:11px">{{ u.email }}</div>
             </td>
+
+            {# Role Badge #}
             <td>
               <span class="badge ghost">{{ tr('common.' ~ u.role) }}</span>
             </td>
+
+            {# Status Badge #}
             <td>
               <span class="badge {{ 'ACCEPT' if u.status=='active' else 'REJECT' }}">
                 <span class="dot"></span>{{ u.status }}
               </span>
             </td>
+
+            {# User Actions #}
             <td class="right">
-              <div class="btnrow" style="justify-content:flex-end;gap:6px">
-                <form method="post" action="/admin/users/{{ u.id }}">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                {# Disable / Enable Form #}
+                {% if is_last_admin %}
+                <button class="btn sm ghost" disabled title="{{ 'Cannot disable last active administrator' if lang=='en' else 'একমাত্র সক্রিয় অ্যাডমিন নিষ্ক্রিয় করা যাবে না' }}">
+                  {{ icons.icon('lock', 12) }} {{ tr('admin.disable') }}
+                </button>
+                {% else %}
+                <form method="post" action="/admin/users/{{ u.id }}" style="margin:0">
                   <input type="hidden" name="csrf" value="{{ csrf }}">
                   <button class="btn sm ghost" name="action" value="{{ 'disable' if u.status=='active' else 'enable' }}">
                     {{ tr('admin.disable') if u.status=='active' else tr('admin.enable') }}
                   </button>
                 </form>
-                {% if u.id != user.id %}
-                <form method="post" action="/admin/users/{{ u.id }}" class="inline" style="gap:4px">
+                {% endif %}
+
+                {# Role Change Form #}
+                {% if is_self %}
+                <span class="small dim mono" style="font-size:11px" title="{{ 'Self-demotion forbidden' if lang=='en' else 'নিজের ভূমিকা পরিবর্তন নিষিদ্ধ' }}">
+                  {{ icons.icon('shield', 12) }} {{ 'Self (locked)' if lang=='en' else 'নিজের অ্যাকাউন্ট' }}
+                </span>
+                {% else %}
+                <form method="post" action="/admin/users/{{ u.id }}" class="inline" style="gap:4px;margin:0">
                   <input type="hidden" name="csrf" value="{{ csrf }}">
-                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px">
+                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px;margin:0">
                     {% for r in ['inspector','supervisor','admin'] %}
                     <option value="{{ r }}" {{ 'selected' if r==u.role }}>{{ tr('common.' ~ r) }}</option>
                     {% endfor %}
@@ -73,9 +180,13 @@
                   <button class="btn sm" name="action" value="role">{{ tr('common.save') }}</button>
                 </form>
                 {% endif %}
-                <form method="post" action="/admin/users/{{ u.id }}">
+
+                {# Reset Password #}
+                <form method="post" action="/admin/users/{{ u.id }}" style="margin:0">
                   <input type="hidden" name="csrf" value="{{ csrf }}">
-                  <button class="btn sm ghost" name="action" value="reset">{{ tr('admin.reset') }}</button>
+                  <button class="btn sm ghost" name="action" value="reset" title="{{ 'Issue temporary password' if lang=='en' else 'অস্থায়ী পাসওয়ার্ড দিন' }}">
+                    {{ tr('admin.reset') }}
+                  </button>
                 </form>
               </div>
             </td>
@@ -86,21 +197,48 @@
     </div>
   </div>
 
+  {# Create User Card #}
   <div class="card">
-    <div class="card-h"><h3>{{ tr('admin.new_user') }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('user-plus', 16) }}
+        <span>{{ tr('admin.new_user') }}</span>
+      </h3>
+    </div>
     <div class="pad">
-      <form method="post" action="/admin/users">
+      <form method="post" action="/admin/users" id="createUserForm">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <div class="field"><label>{{ tr('login.email') }}</label><input name="email" type="email" required></div>
-        <div class="field"><label>{{ tr('admin.display_name') }}</label><input name="display_name" required></div>
-        <div class="field"><label>{{ tr('common.role') }}</label>
-          <select name="role">{% for r in ['inspector','supervisor','admin'] %}<option value="{{ r }}">{{ tr('common.' ~ r) }}</option>{% endfor %}</select>
+
+        <div class="field">
+          <label for="u-email">{{ tr('login.email') }} <span class="req">*</span></label>
+          <input id="u-email" name="email" type="email" required placeholder="user@lotline.demo" autocomplete="off">
         </div>
-        <div class="field"><label>{{ tr('login.password') }}</label><input name="password" type="text" required minlength="15"></div>
-        <div class="note info" style="margin-bottom:14px;font-size:11.5px">
+
+        <div class="field">
+          <label for="u-name">{{ tr('admin.display_name') }} <span class="req">*</span></label>
+          <input id="u-name" name="display_name" required placeholder="Full Name" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="u-role">{{ tr('common.role') }} <span class="req">*</span></label>
+          <select id="u-role" name="role" required>
+            {% for r in ['inspector','supervisor','admin'] %}
+            <option value="{{ r }}">{{ tr('common.' ~ r) }}</option>
+            {% endfor %}
+          </select>
+          <div class="hint">{{ 'Inspector: capture/review; Supervisor: plan/override; Admin: user/system' if lang=='en' else 'ইন্সপেক্টর: ক্যাপচার/রিভিউ; সুপারভাইজার: প্ল্যান/ওভাররাইড; অ্যাডমিন: ইউজার/সিস্টেম' }}</div>
+        </div>
+
+        <div class="field">
+          <label for="u-pass">{{ tr('login.password') }} <span class="req">*</span></label>
+          <input id="u-pass" name="password" type="text" required minlength="15" placeholder="Minimum 15 characters...">
+        </div>
+
+        <div class="note info" style="margin-bottom:14px;font-size:11.5px;line-height:1.4">
           {{ '15+ characters, no composition rules, checked against common and context words. Temporary password forces a change at first login.' if lang=='en' else '১৫+ অক্ষর, কম্পোজিশন নিয়ম নেই, সাধারণ শব্দ যাচাই হয়। অস্থায়ী পাসওয়ার্ডে প্রথম লগইনে পরিবর্তন বাধ্যতামূলক।' }}
         </div>
-        <button class="btn primary">{{ tr('common.save') }}</button>
+
+        <button class="btn primary" type="submit">{{ tr('common.save') }}</button>
       </form>
     </div>
   </div>
@@ -112,7 +250,10 @@
   <div class="stack">
     <div class="card">
       <div class="card-h">
-        <h3>{{ tr('admin.models') }}</h3>
+        <h3 style="display:flex;align-items:center;gap:8px">
+          {{ icons.icon('cpu', 16) }}
+          <span>{{ tr('admin.models') }}</span>
+        </h3>
         <div class="right">
           <form method="post" action="/admin/models/selftest">
             <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -123,8 +264,11 @@
       <div class="pad-sm">
         {% for m in models %}
         <div style="padding:12px 0;border-bottom:1px solid var(--line)">
-          <div class="between"><b class="mono font-mono">{{ m.name }}</b><span class="badge ACCEPT">{{ 'active' if loop.first else 'registered' }}</span></div>
-          <div class="small dim mono" style="margin-top:4px">SHA-256: {{ m.artifact_sha[:32] }}…</div>
+          <div class="between">
+            <b class="mono font-mono">{{ m.name }}</b>
+            <span class="badge ACCEPT">{{ 'active' if loop.first else 'registered' }}</span>
+          </div>
+          <div class="small dim mono font-mono" style="margin-top:4px;font-size:11px">SHA-256: {{ m.artifact_sha[:32] }}…</div>
           <div class="small dim" style="margin-top:2px">{{ 'classes' if lang=='en' else 'শ্রেণি' }}: <span class="mono">{{ m.classes }}</span></div>
           <div class="small muted" style="margin-top:4px">{{ m.eval_note }}</div>
         </div>
@@ -133,13 +277,18 @@
     </div>
 
     <div class="card">
-      <div class="card-h"><h3>{{ 'Self-test history' if lang=='en' else 'সেলফ-টেস্ট ইতিহাস' }}</h3></div>
+      <div class="card-h">
+        <h3 style="display:flex;align-items:center;gap:8px">
+          {{ icons.icon('activity', 16) }}
+          <span>{{ 'Self-test history' if lang=='en' else 'সেলফ-টেস্ট ইতিহাস' }}</span>
+        </h3>
+      </div>
       <div class="pad-sm">
         {% for t in tests %}
         <div class="between" style="padding:8px 0;border-bottom:1px solid var(--line);align-items:center">
           <span class="badge {{ 'ACCEPT' if t.passed else 'REJECT' }}">{{ 'PASS' if t.passed else 'FAIL' }}</span>
-          <span class="small dim mono" style="flex:1;margin-left:10px">{{ t.detail }}</span>
-          <span class="small dim">{{ t.created_at[:16] }}</span>
+          <span class="small dim mono font-mono" style="flex:1;margin-left:10px">{{ t.detail }}</span>
+          <span class="small dim font-mono" style="font-size:11px">{{ t.created_at[:16] }}</span>
         </div>
         {% else %}
         <div class="empty">{{ tr('common.none') }}</div>
@@ -149,7 +298,12 @@
   </div>
 
   <div class="card">
-    <div class="card-h"><h3>{{ tr('admin.activate') }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('check-circle', 16) }}
+        <span>{{ tr('admin.activate') }}</span>
+      </h3>
+    </div>
     <div class="pad">
       <p class="small muted" style="margin-bottom:14px;line-height:1.5">
         {{ 'Activation is append-only and requires a passing self-test. Model files are immutable; old decisions keep their original model version.' if lang=='en' else 'সক্রিয়করণ শুধু যোগ হয় এবং সফল সেলফ-টেস্ট দরকার। মডেল ফাইল অপরিবর্তনীয়; পুরনো সিদ্ধান্ত নিজের মডেল সংস্করণ রাখে।' }}
@@ -171,7 +325,7 @@
           <span class="badge ghost">{{ a.action }}</span>
           <div class="grow">
             <div class="small">{{ a.reason }}</div>
-            <div class="small dim" style="font-size:11px">{{ a.actor }} · {{ a.created_at[:16] }}</div>
+            <div class="small dim font-mono" style="font-size:11px">{{ a.actor }} · {{ a.created_at[:16] }}</div>
           </div>
         </li>
         {% endfor %}
@@ -207,7 +361,12 @@
 
 <div class="split">
   <div class="card">
-    <div class="card-h"><h3>{{ 'Checks' if lang=='en' else 'যাচাই' }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('shield-check', 16) }}
+        <span>{{ 'Checks' if lang=='en' else 'যাচাই' }}</span>
+      </h3>
+    </div>
     <div class="pad-sm">
       <div class="list">
         <li>
@@ -236,9 +395,14 @@
   </div>
 
   <div class="card">
-    <div class="card-h"><h3>{{ 'Model artifact' if lang=='en' else 'মডেল আর্টিফ্যাক্ট' }}</h3></div>
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('file-text', 16) }}
+        <span>{{ 'Model artifact' if lang=='en' else 'মডেল আর্টিফ্যাক্ট' }}</span>
+      </h3>
+    </div>
     <div class="pad-sm small">
-      <div class="mono dim" style="word-break:break-all;font-size:11px">{{ health.model_sha }}</div>
+      <div class="mono dim font-mono" style="word-break:break-all;font-size:11px">{{ health.model_sha }}</div>
       <div class="note info" style="margin-top:12px;font-size:11.5px;line-height:1.4">
         {{ 'The Vision service has no database access and the API has no route to it. The detector runs here in-process for the single-container demo; the production topology separates them.' if lang=='en' else 'ভিশন সার্ভিসের ডেটাবেস অ্যাক্সেস নেই এবং এপিআই থেকে এর রুট নেই। ডেমোতে এক কন্টেইনারে চলে; প্রোডাকশনে আলাদা।' }}
       </div>
@@ -246,7 +410,7 @@
   </div>
 </div>
 
-{# ==================== CLAUSES TAB (BUYER SUMMARY) ==================== #}
+{# ==================== CLAUSES TAB (BUYER SUMMARY & CONFIGURATION) ==================== #}
 {% elif tab == 'clauses' %}
 <div class="card">
   <div class="card-h">
