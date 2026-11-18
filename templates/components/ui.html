@@ -69,7 +69,7 @@
 {# ------------------------------------------------------------------
    Metric card
 ------------------------------------------------------------------- #}
-{% macro metric_card(label, value, unit='', meta='', tone='', href=None, icon_name=None) -%}
+{% macro metric_card(label, value, unit='', meta='', tone='', href=None, icon_name=None, hint='', badge_text='') -%}
 {%- set cls = 'kpi' -%}
 {%- if tone %}{% set cls = cls ~ ' is-' ~ tone %}{% endif -%}
 {%- if href -%}
@@ -77,12 +77,21 @@
 {%- else -%}
 <div class="{{ cls }}">
 {%- endif -%}
-  <div class="lbl">
-    {%- if icon_name %}{{ icons.icon(icon_name, 14) }}{% endif -%}
-    {{ label }}
+  <div class="kpi-head">
+    <div class="lbl">
+      {%- if icon_name %}{{ icons.icon(icon_name, 14) }}{% endif -%}
+      <span>{{ label }}</span>
+    </div>
+    {%- if badge_text %}
+      <span class="kpi-badge">{{ badge_text }}</span>
+    {%- endif %}
   </div>
   <div class="n">{{ value }}{% if unit %}<small> {{ unit }}</small>{% endif %}</div>
-  {%- if meta %}<div class="meta">{{ meta }}</div>{% endif -%}
+  {%- if hint %}
+    <div class="meta"><span class="kpi-hint">{{ hint }}</span></div>
+  {%- elif meta %}
+    <div class="meta">{{ meta|safe }}</div>
+  {%- endif -%}
 {%- if href %}</a>{% else %}</div>{% endif -%}
 {%- endmacro %}
 

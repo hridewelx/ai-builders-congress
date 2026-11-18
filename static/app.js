@@ -503,5 +503,52 @@
     });
   });
 
+  /* ----------------------------------------------------------------
+     Dashboard: Instant Lot Filter & Search
+  ---------------------------------------------------------------- */
+  var lotSearchInput = document.getElementById("lotSearchInput");
+  var filterTabs = $$(".filter-pills .pill-btn");
+  var lotCards = $$("[data-lot-card]");
+  var lotEmptyMatch = document.getElementById("lotEmptyMatch");
+
+  function filterDashboardLots() {
+    var q = lotSearchInput ? lotSearchInput.value.trim().toLowerCase() : "";
+    var activeTab = document.querySelector(".filter-pills .pill-btn.on");
+    var tabFilter = activeTab ? activeTab.getAttribute("data-filter-tab") : "all";
+
+    var visibleCount = 0;
+    lotCards.forEach(function (card) {
+      var hay = (card.getAttribute("data-lot-search") || "").toLowerCase();
+      var status = card.getAttribute("data-lot-status") || "";
+
+      var matchesQ = !q || hay.indexOf(q) !== -1;
+      var matchesTab = tabFilter === "all" || status === tabFilter;
+
+      if (matchesQ && matchesTab) {
+        card.style.display = "";
+        visibleCount++;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    if (lotEmptyMatch) {
+      lotEmptyMatch.style.display = (visibleCount === 0 && (q !== "" || tabFilter !== "all")) ? "block" : "none";
+    }
+  }
+
+  if (lotSearchInput) {
+    lotSearchInput.addEventListener("input", filterDashboardLots);
+  }
+  if (filterTabs.length) {
+    filterTabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        filterTabs.forEach(function (b) { b.classList.remove("on"); });
+        btn.classList.add("on");
+        filterDashboardLots();
+      });
+    });
+  }
+
   window.LotlineUI = { toast: showToast, openDialog: openDialog };
 })();

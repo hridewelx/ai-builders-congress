@@ -95,8 +95,8 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   --shadow-lg: 0 12px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --bn: "Noto Sans Bengali", "Nirmala UI", "Hind Siliguri", var(--font);
+  --font: "Inter", "Noto Sans Bengali", "Nirmala UI", "Hind Siliguri", "Vrinda", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bn: "Noto Sans Bengali", "Nirmala UI", "Hind Siliguri", "Vrinda", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --focus: 0 0 0 3px rgba(15, 23, 42, 0.08);
 
@@ -118,7 +118,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-html[lang="bn"] body { font-family: var(--bn); }
+html[lang="bn"] body {
+  font-family: var(--bn);
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4 {
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+html[lang="bn"] .badge, html[lang="bn"] .btn, html[lang="bn"] .kpi .lbl {
+  line-height: 1.4;
+}
 
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 600; letter-spacing: -0.025em; color: var(--text); }
@@ -398,44 +409,126 @@ body.rail-collapsed .rail-toggle .icon { transform: rotate(180deg); }
 .between { display: flex; gap: 12px; align-items: center; justify-content: space-between; min-width: 0; }
 
 /* ------------------------------------------------------------------
-   KPI Metric Cards (shadcn stat card)
+   KPI Metric Cards (Linear / Stripe / Vercel high-density stat cards)
 ------------------------------------------------------------------- */
 .kpi {
-  position: relative; padding: 18px 20px; border-radius: var(--radius);
-  border: 1px solid var(--line); background: var(--surface); min-width: 0;
-  box-shadow: var(--shadow);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 15px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  min-width: 0;
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .kpi:hover {
   box-shadow: var(--shadow-md);
   border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+.kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 .kpi .lbl {
-  display: flex; align-items: center; gap: 6px; font-size: 11px; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--muted); font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 600;
 }
-.kpi .lbl .icon { width: 14px; height: 14px; }
+.kpi .lbl .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.kpi-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
 .kpi .n {
-  font-size: 28px; font-weight: 700; letter-spacing: -0.035em;
-  margin-top: 8px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--text);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 8px 0 4px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
 }
-.kpi .n small { font-size: 13px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+.kpi .n small {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0;
+}
 .kpi .meta {
-  margin-top: 10px; font-size: 12px; color: var(--muted);
-  display: flex; gap: 8px; align-items: center;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.kpi.accent {
-  border-color: #cbd5e1;
-  background: linear-gradient(180deg, #ffffff, #fafafa);
+.kpi-hint {
+  font-size: 12px;
+  color: var(--muted);
 }
+.kpi.mini {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+  background: var(--surface-subtle);
+}
+.kpi.mini .lbl {
+  font-size: 10.5px;
+}
+.kpi.mini .n {
+  font-size: 17px;
+  margin: 4px 0 0;
+}
+
+/* Subtle semantic indicator strip on top edge of KPI */
+.kpi.is-warning::before,
+.kpi.is-info::before,
+.kpi.is-success::before,
+.kpi.accent::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+}
+.kpi.is-warning::before { background: var(--amber-dot); }
+.kpi.is-info::before { background: var(--blue-dot); }
+.kpi.is-success::before { background: var(--green-dot); }
+.kpi.accent::before { background: var(--lime); }
+
+.kpi.is-warning .kpi-badge { background: var(--amber-bg); color: var(--amber-ink); border-color: var(--amber-line); }
+.kpi.is-info .kpi-badge { background: var(--blue-bg); color: var(--blue-ink); border-color: var(--blue-line); }
+.kpi.is-success .kpi-badge { background: var(--green-bg); color: var(--green); border-color: var(--green-line); }
+.kpi.accent .kpi-badge { background: var(--lime-subtle); color: var(--accent-text); border-color: var(--lime-border); }
+
 .kpi-link { transition: all 0.15s ease; }
 .kpi-link:hover { border-color: var(--line-strong); transform: translateY(-1px); }
-
-/* KPI Semantic Tones */
-.kpi.is-success { border-color: var(--green-line); background: var(--green-bg); }
-.kpi.is-warning { border-color: var(--amber-line); background: var(--amber-bg); }
-.kpi.is-danger { border-color: var(--red-line); background: var(--red-bg); }
-.kpi.is-info { border-color: var(--blue-line); background: var(--blue-bg); }
 
 /* ------------------------------------------------------------------
    Buttons (shadcn button variants)
@@ -655,6 +748,206 @@ textarea { min-height: 84px; resize: vertical; }
 .pipeline-step.is-active { background: #f8fafc; }
 .pipeline.is-compact .pipeline-step { padding: 9px 12px; }
 
+/* ------------------------------------------------------------------
+   Vertical Pipeline Stepper (Linear / Stripe connected timeline)
+------------------------------------------------------------------- */
+.pipeline.is-vertical {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  gap: 16px;
+}
+.pipeline.is-vertical .pipeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 0;
+  border-right: none;
+  background: transparent;
+  position: relative;
+}
+.pipeline.is-vertical .pipeline-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: -16px;
+  width: 2px;
+  background: var(--line);
+}
+.pipeline.is-vertical .pipeline-dot {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 2;
+  box-shadow: 0 0 0 3px var(--surface);
+}
+.pipeline.is-vertical .pipeline-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 2px;
+}
+.pipeline.is-vertical .pipeline-label {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--text);
+}
+.pipeline.is-vertical .pipeline-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------------
+   Dashboard Workspace Toolbar & Filter Pills
+------------------------------------------------------------------- */
+.filter-pills {
+  display: inline-flex;
+  background: var(--surface-subtle);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  gap: 2px;
+}
+.pill-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pill-btn:hover {
+  color: var(--text);
+}
+.pill-btn.on {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ------------------------------------------------------------------
+   Lot Cards (Linear / Stripe operational card)
+------------------------------------------------------------------- */
+.lot-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lot-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.lot-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lot-code-link {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  transition: color 0.15s ease;
+}
+.lot-code-link:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}
+.lot-meta-sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.buyer-pill {
+  font-weight: 600;
+  color: #334155;
+}
+.meta-sep {
+  color: var(--line-strong);
+}
+
+/* Two-Line Disposition Cockpit */
+.disp-cockpit {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.disp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.disp-lbl {
+  color: var(--muted);
+  font-weight: 500;
+}
+.disp-lbl.bold {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Progress Wrap */
+.lot-progress-wrap {
+  margin-top: 4px;
+}
+.lot-progress-wrap .bar {
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.lot-progress-wrap .bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #65a30d, #84cc16);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Card Footer */
+.lot-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
 /* Legacy .steps */
 .steps { display: flex; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
 .step { flex: 1; padding: 11px 14px; border-right: 1px solid var(--line); min-width: 0; }
@@ -837,6 +1130,8 @@ textarea { min-height: 84px; resize: vertical; }
   .foot { padding: 0 16px 20px; }
   .pipeline { overflow-x: auto; }
   .pipeline-step { min-width: 160px; }
+  .pipeline.is-vertical { overflow-x: visible; }
+  .pipeline.is-vertical .pipeline-step { min-width: 0; }
   body.rail-collapsed .shell { grid-template-columns: 1fr; }
   body.rail-collapsed .brand-full, body.rail-collapsed .nav .lbl,
   body.rail-collapsed .rail-user .who, body.rail-collapsed .rail-user form,
@@ -854,6 +1149,16 @@ textarea { min-height: 84px; resize: vertical; }
   .login h1 { font-size: 34px; margin-top: 16px; }
   .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
   .topbar .sub, .crumb, .top-demo, .role-pill, .user-name { display: none; }
+}
+@media (max-width: 640px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .lot-cards-grid { grid-template-columns: 1fr; }
+  .lot-toolbar { flex-direction: column; align-items: stretch; }
+  .search-wrap { max-width: 100%; }
+  .filter-pills { width: 100%; display: flex; }
+  .filter-pills .pill-btn { flex: 1; text-align: center; }
+  .topbar { padding: 8px 12px; }
+  .content { padding: 12px 12px 40px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
