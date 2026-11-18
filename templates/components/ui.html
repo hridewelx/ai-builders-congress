@@ -201,6 +201,35 @@
 {%- endmacro %}
 
 {# ------------------------------------------------------------------
+   Read-only values and compact result rows
+   values: list of {label, value, tone}
+------------------------------------------------------------------- #}
+{% macro kv_rows(values, cols=2) -%}
+<dl class="kv-grid kv-cols-{{ cols }}">
+  {%- for item in values %}
+  <div class="kv-item">
+    <dt class="kv-lbl">{{ item.label }}</dt>
+    <dd class="kv-val{{ ' is-' ~ item.tone if item.tone }}">{{ item.value|safe }}</dd>
+  </div>
+  {%- endfor %}
+</dl>
+{%- endmacro %}
+
+{% macro preview_row(title, meta='', status_label='', status_tone='', href='', icon_name='image', progress=None) -%}
+<div class="preview-row">
+  <span class="preview-thumb" aria-hidden="true">
+    {%- if href %}<img src="{{ href }}" alt="">{%- else %}{{ icons.icon(icon_name, 20) }}{% endif -%}
+  </span>
+  <span class="preview-copy">
+    <span class="preview-title">{{ title }}</span>
+    {%- if meta %}<span class="preview-meta">{{ meta }}</span>{% endif -%}
+  </span>
+  {%- if status_label %}<span class="badge {{ status_tone or 'ghost' }}">{{ status_label }}</span>{% endif -%}
+  {%- if progress is not none %}<span class="preview-progress"><i style="width:{{ progress }}%"></i></span>{% endif -%}
+</div>
+{%- endmacro %}
+
+{# ------------------------------------------------------------------
    Demo tags
 ------------------------------------------------------------------- #}
 {% macro demo_tag(label='Demo · staged data', tone='demo', title='') -%}

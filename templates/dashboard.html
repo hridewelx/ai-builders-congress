@@ -1,31 +1,43 @@
 {% extends "base.html" %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
 {% block title %}{{ tr('nav.dashboard') }}{% endblock %}
 {% block heading %}{{ tr('dash.title') }}{% endblock %}
 {% block subheading %}{{ tr('dash.subtitle') }}{% endblock %}
 {% block content %}
 
-<div class="grid cols-4" style="margin-bottom:16px">
-  <div class="kpi accent">
-    <div class="lbl">{{ tr('dash.open_lots') }}</div>
-    <div class="n">{{ stats.lots }}</div>
-    <div class="meta"><span>{{ stats.images }} {{ tr('common.images')|lower }}</span><span>{{ 'no AI approvals' if lang=='en' else 'কোনো এআই অনুমোদন নেই' }}</span></div>
+{% set pending_overrides = cards|selectattr('override')|list %}
+
+<div class="grid cols-4" style="margin-bottom:18px">
+  {{ ui.metric_card(tr('dash.open_lots'), stats.lots, meta='<span>' ~ stats.images ~ ' ' ~ tr('common.images')|lower ~ '</span><span>' ~ ('no AI approvals' if lang=='en' else 'কোনো এআই অনুমোদন নেই') ~ '</span>', tone='accent', icon_name='layers') }}
+  {{ ui.metric_card(tr('dash.hold'), counters.HOLD, meta='<span>' ~ tr('out.HOLD') ~ '</span><span>' ~ ('awaiting evidence' if lang=='en' else 'প্রমাণের অপেক্ষায়') ~ '</span>', tone='warning', icon_name='pause') }}
+  {{ ui.metric_card(tr('dash.escalate'), counters.ESCALATE, meta='<span>' ~ tr('out.ESCALATE') ~ '</span><span>' ~ ('a person decides' if lang=='en' else 'মানুষ সিদ্ধান্ত নেয়') ~ '</span>', tone='info', icon_name='arrow-up-right') }}
+  {{ ui.metric_card(tr('dash.decided'), counters.decided, meta='<span>' ~ ('locked with history' if lang=='en' else 'ইতিহাসসহ লক') ~ '</span><span class="mono">' ~ stats.audit ~ ' audit</span>', icon_name='badge-check') }}
+</div>
+
+{% if user.role in ('supervisor','admin') and pending_overrides %}
+<div class="card" style="margin-bottom:16px;border-color:var(--amber-line)">
+  <div class="card-h">
+    <h2 style="display:flex;align-items:center;gap:8px"><span style="color:var(--amber-ink)">{{ icons.icon('git-pull-request',16) }}</span>{{ 'Awaiting a second Supervisor' if lang=='en' else 'দ্বিতীয় সুপারভাইজারের অপেক্ষায়' }}</h2>
+    <div class="right"><span class="badge badge-pending">{{ pending_overrides|length }} {{ 'pending' if lang=='en' else 'মুলতুবি' }}</span></div>
   </div>
-  <div class="kpi">
-    <div class="lbl">{{ tr('dash.hold') }}</div>
-    <div class="n" style="color:var(--amber-ink)">{{ counters.HOLD }}</div>
-    <div class="meta"><span>{{ tr('out.HOLD') }}</span><span>{{ 'awaiting evidence' if lang=='en' else 'প্রমাণের অপেক্ষায়' }}</span></div>
-  </div>
-  <div class="kpi">
-    <div class="lbl">{{ tr('dash.escalate') }}</div>
-    <div class="n" style="color:var(--blue-ink)">{{ counters.ESCALATE }}</div>
-    <div class="meta"><span>{{ tr('out.ESCALATE') }}</span><span>{{ 'a person decides' if lang=='en' else 'মানুষ সিদ্ধান্ত নেয়' }}</span></div>
-  </div>
-  <div class="kpi">
-    <div class="lbl">{{ tr('dash.decided') }}</div>
-    <div class="n">{{ counters.decided }}</div>
-    <div class="meta"><span>{{ 'locked with history' if lang=='en' else 'ইতিহাসসহ লক' }}</span><span class="mono">{{ stats.audit }} audit</span></div>
+  <div class="tblwrap">
+    <table class="table">
+      <thead><tr><th>{{ tr('common.lot') }}</th><th>{{ tr('common.reason') }}</th><th>{{ tr('dec.final') }}</th><th class="right">{{ tr('common.actions') }}</th></thead>
+      <tbody>
+        {% for c in pending_overrides %}
+        <tr>
+          <td style="font-weight:650">{{ c.lot_code }} <span class="small dim">{{ c.buyer_name }}</span></td>
+          <td class="small muted">{{ c.override.reason[:80] }}{% if c.override.reason|length > 80 %}…{% endif %}</td>
+          <td>{% if c.final %}{{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}{% endif %}</td>
+          <td class="right"><a class="btn sm" href="/lots/{{ c.id }}/decision">{{ tr('common.open') }} →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
+{% endif %}
 
 <div class="split">
   <div>
@@ -38,11 +50,11 @@
       {% for c in cards %}
       <a class="lotcard" href="/lots/{{ c.id }}">
         <div class="between">
-          <div>
+          <div style="min-width:0">
             <div class="code">{{ c.lot_code }}</div>
             <div class="sub">{{ c.buyer_name }} · {{ c.product_name }} · {{ c.color }}</div>
           </div>
-          {% if c.final %}<span class="badge {{ c.final }}"><span class="dot"></span>{{ tr('out.' ~ c.final) }}</span>
+          {% if c.final %}{{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
           {% elif c.status == 'decided' %}<span class="badge decided">{{ tr('dash.decided') }}</span>
           {% else %}<span class="badge open">{{ tr('common.open') }}</span>{% endif %}
         </div>
@@ -55,13 +67,13 @@
         </div>
         <div class="foot">
           <span class="small dim">{{ 'lot size' if lang=='en' else 'লট সাইজ' }} {{ c.lot_size }}</span>
-          {% if c.override %}<span class="badge ghost">{{ tr('dec.overridden') }}</span>{% endif %}
+          {% if c.override %}{{ ui.badge(tr('dec.overridden'), 'pending', dot=False) }}{% endif %}
         </div>
       </a>
       {% endfor %}
     </div>
     {% else %}
-    <div class="card"><div class="empty"><b>{{ tr('dash.none') }}</b>{{ tr('newlot.subtitle') }}</div></div>
+    <div class="card">{{ ui.empty_state(tr('dash.none'), tr('newlot.subtitle'), icon_name='layers') }}</div>
     {% endif %}
   </div>
 
@@ -69,7 +81,13 @@
     <div class="card">
       <div class="card-h"><h3>{{ tr('how.pipeline') }}</h3></div>
       <div class="pad-sm">
-        <div class="list">
+        {{ ui.pipeline_stepper([
+          {'label': ('Photo' if lang=='en' else 'ছবি'), 'value': ('Phone capture' if lang=='en' else 'ফোনে ছবি'), 'state': 'done'},
+          {'label': ('AI proposes' if lang=='en' else 'এআই প্রস্তাব'), 'value': ('On-device boxes' if lang=='en' else 'ডিভাইসে বক্স'), 'state': 'active'},
+          {'label': ('Human confirms' if lang=='en' else 'মানুষ নিশ্চিত করে'), 'value': ('Severity from clause' if lang=='en' else 'ক্লজ থেকে সিরিয়িটি'), 'state': 'pending'},
+          {'label': ('Rule decides' if lang=='en' else 'নিয়ম সিদ্ধান্ত দেয়'), 'value': ('Ac/Re compare' if lang=='en' else 'Ac/Re তুলনা'), 'state': 'pending'}
+        ], compact=True) }}
+        <div class="list" style="margin-top:6px">
           <li><span class="badge ghost">1</span><div class="grow"><b>{{ 'Photo' if lang=='en' else 'ছবি' }}</b><div class="small dim">{{ 'Phone capture, metadata stripped, hash stored.' if lang=='en' else 'ফোনে ছবি, মেটাডেটা মুছে ফেলা, হ্যাশ সংরক্ষিত।' }}</div></div></li>
           <li><span class="badge ghost">2</span><div class="grow"><b>{{ 'AI proposes' if lang=='en' else 'এআই প্রস্তাব' }}</b><div class="small dim">{{ 'On-device anomaly model proposes boxes. No severity, no verdict.' if lang=='en' else 'অন-ডিভাইস মডেল বক্স প্রস্তাব করে। সিরিয়িটি বা রায় নয়।' }}</div></div></li>
           <li><span class="badge ghost">3</span><div class="grow"><b>{{ 'Human confirms' if lang=='en' else 'মানুষ নিশ্চিত করে' }}</b><div class="small dim">{{ 'Confirm, edit, reject or add. Severity comes from the buyer clause.' if lang=='en' else 'নিশ্চিত, সম্পাদনা, বাতিল বা যোগ। সিরিয়িটি ক্রেতার ক্লজ থেকে।' }}</div></div></li>
@@ -88,6 +106,7 @@
           <div class="kpi" style="padding:10px"><div class="lbl">{{ 'proposals' if lang=='en' else 'প্রস্তাব' }}</div><div class="n" style="font-size:20px">{{ stats.proposals }}</div></div>
           <div class="kpi" style="padding:10px"><div class="lbl">{{ 'human-confirmed' if lang=='en' else 'মানুষ নিশ্চিত করেছে' }}</div><div class="n" style="font-size:20px">{{ stats.confirmed }}</div></div>
         </div>
+        <div style="margin-top:12px">{{ ui.ai_illustrative() }}</div>
         <a class="btn sm ghost" style="margin-top:12px" href="/how">{{ tr('how.model_card') }} →</a>
       </div>
     </div>

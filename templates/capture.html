@@ -1,78 +1,237 @@
 {% extends "base.html" %}
+{% import "components/ui.html" as ui with context %}
+{% import "components/icons.html" as icons with context %}
 {% block title %}{{ tr('cap.title') }}{% endblock %}
 {% block heading %}{{ tr('cap.title') }}{% endblock %}
 {% block subheading %}{{ lot.lot_code }} · {{ tr('cap.guidance') }}{% endblock %}
+
 {% block content %}
 {% include "_lotnav.html" %}
 
+{# --- Pipeline Stepper --- #}
+{% set all_views = units|map(attribute='views')|sum(start=[]) %}
+{% set images_with_photo = all_views|selectattr('image')|list %}
+{% set manual_inferred = images_with_photo|selectattr('inference_status','in',['failed','not_inferred'])|list %}
+{% set pending_inferred = images_with_photo|selectattr('inference_status','equalto','pending')|list %}
+{% set ok_inferred = images_with_photo|selectattr('inference_status','equalto','ok')|list %}
+
+{% if not images_with_photo %}
+  {% set ai_state = 'pending' %}
+  {% set ai_val = '0 photos' if lang=='en' else '০ ছবি' %}
+{% elif pending_inferred %}
+  {% set ai_state = 'active' %}
+  {% set ai_val = (pending_inferred|length ~ ' queued') if lang=='en' else (pending_inferred|length ~ ' প্রক্রিয়াধীন') %}
+{% else %}
+  {% set ai_state = 'done' %}
+  {% set ai_val = (ok_inferred|length ~ ' ok · ' ~ manual_inferred|length ~ ' manual') if lang=='en' else (ok_inferred|length ~ ' সফল · ' ~ manual_inferred|length ~ ' ম্যানুয়াল') %}
+{% endif %}
+
+{% if progress.views > 0 and progress.reviewed == progress.views %}
+  {% set rev_state = 'done' %}
+  {% set rev_val = (progress.reviewed ~ ' / ' ~ progress.views ~ ' reviewed') if lang=='en' else (progress.reviewed ~ ' / ' ~ progress.views ~ ' পর্যালোচিত') %}
+{% elif progress.reviewed > 0 %}
+  {% set rev_state = 'active' %}
+  {% set rev_val = (progress.reviewed ~ ' / ' ~ progress.views ~ ' reviewed') if lang=='en' else (progress.reviewed ~ ' / ' ~ progress.views ~ ' পর্যালোচিত') %}
+{% else %}
+  {% set rev_state = 'pending' %}
+  {% set rev_val = ('0 / ' ~ progress.views ~ ' reviewed') if lang=='en' else ('০ / ' ~ progress.views ~ ' পর্যালোচিত') %}
+{% endif %}
+
+{% set pipe_steps = [
+  {'label': '1. AI Detection' if lang=='en' else '১. এআই শনাক্তকরণ', 'value': ai_val, 'state': ai_state},
+  {'label': '2. Human Review' if lang=='en' else '২. মানুষ পর্যালোচনা', 'value': rev_val, 'state': rev_state},
+  {'label': '3. Decision Engine' if lang=='en' else '৩. নির্ধারক ইঞ্জিন', 'value': (tr('common.status') ~ ': ' ~ lot.status), 'state': ('done' if lot.status=='decided' else 'pending')}
+] %}
+
+{{ ui.pipeline_stepper(pipe_steps) }}
+
+{# --- Read-only notice if user cannot write --- #}
 {% if not can_write %}
 <div class="note warn" style="margin-bottom:14px">
   {{ 'This lot is read-only for your role or already decided. Ask a Supervisor to reopen it.' if lang=='en' else 'আপনার ভূমিকা বা সিদ্ধান্তের কারণে লটটি শুধু পড়া যায়। সুপারভাইজারকে খুলতে বলুন।' }}
 </div>
 {% endif %}
 
-<div class="card" style="margin-bottom:16px">
-  <div class="card-h"><h3>{{ 'Add a garment' if lang=='en' else 'গার্মেন্ট যোগ করুন' }}</h3>
-    <div class="right"><span class="chip">{{ progress.units }} / {{ progress.required_units }}</span></div>
+{# --- Progress KPI & Mobile Guidance --- #}
+<div class="grid cols-3" style="margin-bottom:16px">
+  <div class="kpi">
+    <div class="lbl">{{ 'Sample Units' if lang=='en' else 'স্যাম্পল ইউনিট' }}</div>
+    <div class="n">{{ progress.units }}<small> / {{ progress.required_units or '—' }}</small></div>
+    <div class="bar" style="margin-top:8px"><i style="width:{{ progress.pct_units }}%"></i></div>
   </div>
-  <div class="pad-sm">
-    {% if can_write and progress.units < progress.required_units %}
-    <form method="post" action="/lots/{{ lot.id }}/units" class="inline">
-      <input type="hidden" name="csrf" value="{{ csrf }}">
-      <div class="field"><label>{{ 'Garment code' if lang=='en' else 'গার্মেন্ট কোড' }}</label>
-        <input name="garment_code" placeholder="G-{{ '%02d' % (progress.units + 1) }}"></div>
-      <button class="btn primary">+ {{ tr('common.save') }}</button>
-    </form>
-    {% else %}
-    <div class="small dim">{{ 'The required sample is complete.' if lang=='en' else 'প্রয়োজনীয় নমুনা সম্পূর্ণ।' }}</div>
-    {% endif %}
+  <div class="kpi">
+    <div class="lbl">{{ 'Photos Uploaded' if lang=='en' else 'আপলোড করা ছবি' }}</div>
+    <div class="n">{{ images_with_photo|length }}<small> / {{ progress.views }}</small></div>
+    <div class="bar" style="margin-top:8px"><i style="width:{{ ((images_with_photo|length / progress.views) * 100)|round|int if progress.views else 0 }}%"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{ 'Inference & Review' if lang=='en' else 'ইনফারেন্স ও পর্যালোচনা' }}</div>
+    <div class="row" style="margin-top:6px;gap:6px;flex-wrap:wrap">
+      {% if manual_inferred|length > 0 %}
+      <span class="badge badge-warning"><span class="dot"></span>{{ manual_inferred|length }} {{ 'manual' if lang=='en' else 'ম্যানুয়াল' }}</span>
+      {% endif %}
+      <span class="badge badge-info">{{ progress.reviewed }} {{ 'reviewed' if lang=='en' else 'পর্যালোচিত' }}</span>
+      <span class="badge badge-neutral">{{ progress.pending }} {{ 'remaining' if lang=='en' else 'বাকি' }}</span>
+    </div>
   </div>
 </div>
 
-<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+{# --- Factory Floor Camera Instructions --- #}
+<div class="card" style="margin-bottom:16px">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div class="row" style="gap:10px;align-items:flex-start">
+      <span style="color:var(--navy);background:var(--lime);padding:7px;border-radius:8px;display:inline-flex">{{ icons.icon('camera', 18) }}</span>
+      <div>
+        <b>{{ 'Factory Capture Rules' if lang=='en' else 'ফ্যাক্টরি ক্যাপচার নিয়ম' }}</b>
+        <p class="small dim" style="margin:2px 0 0">
+          {{ 'JPEG or PNG only, up to 15 MB. No client-side compression (server creates canonical working copy). Fill frame with garment panel; no faces, no badges.' if lang=='en' else 'শুধুমাত্র JPEG বা PNG, সর্বোচ্চ ১৫ মেগাবাইট। ক্লায়েন্ট-সাইডে কম্প্রেশন হবে না। পুরো ফ্রেমে গার্মেন্টস রাখুন; মুখ বা ব্যাজ নয়।' }}
+        </p>
+      </div>
+    </div>
+    <div class="small" style="background:var(--amber-bg);color:var(--amber-ink);border:1px solid var(--amber-line);padding:6px 10px;border-radius:6px">
+      {{ 'iPhone HEIC not supported → Camera: "Most Compatible"' if lang=='en' else 'আইফোন HEIC সমর্থিত নয় → ক্যামেরা: "Most Compatible"' }}
+    </div>
+  </div>
+</div>
+
+{# --- Add Unit Section --- #}
+{% if can_write %}
+<div class="card" style="margin-bottom:16px">
+  <div class="card-h">
+    <h2>{{ 'Register Garment' if lang=='en' else 'গার্মেন্ট নিবন্ধন' }}</h2>
+    <div class="right"><span class="chip">{{ progress.units }} / {{ progress.required_units }}</span></div>
+  </div>
+  <div class="pad-sm">
+    {% if progress.units < progress.required_units %}
+    <form method="post" action="/lots/{{ lot.id }}/units" class="inline" id="addUnitForm">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field" style="flex:1;min-width:200px">
+        <label for="garment_code">{{ 'Garment code (unique in lot)' if lang=='en' else 'গার্মেন্ট কোড (লটে অনন্য)' }}</label>
+        <input id="garment_code" name="garment_code" placeholder="G-{{ '%02d' % (progress.units + 1) }}" pattern="[A-Za-z0-9_-]+" title="Letters, numbers, dash and underscore only">
+      </div>
+      <button class="btn primary" type="submit">{{ icons.icon('plus', 16) }}<span>{{ 'Register garment' if lang=='en' else 'গার্মেন্ট যোগ করুন' }}</span></button>
+    </form>
+    {% else %}
+    <div class="note info">
+      {{ icons.icon('check', 15) }}
+      <span>{{ 'The required sample size (n=' ~ progress.required_units ~ ') is complete. All garment slots are registered.' if lang=='en' else 'প্রয়োজনীয় স্যাম্পল সাইজ (n=' ~ progress.required_units ~ ') সম্পূর্ণ।' }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{# --- Mobile Unit & Side Filter Controls --- #}
+{% if units %}
+<div class="card" style="margin-bottom:16px">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+      <label for="unitPicker" class="small bold" style="margin:0">{{ 'Jump to garment:' if lang=='en' else 'গার্মেন্টে যান:' }}</label>
+      <select id="unitPicker" style="font-size:13px;padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:var(--surface)">
+        <option value="all">{{ 'All garments' if lang=='en' else 'সব গার্মেন্টস' }} ({{ units|length }})</option>
+        {% for u in units %}
+        <option value="unit-card-{{ u.id }}">{{ u.garment_code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="row" style="gap:6px" id="sideFilterButtons">
+      <button class="btn sm subtle active" type="button" data-filter-side="all">{{ 'All views' if lang=='en' else 'সব ভিউ' }}</button>
+      <button class="btn sm ghost" type="button" data-filter-side="front">{{ tr('cap.front') }}</button>
+      <button class="btn sm ghost" type="button" data-filter-side="back">{{ tr('cap.back') }}</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{# --- Garment Cards Grid --- #}
+<div class="grid" id="garmentCardsGrid" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px">
   {% for u in units %}
-  <div class="card">
-    <div class="card-h"><h3>{{ u.garment_code }}</h3>
-      <div class="right"><span class="small dim">{{ u.views|length }} {% if lang=='en' %}{{ 'view' if u.views|length==1 else 'views' }}{% else %}ভিউ{% endif %}</span></div>
+  <div class="card unit-garment-card" id="unit-card-{{ u.id }}" data-garment="{{ u.garment_code }}">
+    <div class="card-h">
+      <h2>{{ u.garment_code }}</h2>
+      <div class="right">
+        <span class="small dim">{{ u.views|length }} {% if lang=='en' %}{{ 'views' if u.views|length!=1 else 'view' }}{% else %}ভিউ{% endif %}</span>
+      </div>
     </div>
     <div class="pad-sm">
       {% for v in u.views %}
-      <div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
-        <div class="between" style="margin-bottom:7px">
-          <span class="badge ghost">{{ tr('cap.' ~ v.side) }}</span>
-          {% if v.review_state == 'confirmed_defects' %}
-          <span class="badge REJECT">{{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length }} {{ 'defect(s)' if lang=='en' else 'ত্রুটি' }}</span>
-          {% elif v.review_state == 'reviewed_clean' %}
-          <span class="badge ACCEPT">{{ 'reviewed clean' if lang=='en' else 'পরিষ্কার' }}</span>
-          {% elif v.review_state == 'needs_retake' %}
-          <span class="badge HOLD">{{ tr('rev.retake') }}</span>
-          {% elif v.image %}
-          <span class="badge HOLD">{{ 'pending review' if lang=='en' else 'পর্যালোচনা বাকি' }}</span>
-          {% else %}
-          <span class="badge ghost">—</span>
-          {% endif %}
-        </div>
-        <div class="row" style="gap:9px">
+      <div class="upload-view" data-side="{{ v.side }}">
+        <div class="between" style="margin-bottom:8px">
+          <div class="row" style="gap:6px">
+            <span class="badge badge-neutral bold">{{ tr('cap.' ~ v.side) }}</span>
+            {% if v.review_state == 'confirmed_defects' %}
+              <span class="badge badge-danger"><span class="dot"></span>{{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length }} {{ 'defect(s)' if lang=='en' else 'ত্রুটি' }}</span>
+            {% elif v.review_state == 'reviewed_clean' %}
+              <span class="badge badge-success"><span class="dot"></span>{{ 'reviewed clean' if lang=='en' else 'পরিষ্কার' }}</span>
+            {% elif v.review_state == 'needs_retake' %}
+              <span class="badge badge-warning"><span class="dot"></span>{{ tr('rev.retake') }}</span>
+            {% elif v.image %}
+              <span class="badge badge-pending"><span class="dot"></span>{{ 'pending review' if lang=='en' else 'পর্যালোচনা বাকি' }}</span>
+            {% else %}
+              <span class="badge badge-neutral">—</span>
+            {% endif %}
+          </div>
+
           {% if v.image %}
-          <a href="/review/{{ v.image.id }}"><img class="thumb" src="/images/{{ v.image.id }}" alt=""></a>
           <div class="small dim">
-            {{ 'photo stored' if v.inference_status=='ok' else v.inference_status }}
-            {% if v.open_proposals %}<div>{{ v.open_proposals }} {{ 'open proposals' if lang=='en' else 'খোলা প্রস্তাব' }}</div>{% endif %}
-            <a class="small" style="color:var(--accent-text)" href="/review/{{ v.image.id }}">{{ tr('rev.title') }} →</a>
+            {% if v.inference_status == 'ok' %}
+              <span class="badge badge-success" style="font-size:10.5px">inferred</span>
+            {% elif v.inference_status in ('failed', 'not_inferred') %}
+              <span class="badge badge-warning" style="font-size:10.5px" title="{{ 'Detector unavailable. Manual review is active.' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা সক্রিয়' }}">{{ 'manual' if lang=='en' else 'ম্যানুয়াল' }}</span>
+            {% elif v.inference_status == 'pending' %}
+              <span class="badge badge-pending" style="font-size:10.5px">queued</span>
+            {% endif %}
           </div>
-          {% else %}
-          <div class="small dim">{{ 'No photo yet.' if lang=='en' else 'এখনো ছবি নেই।' }}</div>
           {% endif %}
         </div>
-        {% if can_write %}
-        <form method="post" action="/lots/{{ lot.id }}/views/{{ v.id }}/upload" enctype="multipart/form-data" style="margin-top:9px">
-          <input type="hidden" name="csrf" value="{{ csrf }}">
-          <div class="inline">
-            <div class="field" style="flex:2">
-              <input type="file" name="file" accept="image/jpeg,image/png" capture="environment" required>
+
+        <div class="row" style="gap:10px;align-items:flex-start">
+          {% if v.image %}
+          <a href="/review/{{ v.image.id }}" style="display:block;flex-shrink:0" title="{{ 'Open photo review' if lang=='en' else 'ছবি পর্যালোচনা খুলুন' }}">
+            <img class="thumb" src="/images/{{ v.image.id }}" alt="{{ u.garment_code }} {{ v.side }}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line)">
+          </a>
+          <div class="small dim" style="flex:1;min-width:0">
+            <div style="font-weight:600;color:var(--text-primary)">
+              {% if v.open_proposals %}
+                {{ v.open_proposals }} {{ 'open proposal(s)' if lang=='en' else 'খোলা প্রস্তাব' }}
+              {% elif v.predictions %}
+                {{ v.predictions|length }} {{ 'proposals reviewed' if lang=='en' else 'প্রস্তাব পর্যালোচিত' }}
+              {% else %}
+                {{ 'No proposals' if lang=='en' else 'কোনো প্রস্তাব নেই' }}
+              {% endif %}
             </div>
-            <button class="btn sm primary">{{ tr('cap.replace') if v.image else tr('cap.upload') }}</button>
+            <div style="margin-top:2px">{{ (v.image.bytes/1024)|round(0)|int }} KB · {{ v.image.width }}×{{ v.image.height }}</div>
+            <div style="margin-top:6px">
+              <a class="btn sm subtle" href="/review/{{ v.image.id }}" style="padding:3px 8px;font-size:11.5px">
+                {{ icons.icon('eye', 13) }}<span>{{ tr('rev.title') }} →</span>
+              </a>
+            </div>
           </div>
+          {% else %}
+          <div class="small dim" style="padding:16px 8px;background:var(--bg);border-radius:6px;width:100%;text-align:center">
+            {{ icons.icon('camera', 18) }}
+            <div style="margin-top:4px">{{ 'No photo yet. Capture or upload photo below.' if lang=='en' else 'এখনো ছবি নেই। নিচে ক্যামেরা বা ফাইল ব্যবহার করুন।' }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        {# --- Upload & Replace Form --- #}
+        {% if can_write %}
+        <form method="post" action="/lots/{{ lot.id }}/views/{{ v.id }}/upload" enctype="multipart/form-data"
+              class="upload-form" data-accept="image/jpeg,image/png" data-max-bytes="15728640" style="margin-top:10px">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <div class="inline" style="gap:6px">
+            <div class="field" style="flex:2;margin:0">
+              <label class="sr-only" for="file-{{ v.id }}">{{ tr('cap.upload') }}</label>
+              <input class="upload-input" id="file-{{ v.id }}" type="file" name="file" accept="image/jpeg,image/png" capture="environment" required style="font-size:12px;padding:6px 8px">
+            </div>
+            <button class="btn sm {{ 'subtle' if v.image else 'primary' }}" type="submit" style="min-height:36px">
+              {{ icons.icon('upload', 14) }}
+              <span>{{ tr('cap.replace') if v.image else tr('cap.upload') }}</span>
+            </button>
+          </div>
+          <div class="upload-result" role="status" aria-live="polite"></div>
         </form>
         {% endif %}
       </div>
@@ -80,7 +239,9 @@
     </div>
   </div>
   {% else %}
-  <div class="card"><div class="empty"><b>{{ tr('lot.no_units') }}</b>{{ tr('cap.guidance') }}</div></div>
+  <div class="card" style="grid-column:1/-1">
+    {{ ui.empty_state(tr('lot.no_units'), tr('cap.guidance'), action_label=tr('common.save'), action_href='#addUnitForm', icon_name='camera') }}
+  </div>
   {% endfor %}
 </div>
 {% endblock %}

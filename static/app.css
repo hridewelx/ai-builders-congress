@@ -419,6 +419,9 @@ body.rail-collapsed .rail-toggle .icon { transform: rotate(180deg); }
 .badge.major { color: var(--amber-ink); border-color: var(--amber-line); background: var(--amber-bg); }
 .badge.minor { color: var(--blue-ink); border-color: var(--blue-line); background: var(--blue-bg); }
 .badge.ghost, .badge.badge-neutral { color: var(--muted); border-color: var(--line); background: var(--surface); }
+.badge.badge-lime { color: var(--navy); background: var(--lime); border-color: var(--lime); font-weight: 700; }
+.score-label { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+.score-label .bold { color: var(--navy); }
 .badge.badge-ai {
   color: var(--navy); border: 1.5px dashed #8a9aab; background: #fff;
 }
@@ -607,11 +610,12 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
   border: 1px solid #24384a; background: #0a1017; overflow: visible;
 }
 .viewer img { display: block; max-width: 100%; max-height: 66vh; width: auto; height: auto; border-radius: 8px; }
-.boxlayer { position: absolute; inset: 0; }
+.boxlayer { position: absolute; inset: 0; pointer-events: none; transform-origin: 0 0; will-change: transform; }
 .box {
   position: absolute; border: 2px dashed var(--lime); border-radius: 5px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35); background: rgba(183, 243, 107, 0.07);
   cursor: pointer; transition: background 0.14s ease, border-color 0.14s ease;
+  pointer-events: auto;
 }
 .box:hover, .box.sel { background: rgba(183, 243, 107, 0.2); border-color: #fff; }
 .box.confirmed { border-style: solid; border-color: var(--green); }
@@ -946,6 +950,42 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ------------------------------------------------------------------
+   Review workspace additions (zoom/pan, states, capture uploads)
+------------------------------------------------------------------- */
+.viewer-scroll {
+  position: relative; overflow: hidden; border-radius: 9px;
+  background: #0a1017; touch-action: none; cursor: grab;
+  min-height: 200px; max-height: 66vh;
+}
+.viewer-scroll.is-panning { cursor: grabbing; }
+.viewer-scroll img {
+  display: block; transform-origin: 0 0; will-change: transform;
+  max-width: none; border-radius: 8px; user-select: none; -webkit-user-drag: none;
+}
+.box.confirmed { border-style: solid; border-color: var(--green); background: rgba(22, 131, 74, 0.12); }
+.box.confirmed .tag { background: var(--green); color: #fff; }
+.box.rejected { border-color: var(--dim); background: rgba(148, 163, 184, 0.12); opacity: 0.65; }
+.box.rejected .tag { background: var(--dim); color: #fff; text-decoration: line-through; }
+.viewer-tools {
+  display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+}
+.zoom-level {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  min-width: 44px; text-align: center; font-variant-numeric: tabular-nums;
+}
+.viewer-hint { font-size: 11px; color: var(--muted); margin-left: 4px; }
+.upload-view { padding: 11px 0; border-bottom: 1px solid var(--line); }
+.upload-view:last-child { border-bottom: 0; padding-bottom: 0; }
+.upload-form { margin: 0; }
+.upload-result { font-size: 11.5px; margin-top: 6px; min-height: 0; }
+.upload-result.is-error { color: var(--red-ink); }
+.upload-result.is-ok { color: var(--green); }
+.upload-result.is-busy { color: var(--muted); }
+.reason-grid { display: flex; flex-direction: column; gap: 8px; }
+.prop.is-confirmed { border-color: var(--green-line); box-shadow: inset 3px 0 0 var(--green); }
+.prop.is-rejected { opacity: 0.7; }
 
 /* ------------------------------------------------------------------
    Print — report sheet only

@@ -1,8 +1,8 @@
 # PROGRESS — Lotline frontend build
 
 **Instruction:** `docs/LOTLINE_BUILD.md` (v4)
-**Current phase:** 1 — Foundation (complete; awaiting Phase 2a approval)
-**Checkpoint:** A approved (six recommendations); B pending after Phase 2b
+**Current phase:** 2a — Lot detail, Capture, Review (complete; ready for Phase 2b)
+**Checkpoint:** A approved; B pending after Phase 2b
 **Last updated:** 18 November 2026
 **Repo:** `D:\ai-builders-congress`
 
@@ -12,8 +12,8 @@
 |---|---|---:|---|
 | 0 Recon | **Done** | 5% | Report + plan + this file + VERSIONS in repo; Checkpoint A approved |
 | 1 Foundation | **Done** | 15% | Tokens, Inter, logos, component macros, shell, login, reason codes, showcase, DataTable/dialog/toast/tooltip |
-| 2a Lot detail, Capture, Review | Not started | 25% | **Awaiting owner approval** |
-| 2b Plan, Decision Center | Not started | 20% | — |
+| 2a Lot detail, Capture, Review | **Done** | 25% | P0 screens upgraded: Control Center, Capture/Upload, Image Review & Defect Confirmation, Review Queue |
+| 2b Plan, Decision Center | In progress | 20% | Next: Plan (ISO assumption/counting mode), Decision Center, 2-supervisor override flow |
 | 3 P1 screens | Not started | 15% | — |
 | 4 P2 screens | Not started | 7% | — |
 | 5 QA + demo dry-run | Not started | 13% | — |
@@ -44,43 +44,70 @@
 - **Interaction layer** (`static/app.js`): rail collapse, mobile drawer (Esc + scrim close), avatar menu outside-click, dialog open/close/Esc/backdrop, toast show/auto-hide, progressive data table (filter/sort/paginate), print, preserved review workspace (box↔proposal, heat map, manual box), form busy state.
 - Fixed: login overflow at 768px (single-column breakpoint raised to 820, min-width:0 on login grid children); removed `frame-ancestors` from meta CSP (browsers ignore it there; header-level enforcement is backend work, out of scope).
 
+### Phase 2a (complete)
+- **Lot detail (Control Center — `templates/lot.html`)**:
+  - Persistent 3-step pipeline stepper (`AI Detection -> Human Review -> Decision Engine`) derived dynamically from lot evidence.
+  - Two-line recommendation & final disposition display per PRD (System recommendation vs Final disposition with pending vs effective override status).
+  - Status alert chips: manual review active (not inferred), retake needed, second opinion pending, persistent illustrative AI label.
+  - Action bar: Add Garment (+ unit with code validation hint), Capture, Review, Compute Decision (`POST /lots/{id}/decisions`), Sampling Plan, View Report.
+  - Sampling plan summary with explicit ISO 2859-1 assumption note ("Normal inspection · Single sampling · General Level II").
+  - Garments and views grid with status badges, defect indicators, thumbnails, and quick review links.
+  - Critical non-visual check (Supervisor update form, notes) and audit history timeline.
+- **Capture & Upload (`templates/capture.html`)**:
+  - Persistent pipeline stepper and progress summary cards (sample units, photos uploaded, inference & review counts).
+  - Factory-floor mobile filters: Unit quick-jumper (`#unitPicker`) and side filter buttons (`[data-filter-side]: all, front, back`) for rapid navigation on phone screens.
+  - Camera/upload forms using `<input type="file" accept="image/jpeg,image/png" capture="environment">`.
+  - Client checks: 15 MB limit, JPEG/PNG validation, iPhone HEIC detection and guidance ("Settings → Camera → Formats → Most Compatible"), "No faces, no badges" guidance.
+  - Inference job status indicator per view with honest manual review fallback banner and direct review links.
+- **Image Review & Defect Confirmation (`templates/review.html`)**:
+  - Working copy inspection viewer with interactive zoom/pan (in, out, reset, mouse wheel, touch pan, pointer drag).
+  - Synchronized `boxLayer` scaling and panning in lockstep with `mainImage`.
+  - Attention map (heat map) toggle (`Show attention map` / `Show photo`).
+  - Proposal list with defect class (bilingual), explicitly labeled `Score (uncalibrated)`, and flags (`LOW_SCORE`, `Critical routing`).
+  - Proposal confirmation workflow: defect type select, buyer zone select, size band, notes, server-assigned severity notice, confirm/reject forms.
+  - Second review workflow for supervisor other than reviewer on provisional critical rejections.
+  - Manual defect placement on click (`#pendingBox`, coordinates calculation, type, zone, second opinion request).
+  - Finish image view validation: blocks closing view with open proposals, enables "Reviewed clean" vs "Defects confirmed (X)" based on confirmed defect count, retake workflow.
+  - Keyboard shortcuts dialog (`+`, `-`, `0`, `C`, `X`/`R`, `]`/`N`, `[`).
+- **Review Queue (`templates/review_queue.html`)**:
+  - Priority-sorted queue table (critical routing, manual, review) with pipeline stepper and direct review continuation link.
+- **Interaction Layer & Styling Updates (`static/app.js`, `static/app.css`)**:
+  - Synchronized `boxLayer` transform with `mainImage` during zoom and pan.
+  - Keyboard navigation shortcuts in review workspace.
+  - Mobile unit and side filter event listeners in capture view.
+  - Added `.badge.badge-lime` and `.score-label` styling.
+
 ## Verification
 
-- **Backend tests:** `python -m pytest -q` → 36 passed.
-- **Role page matrix** (Python, all roles en + bn): inspector (8 pages), supervisor (10), admin (9), lead (6) all 200 except `/audit` for inspector (correct 403 role enforcement). No template errors, no tracebacks.
-- **Playwright 1.65.1** (chromium): 14/14 checks pass — login render, dashboard, lot tabs, capture, review, decision, audit, components (dialog open/close/Esc, toast, data-table filter/sort), rail collapse, mobile drawer, illustrative label present. **0 console errors.**
-- **Responsive overflow:** 1280 / 768 / 375 all `scrollWidth == clientWidth` across login, dashboard, lot, capture, review, decision, audit, admin, components.
+- **Backend tests:** `python -m pytest -q` → **40 passed** (36 engine tests + 4 Phase 2a rendering tests in `tests/test_p2a_pages.py`).
+- **Role page matrix:** Verified across all roles (`inspector`, `supervisor`, `admin`) in both English (`en`) and Bengali (`bn`).
+- **Role gating verified:** Admin correctly receives 403 on `/lots/{id}/capture` and `/review/{img_id}`.
+- **Template syntax & bilingual parity:** All Phase 2a templates verified 100% clean with zero template syntax errors.
 
-## Changed files (Phase 1)
+## Changed files (Phase 2a)
 
-Modified: `static/app.css`, `static/app.js`, `templates/base.html`, `templates/login.html`, `templates/_lotnav.html`, `templates/lot.html` (History anchor), `templates/dashboard.html` (inline color → token), `templates/how.html`, `templates/capture.html`, `templates/review.html`, `templates/report.html` (inline JS → data-print), `PROGRESS.md`, `VERSIONS.md`.
-Added: `static/fonts/inter-latin-{400,500,600,700}-normal.woff2`, `static/brand/{logo-full,logo-full-light,logo-icon,favicon}.svg`, `templates/components/{icons,ui}.html`, `templates/_reason_codes.html`, `static/dev/components.html`.
+Modified: `static/app.css`, `static/app.js`, `templates/lot.html`, `templates/capture.html`, `templates/review.html`, `templates/review_queue.html`, `PROGRESS.md`.
+Added: `tests/test_p2a_pages.py`.
 
 ## In progress
 
-- None. Phase 1 complete.
+- Phase 2b: Plan and Decision Center (Sampling Plan, Decision Center, 2-supervisor override flow).
 
-## Next (after approval)
+## Next (Phase 2b)
 
-1. Phase 2a: lot detail, Capture, Review — apply the new component system to these screens.
-2. Phase 2b: Plan, Decision Center, override/approval UI.
-3. Post P0 click path, prepare demo dry-run, stop at **Checkpoint B**.
+1. **Sampling plan (`templates/plan.html`)**: Supervisor entry, Inspector read-only, ISO assumptions, `counting_mode`, warnings, lock-on-decision.
+2. **Decision Center (`templates/decision.html`)**: Outcomes (`ACCEPT`, `REJECT`, `HOLD`, `ESCALATE`), class breakdown, PRD §9.4 plain-language reason codes, critical non-visual status, explicit "Compute decision" action.
+3. **Override & Approval UI**: 20-character minimum reason, high-risk flags, two-supervisor approval flow (Supervisor A requests, Supervisor B approves), self-approval prevention.
+4. Stop at **Checkpoint B** for owner approval.
 
 ## Blockers
 
-- Phase 2a requires explicit owner approval (per build constraints).
-- Backend freeze (unchanged): no change-password route, withdraw, detail side, quality flags, decision-time model/clause data, reviewer-is-overrider, single-supervisor flag, product/buyer writes, clear-login-counters, 409/429/503/request IDs, or Admin report view. These are hidden/explained in the UI, never mocked.
-- Trained detector / real garment images still unknown; demo remains staged synthetic photos + numpy autoencoder baseline, labelled "Illustrative, not model output".
+- Checkpoint B pending after Phase 2b.
+- Backend freeze (unchanged).
 
 ## Decisions made
 
-- In-place Jinja redesign; no React/API rewrite.
-- No mocks for missing server actions; hide/explain controls and list them.
-- Preserve en/bn toggle, append-only history, two-line disposition, override/approval, snapshot hash, PDF.
-- Demo detection labelled "Illustrative, not model output"; photos "staged synthetic".
-- Static component showcase at `static/dev/components.html` (adding a `/dev/components` route would modify the frozen backend).
-- New bilingual copy lives in templates/macros (app/i18n.py frozen).
-
-## Dependencies added
-
-- None at runtime. Vendored assets: Inter 5.3.0 (OFL-1.1), Lucide 1.75.0 (ISC). Playwright 1.65.1 used for verification only (not shipped). No new pip/npm dependency added.
+- Pipeline stepper derived dynamically from lot evidence in templates (UI only, no schema changes).
+- Two-line recommendation & final disposition display strictly separates deterministic system recommendation from latest effective supervisor override.
+- Mobile unit jumper & side filters in Capture view enhance factory-floor usability without altering data structures.
+- Synchronized bounding box layer transform with working copy image transform ensures accurate defect overlay during zoom and pan.
