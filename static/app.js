@@ -479,5 +479,29 @@
     });
   });
 
+  /* ----------------------------------------------------------------
+     Decision & Plan: Character counter & Re = Ac + 1 helper
+  ---------------------------------------------------------------- */
+  var reasonInput = document.getElementById("override-reason");
+  var charCounter = document.getElementById("charCounter");
+  if (reasonInput && charCounter) {
+    reasonInput.addEventListener("input", function () {
+      var len = reasonInput.value.length;
+      charCounter.textContent = len + " / 20 minimum";
+      charCounter.style.color = len >= 20 ? "var(--green)" : "var(--muted)";
+    });
+  }
+
+  $$(".ac-input").forEach(function (acInput) {
+    acInput.addEventListener("input", function () {
+      var c = acInput.getAttribute("data-class");
+      var reInput = document.getElementById(c + "_re");
+      var acVal = parseInt(acInput.value, 10);
+      if (!isNaN(acVal) && reInput) {
+        reInput.value = acVal + 1;
+      }
+    });
+  });
+
   window.LotlineUI = { toast: showToast, openDialog: openDialog };
 })();

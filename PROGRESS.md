@@ -1,8 +1,8 @@
 # PROGRESS — Lotline frontend build
 
 **Instruction:** `docs/LOTLINE_BUILD.md` (v4)
-**Current phase:** 2a — Lot detail, Capture, Review (complete; ready for Phase 2b)
-**Checkpoint:** A approved; B pending after Phase 2b
+**Current phase:** 2b — Plan, Decision Center, Override flow (complete; Checkpoint B reached)
+**Checkpoint:** A approved; B reached (pending owner approval)
 **Last updated:** 18 November 2026
 **Repo:** `D:\ai-builders-congress`
 
@@ -13,10 +13,10 @@
 | 0 Recon | **Done** | 5% | Report + plan + this file + VERSIONS in repo; Checkpoint A approved |
 | 1 Foundation | **Done** | 15% | Tokens, Inter, logos, component macros, shell, login, reason codes, showcase, DataTable/dialog/toast/tooltip |
 | 2a Lot detail, Capture, Review | **Done** | 25% | P0 screens upgraded: Control Center, Capture/Upload, Image Review & Defect Confirmation, Review Queue |
-| 2b Plan, Decision Center | In progress | 20% | Next: Plan (ISO assumption/counting mode), Decision Center, 2-supervisor override flow |
-| 3 P1 screens | Not started | 15% | — |
-| 4 P2 screens | Not started | 7% | — |
-| 5 QA + demo dry-run | Not started | 13% | — |
+| 2b Plan, Decision Center | **Done** | 20% | Upgraded Sampling Plan, Decision Center, PRD §9.4 reason codes, 2-supervisor override & approval flow |
+| 3 P1 screens | Not started | 15% | Lots list, Reports, Buyer summary, Audit log, Evidence export (Awaiting Checkpoint B approval) |
+| 4 P2 screens | Not started | 7% | Calibration & Metrics, Admin |
+| 5 QA + demo dry-run | Not started | 13% | Full click-path test, bilingual parity verification, responsiveness |
 
 ## Done
 
@@ -89,16 +89,45 @@
 Modified: `static/app.css`, `static/app.js`, `templates/lot.html`, `templates/capture.html`, `templates/review.html`, `templates/review_queue.html`, `PROGRESS.md`.
 Added: `tests/test_p2a_pages.py`.
 
-## In progress
+### Phase 2b (complete)
+- **Sampling Plan (`templates/plan.html`)**:
+  - Full Supervisor configuration form with sample size $n$, counting mode (`highest_class_only` vs `every_class`), per-class Acceptance/Rejection numbers ($Ac / Re$), and source edition/ref.
+  - Client-side auto-helper setting $Re = Ac + 1$ automatically when modifying Acceptance number.
+  - Dedicated Inspector read-only view with clear role notice (only Supervisor can edit).
+  - Lot locked notice when lot is decided.
+  - Mandatory ISO 2859-1 Level II assumption notice with clear disclaimer ("assumption, not a standard lookup; Lotline never looks up plans automatically").
+  - Plan Read-back verification card summarizing the configured acceptance threshold per defect class.
+  - 100% inspection warning banner if $n \ge \text{lot\_size}$.
+- **Decision Center (`templates/decision.html`)**:
+  - Prominent Decision Outcome Hero covering all 4 PRD outcomes (`ACCEPT`, `REJECT`, `HOLD`, `ESCALATE`) with explicit two-line disposition (System recommendation vs Final disposition).
+  - Explicit PRD §9.4 plain-language reason code mapping with bilingual "Next step" cards via `_reason_codes.html`.
+  - Detailed class breakdown table (Critical, Major, Minor) with counts, $Ac/Re$ thresholds, and visual PASS/FAIL status tags.
+  - Completeness & Evidence Integrity card displaying unit capture count ($k/n$), image views, unreviewed views count, and evidence snapshot SHA-256 hash.
+  - Critical non-visual check status block with verification status and supervisor notes.
+  - Explicit "Recompute Decision" button with loading state.
+- **Supervisor Override & Two-Supervisor Approval Flow**:
+  - Supervisor override form requiring minimum 20-character reason with live counter in `static/app.js`.
+  - Automatic client detection of High-Risk overrides (`REJECT -> ACCEPT` or when Critical defects exist), informing the user that a second supervisor's approval is mandatory.
+  - Pending approval state banner showing who requested the override, timestamp, and justification.
+  - Self-approval block: Initiating Supervisor A sees "Self-approval forbidden — awaiting review by another supervisor".
+  - Second Supervisor B actions: Supervisor B sees "Second Supervisor Action" panel with Approve and Refuse buttons and notes field.
+  - Immutable audit history of past overrides.
 
-- Phase 2b: Plan and Decision Center (Sampling Plan, Decision Center, 2-supervisor override flow).
+## Verification
 
-## Next (Phase 2b)
+- **Backend tests:** `python -m pytest -q` → **43 passed** (36 engine tests + 4 Phase 2a rendering tests + 3 Phase 2b rendering tests in `tests/test_p2b_pages.py`).
+- **Role page matrix:** Verified across `inspector`, `supervisor`, `admin` roles in both `en` and `bn`.
+- **All 4 decision outcomes verified:** ACCEPT (Lot 2), REJECT (Lot 1), HOLD (Lot 3, 5), ESCALATE (Lot 4).
+- **Override safety verified:** Self-approval forbidden, second supervisor approve/refuse actions verified.
 
-1. **Sampling plan (`templates/plan.html`)**: Supervisor entry, Inspector read-only, ISO assumptions, `counting_mode`, warnings, lock-on-decision.
-2. **Decision Center (`templates/decision.html`)**: Outcomes (`ACCEPT`, `REJECT`, `HOLD`, `ESCALATE`), class breakdown, PRD §9.4 plain-language reason codes, critical non-visual status, explicit "Compute decision" action.
-3. **Override & Approval UI**: 20-character minimum reason, high-risk flags, two-supervisor approval flow (Supervisor A requests, Supervisor B approves), self-approval prevention.
-4. Stop at **Checkpoint B** for owner approval.
+## Changed files (Phase 2b)
+
+Modified: `templates/plan.html`, `templates/decision.html`, `static/app.js`, `PROGRESS.md`.
+Added: `tests/test_p2b_pages.py`.
+
+## Checkpoint B: Awaiting Owner Approval
+
+Phase 2b is complete and verified. As mandated by the phased roadmap, execution is paused at **Checkpoint B** for owner review before starting Phase 3 (P1 screens).
 
 ## Blockers
 
