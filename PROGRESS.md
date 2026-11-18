@@ -17,6 +17,7 @@
 | 3 P1 screens | **Done** | 15% | Dashboard, Lots list, Create Lot, Audit log, Report view, Buyer summary, Evidence export |
 | 4 P2 screens | **Done** | 7% | Admin User Management, Account Safeguards, Model Activation, System Health, Configuration Dialog |
 | 5 QA + demo dry-run | **Done** | 13% | Full QA test suite (57 tests passed), role-matrix audit, security audit, 3-minute demo script |
+| **UI Overhaul** | **Done** | — | Converted to Tailwind CSS & shadcn/ui inspired modern aesthetic (Slate/Zinc palette, crisp hairline borders, soft pill badges, glass topbar) |
 
 ## Done
 
