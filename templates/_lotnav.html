@@ -1,13 +1,28 @@
-<nav class="tabs" aria-label="{{ 'Lot sections' if lang=='en' else 'লট বিভাগ' }}">
-  <a href="/lots/{{ lot.id }}" class="{{ 'on' if request.url.path == '/lots/' ~ lot.id }}"{% if request.url.path == '/lots/' ~ lot.id %} aria-current="page"{% endif %}>{{ tr('lot.overview') }}</a>
+{% import "components/icons.html" as icons with context %}
+<nav class="tabs" aria-label="{{ 'Lot sections' if lang=='en' else 'লট বিভাগ' }}" style="margin-bottom:20px">
+  <a href="/lots/{{ lot.id }}" class="{{ 'on' if request.url.path == '/lots/' ~ lot.id }}"{% if request.url.path == '/lots/' ~ lot.id %} aria-current="page"{% endif %}>
+    {{ icons.icon('layers', 14) }}<span>{{ tr('lot.overview') }}</span>
+  </a>
   {% if user.role != 'admin' %}
-  <a href="/lots/{{ lot.id }}/plan" class="{{ 'on' if request.url.path.endswith('/plan') }}"{% if request.url.path.endswith('/plan') %} aria-current="page"{% endif %}>{{ tr('lot.plan') }}</a>
-  <a href="/lots/{{ lot.id }}/capture" class="{{ 'on' if request.url.path.endswith('/capture') }}"{% if request.url.path.endswith('/capture') %} aria-current="page"{% endif %}>{{ tr('lot.capture') }}</a>
-  <a href="/lots/{{ lot.id }}/review" class="{{ 'on' if request.url.path.endswith('/review') }}"{% if request.url.path.endswith('/review') %} aria-current="page"{% endif %}>{{ tr('lot.review') }}</a>
+  <a href="/lots/{{ lot.id }}/plan" class="{{ 'on' if request.url.path.endswith('/plan') }}"{% if request.url.path.endswith('/plan') %} aria-current="page"{% endif %}>
+    {{ icons.icon('sliders', 14) }}<span>{{ tr('lot.plan') }}</span>
+  </a>
+  <a href="/lots/{{ lot.id }}/capture" class="{{ 'on' if request.url.path.endswith('/capture') }}"{% if request.url.path.endswith('/capture') %} aria-current="page"{% endif %}>
+    {{ icons.icon('camera', 14) }}<span>{{ tr('lot.capture') }}</span>
+  </a>
+  <a href="/lots/{{ lot.id }}/review" class="{{ 'on' if request.url.path.endswith('/review') }}"{% if request.url.path.endswith('/review') %} aria-current="page"{% endif %}>
+    {{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span>
+  </a>
   {% endif %}
-  <a href="/lots/{{ lot.id }}/decision" class="{{ 'on' if request.url.path.endswith('/decision') }}"{% if request.url.path.endswith('/decision') %} aria-current="page"{% endif %}>{{ tr('lot.decision') }}</a>
-  <a href="/lots/{{ lot.id }}#history">{{ 'History' if lang=='en' else 'ইতিহাস' }}</a>
+  <a href="/lots/{{ lot.id }}/decision" class="{{ 'on' if request.url.path.endswith('/decision') }}"{% if request.url.path.endswith('/decision') %} aria-current="page"{% endif %}>
+    {{ icons.icon('clipboard-check', 14) }}<span>{{ tr('lot.decision') }}</span>
+  </a>
+  <a href="/lots/{{ lot.id }}#history">
+    {{ icons.icon('clock', 14) }}<span>{{ 'History' if lang=='en' else 'ইতিহাস' }}</span>
+  </a>
   {% if user.role != 'admin' %}
-  <a href="/lots/{{ lot.id }}/report" class="{{ 'on' if request.url.path.endswith('/report') }}"{% if request.url.path.endswith('/report') %} aria-current="page"{% endif %}>{{ tr('lot.report') }}</a>
+  <a href="/lots/{{ lot.id }}/report" class="{{ 'on' if request.url.path.endswith('/report') }}"{% if request.url.path.endswith('/report') %} aria-current="page"{% endif %}>
+    {{ icons.icon('file-text', 14) }}<span>{{ tr('lot.report') }}</span>
+  </a>
   {% endif %}
 </nav>

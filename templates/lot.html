@@ -93,49 +93,76 @@
 </div>
 
 {# --- Top KPI Summary Grid --- #}
-<div class="grid cols-4" style="margin-bottom:18px">
+<div class="grid cols-4 kpi-grid" style="margin-bottom:20px">
   <div class="kpi {{ 'accent' if lot.status=='open' }}">
-    <div class="lbl">{{ tr('common.status') }}</div>
-    <div class="row" style="margin-top:7px">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('common.status') }}</div>
+      {% if lot.status == 'decided' %}
+        <span class="kpi-badge">v{{ lot.version }}</span>
+      {% else %}
+        <span class="kpi-badge">{{ 'Active' if lang=='en' else 'সক্রিয়' }}</span>
+      {% endif %}
+    </div>
+    <div class="row" style="margin:8px 0 4px">
       {{ ui.status_badge(lot.status, lot.status|capitalize) }}
-      {% if lot.status == 'decided' %}<span class="small dim">v{{ lot.version }}</span>{% endif %}
     </div>
-    <div class="meta" style="margin-top:6px">{{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: {{ lot.lot_size }}</div>
+    <div class="meta"><span class="kpi-hint">{{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ lot.lot_size }}</b> pcs</span></div>
   </div>
 
-  <div class="kpi">
-    <div class="lbl">{{ tr('lot.units_registered') }}</div>
+  <div class="kpi is-info">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('lot.units_registered') }}</div>
+      <span class="kpi-badge">{{ progress.pct_units }}%</span>
+    </div>
     <div class="n">{{ progress.units }}<small> / {{ progress.required_units or '—' }}</small></div>
-    <div class="bar" style="margin-top:9px"><i style="width:{{ progress.pct_units }}%"></i></div>
-  </div>
-
-  <div class="kpi">
-    <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
-    <div class="n">{{ progress.reviewed }}<small> / {{ progress.views }}</small></div>
-    <div class="bar" style="margin-top:9px"><i style="width:{{ progress.pct_views }}%"></i></div>
-  </div>
-
-  <div class="kpi">
-    <div class="lbl">{{ tr('common.outcome') }}</div>
-    {% if decision %}
-    <div style="margin-top:6px">
-      <div style="font-size:11px;color:var(--text-sec);margin-bottom:2px">{{ 'System recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}:</div>
-      <div>{{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}</div>
+    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
+      <i style="display:block;height:100%;width:{{ progress.pct_units }}%;background:linear-gradient(90deg, #3b82f6, #6366f1);border-radius:999px"></i>
     </div>
-    <div style="margin-top:6px;border-top:1px dashed var(--line);padding-top:4px">
-      <div style="font-size:11px;color:var(--text-sec);margin-bottom:2px">{{ 'Final disposition' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত' }}:</div>
-      <div>{{ ui.decision_badge(final, tr('out.' ~ final)) }}</div>
+  </div>
+
+  <div class="kpi is-success">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
+      <span class="kpi-badge">{{ progress.pct_views }}%</span>
+    </div>
+    <div class="n">{{ progress.reviewed }}<small> / {{ progress.views }}</small></div>
+    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
+      <i style="display:block;height:100%;width:{{ progress.pct_views }}%;background:linear-gradient(90deg, #65a30d, #84cc16);border-radius:999px"></i>
+    </div>
+  </div>
+
+  <div class="kpi {{ 'is-warning' if (decision and decision.outcome in ('HOLD','ESCALATE')) else ('is-success' if (decision and decision.outcome=='ACCEPT') else '') }}">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('common.outcome') }}</div>
+      {% if decision %}
+        <span class="kpi-badge">{{ tr('out.' ~ (final or decision.outcome)) }}</span>
+      {% else %}
+        <span class="kpi-badge">{{ 'Pending' if lang=='en' else 'মুলতুবি' }}</span>
+      {% endif %}
+    </div>
+    {% if decision %}
+    <div style="margin-top:6px;font-size:12px;line-height:1.4">
+      <div class="row" style="gap:6px;align-items:center">
+        <span class="dim" style="font-size:11px">{{ 'System recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}:</span>
+        {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
+      </div>
+      <div class="row" style="gap:6px;align-items:center;margin-top:4px">
+        <span class="dim" style="font-size:11px;font-weight:600">{{ 'Final disposition' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত' }}:</span>
+        {{ ui.decision_badge(final, tr('out.' ~ final)) }}
+      </div>
       {% if override %}
-        {% if override.is_effective %}
-        <div class="small dim" style="margin-top:3px">{{ tr('dec.overridden') }} ({{ 'effective' if lang=='en' else 'কার্যকর' }})</div>
-        {% else %}
-        <div class="small" style="color:var(--amber-ink);margin-top:3px">{{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}</div>
-        {% endif %}
+        <div class="small dim" style="margin-top:3px">
+          {% if override.is_effective %}
+            <span class="badge ghost" style="font-size:10px">{{ tr('dec.overridden') }}</span>
+          {% else %}
+            <span class="badge HOLD" style="font-size:10px">{{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}</span>
+          {% endif %}
+        </div>
       {% endif %}
     </div>
     {% else %}
-    <div class="n" style="font-size:18px;color:var(--dim);margin-top:6px">—</div>
-    <div class="small dim">{{ tr('dec.none') }}</div>
+    <div class="n" style="font-size:22px;color:var(--dim);margin:6px 0 2px">—</div>
+    <div class="meta"><span class="kpi-hint">{{ tr('dec.none') }}</span></div>
     {% endif %}
   </div>
 </div>
