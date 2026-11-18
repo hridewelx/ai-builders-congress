@@ -91,7 +91,7 @@
       <div class="lbl" style="margin-bottom:7px">{{ tr('common.reasons') }}</div>
       <ul class="small" style="margin:0;padding-left:18px">
         {% for r in rc.reasons %}
-        <li><span class="mono">{{ r.code }}</span> — {{ r.text }}</li>
+        <li><span class="mono">{{ r.code }}</span> — {{ reason(r.code) }}</li>
         {% endfor %}
       </ul>
     </div>

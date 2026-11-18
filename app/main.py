@@ -72,6 +72,7 @@ def ctx(request: Request, **kw) -> dict:
         "csrf": s["session"]["csrf"] if s else "",
         "lang": lang,
         "tr": lambda k: i18n.t(k, lang),
+        "reason": lambda code: i18n.reason_text(code, lang),
         "active": "",
         "ok": request.query_params.get("ok"),
         "err": request.query_params.get("err"),

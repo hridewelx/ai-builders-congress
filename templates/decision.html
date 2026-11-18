@@ -33,7 +33,7 @@
       <div>
         <div class="small dim" style="letter-spacing:.12em;text-transform:uppercase;font-weight:700">{{ 'System recommendation' if lang=='en' else 'সিস্টেমের সুপারিশ' }} · #{{ decision.sequence }}</div>
         <h2>{{ tr('out.' ~ decision.outcome) }}</h2>
-        <p>{{ reason_text[decision.primary_reason][1] }}</p>
+        <p>{{ reason(decision.primary_reason) }}</p>
       </div>
       <div style="text-align:right">
         {% if override %}
@@ -129,7 +129,7 @@
               <span class="badge {{ reason_text[r][0] if r in reason_text else 'ghost' }}">{{ reason_text[r][0] if r in reason_text else '?' }}</span>
               <div class="grow">
                 <div class="mono" style="font-size:12px">{{ r }}</div>
-                <div class="small dim">{{ reason_text[r][1] if r in reason_text else '' }}</div>
+                <div class="small dim">{{ reason(r) }}</div>
               </div>
             </li>
             {% endfor %}
