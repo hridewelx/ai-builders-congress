@@ -17,6 +17,7 @@
 <body>
 {% if user %}
 <a class="skip-link" href="#main-content">{{ 'Skip to content' if lang=='en' else 'মূল বিষয়বস্তুতে যান' }}</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
 {% set tab_name = tab|default('') %}
 <div class="shell">
   <aside class="rail" id="sidebar" aria-label="{{ 'Primary navigation' if lang=='en' else 'প্রধান নেভিগেশন' }}">
@@ -88,7 +89,6 @@
       </form>
     </div>
   </aside>
-  <div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
 
   <div class="main">
     <header class="topbar">
