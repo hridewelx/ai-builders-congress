@@ -13,8 +13,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 from ...config import MAX_BYTES, MAX_IMAGE_EDGE, MAX_PIXELS, ZONES
 from ...core import db
+from ...services import detector, vision
 from ...services import review as service
-from ...services import vision
 from ..deps import Denied, assert_csrf, can_write_lot, ensure_write, require_role, require_user
 from ..pages import page
 
@@ -118,12 +118,13 @@ def run_inference(img_id: int, user_id: int, request: Request | None = None) -> 
     if not img:
         return "failed"
     L = service.lot(img["lot_id"])
+    model_name = detector.MODEL_NAME if detector.available() else vision.MODEL_NAME
     job_id = db.x("INSERT INTO inference_job(image_id,status,model_version,created_at) VALUES (?,?,?,?)",
-                  (img_id, "running", vision.MODEL_NAME, db.now()))
+                  (img_id, "running", model_name, db.now()))
     t0 = time.time()
     try:
         with Image.open(os.path.join(service.STORE, img["stored_name"])) as im:
-            res = vision.detect(np.array(im.convert("RGB")))
+            res = detector.detect(np.array(im.convert("RGB")))
         for p in res["proposals"]:
             crit = 0
             for z in ZONES:
@@ -137,7 +138,7 @@ def run_inference(img_id: int, user_id: int, request: Request | None = None) -> 
         db.x("UPDATE inference_job SET status='succeeded', finished_at=?, latency_ms=? WHERE id=?",
              (db.now(), int((time.time() - t0) * 1000), job_id))
         db.audit(user_id, str(user_id), "inference.succeeded", "image", img_id,
-                 after={"proposals": len(res["proposals"]), "model": vision.MODEL_NAME})
+                 after={"proposals": len(res["proposals"]), "model": res.get("model", model_name)})
         return "ok"
     except Exception as exc:
         db.x("UPDATE inference_job SET status='failed', error=?, finished_at=? WHERE id=?",
@@ -184,6 +185,6 @@ def image_heat(request: Request, img_id: int):
     if not img:
         raise Denied(404, "not_found")
     with Image.open(os.path.join(service.STORE, img["stored_name"])) as im:
-        res = vision.detect(np.array(im.convert("RGB")))
+        res = detector.detect(np.array(im.convert("RGB")))
     return Response(res["heat_png"], media_type="image/jpeg",
                     headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
