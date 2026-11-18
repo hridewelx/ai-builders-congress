@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@source "../index.html";
+@source "../src/**/*.{js,ts,jsx,tsx}";
+
 @theme {
   --color-navy: #0B1F5C;
   --color-brand-blue: #1F4FD8;
@@ -26,12 +29,6 @@
   --radius-button: 12px;
   --radius-card: 14px;
   --radius-phone: 28px;
-
-  --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-6: 24px;
 }
 
 :root {
