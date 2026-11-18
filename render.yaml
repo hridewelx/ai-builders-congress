@@ -7,9 +7,7 @@ services:
     envVars:
       - key: LOTLINE_DEMO
         value: "1"
+      # Free instances have no persistent disk. /tmp is writable and the demo
+      # reseeds itself on every cold start, so a restart returns a clean demo.
       - key: LOTLINE_DATA
-        value: /data
-    disk:
-      name: lotline-data
-      mountPath: /data
-      sizeGB: 1
+        value: /tmp/lotline
