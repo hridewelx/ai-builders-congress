@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0B1F5C;
+  --color-brand-blue: #1F4FD8;
+  --color-tint: #EAF0FF;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
+  --color-line: #E2E8F0;
+
+  --color-accept: #15803D;
+  --color-accept-bg: #DCFCE7;
+  --color-reject: #B91C1C;
+  --color-reject-bg: #FEE2E2;
+  --color-hold: #B45309;
+  --color-hold-bg: #FEF3C7;
+  --color-escalate: #6D28D9;
+  --color-escalate-bg: #EDE9FE;
+  --color-info: #0369A1;
+  --color-info-bg: #E0F2FE;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --radius-input: 10px;
+  --radius-button: 12px;
+  --radius-card: 14px;
+  --radius-phone: 28px;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+}
+
+:root {
+  --color-navy: #0B1F5C;
+  --color-brand-blue: #1F4FD8;
+  --color-tint: #EAF0FF;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
+  --color-line: #E2E8F0;
+  --color-accept: #15803D;
+  --color-accept-bg: #DCFCE7;
+  --color-reject: #B91C1C;
+  --color-reject-bg: #FEE2E2;
+  --color-hold: #B45309;
+  --color-hold-bg: #FEF3C7;
+  --color-escalate: #6D28D9;
+  --color-escalate-bg: #EDE9FE;
+  --color-info: #0369A1;
+  --color-info-bg: #E0F2FE;
+}
+
+body {
+  margin: 0;
+  color: #0F172A;
+  background-color: #F8FAFC;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
