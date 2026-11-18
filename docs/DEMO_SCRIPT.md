@@ -87,3 +87,4 @@ flowchart LR
 ## 3. Wrap-up & Final Punchline (15 seconds)
 
 > *"LOTLINE doesn't replace human judgement with black-box AI. It empowers factory inspectors with on-device assistance, enforces mathematical ISO limits, and holds human supervisors accountable through cryptographic evidence and multi-party sign-off. Thank you."*
+
