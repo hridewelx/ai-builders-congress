@@ -153,3 +153,4 @@ def test_configuration_dialog_in_shell():
     c_insp = ctx(req, active="dashboard", user=user_insp, cards=[], counters={}, model="", model_ok=True, stats={})
     html_insp = templates.TemplateResponse(req, "dashboard.html", c_insp).body.decode("utf-8")
     assert 'id="configDialog"' not in html_insp
+
