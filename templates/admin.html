@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('admin.title') }}{% endblock %}
+{% block heading %}{{ tr('admin.title') }}{% endblock %}
+{% block subheading %}{{ 'Accounts, model activation, audit and system health.' if lang=='en' else 'অ্যাকাউন্ট, মডেল সক্রিয়করণ, অডিট ও সিস্টেম স্বাস্থ্য।' }}{% endblock %}
+{% block content %}
+
+<div class="tabs">
+  <a href="/admin?tab=users" class="{{ 'on' if tab=='users' }}">{{ tr('admin.users') }}</a>
+  <a href="/admin?tab=models" class="{{ 'on' if tab=='models' }}">{{ tr('admin.models') }}</a>
+  <a href="/admin?tab=health" class="{{ 'on' if tab=='health' }}">{{ tr('admin.health') }}</a>
+  <a href="/admin?tab=clauses" class="{{ 'on' if tab=='clauses' }}">{{ tr('admin.clauses') }}</a>
+  <a href="/audit">{{ tr('admin.audit') }} ↗</a>
+</div>
+
+{% if request.query_params.get('temp') %}
+<div class="note ok" style="margin-bottom:14px">
+  {{ tr('flash.temp') }} <span class="mono" style="font-size:15px">{{ request.query_params.get('temp') }}</span>
+</div>
+{% endif %}
+
+{% if tab == 'users' %}
+<div class="split">
+  <div class="card">
+    <div class="card-h"><h3>{{ tr('admin.users') }}</h3><div class="right"><span class="chip">{{ users|length }}</span></div></div>
+    <div class="tblwrap">
+      <table class="table" id="users">
+        <thead><tr><th>{{ tr('common.user') }}</th><th>{{ tr('common.role') }}</th><th>{{ tr('common.status') }}</th><th></th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td><b>{{ u.display_name }}</b><div class="small dim mono">{{ u.email }}</div></td>
+            <td><span class="badge ghost">{{ tr('common.' ~ u.role) }}</span></td>
+            <td><span class="badge {{ 'ACCEPT' if u.status=='active' else 'REJECT' }}"><span class="dot"></span>{{ u.status }}</span></td>
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end">
+                <form method="post" action="/admin/users/{{ u.id }}">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <button class="btn sm ghost" name="action" value="{{ 'disable' if u.status=='active' else 'enable' }}">
+                    {{ tr('admin.disable') if u.status=='active' else tr('admin.enable') }}
+                  </button>
+                </form>
+                {% if u.id != user.id %}
+                <form method="post" action="/admin/users/{{ u.id }}" class="inline" style="gap:6px">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <select name="role" style="width:auto;padding:5px 8px;font-size:12px">
+                    {% for r in ['inspector','supervisor','admin'] %}
+                    <option value="{{ r }}" {{ 'selected' if r==u.role }}>{{ tr('common.' ~ r) }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn sm" name="action" value="role">{{ tr('common.save') }}</button>
+                </form>
+                {% endif %}
+                <form method="post" action="/admin/users/{{ u.id }}">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <button class="btn sm ghost" name="action" value="reset">{{ tr('admin.reset') }}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>{{ tr('admin.new_user') }}</h3></div>
+    <div class="pad">
+      <form method="post" action="/admin/users">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="field"><label>{{ tr('login.email') }}</label><input name="email" type="email" required></div>
+        <div class="field"><label>{{ tr('admin.display_name') }}</label><input name="display_name" required></div>
+        <div class="field"><label>{{ tr('common.role') }}</label>
+          <select name="role">{% for r in ['inspector','supervisor','admin'] %}<option value="{{ r }}">{{ tr('common.' ~ r) }}</option>{% endfor %}</select>
+        </div>
+        <div class="field"><label>{{ tr('login.password') }}</label><input name="password" type="text" required minlength="15"></div>
+        <div class="note" style="margin-bottom:12px">{{ '15+ characters, no composition rules, checked against common and context words. Temporary password forces a change at first login.' if lang=='en' else '১৫+ অক্ষর, কম্পোজিশন নিয়ম নেই, সাধারণ শব্দ যাচাই হয়। অস্থায়ী পাসওয়ার্ডে প্রথম লগইনে পরিবর্তন বাধ্যতামূলক।' }}</div>
+        <button class="btn primary">{{ tr('common.save') }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% elif tab == 'models' %}
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('admin.models') }}</h3>
+        <div class="right">
+          <form method="post" action="/admin/models/selftest">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn sm">{{ tr('admin.selftest') }}</button>
+          </form>
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% for m in models %}
+        <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div class="between"><b class="mono">{{ m.name }}</b><span class="badge ACCEPT">{{ 'active' if loop.first else 'registered' }}</span></div>
+          <div class="small dim" style="margin-top:4px">SHA-256 <span class="mono">{{ m.artifact_sha[:32] }}…</span></div>
+          <div class="small dim">{{ 'classes' if lang=='en' else 'শ্রেণি' }}: <span class="mono">{{ m.classes }}</span></div>
+          <div class="small muted" style="margin-top:4px">{{ m.eval_note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>{{ 'Self-test history' if lang=='en' else 'সেলফ-টেস্ট ইতিহাস' }}</h3></div>
+      <div class="pad-sm">
+        {% for t in tests %}
+        <div class="between" style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span class="badge {{ 'ACCEPT' if t.passed else 'REJECT' }}">{{ 'PASS' if t.passed else 'FAIL' }}</span>
+          <span class="small dim mono" style="flex:1;margin-left:10px">{{ t.detail }}</span>
+          <span class="small dim">{{ t.created_at }}</span>
+        </div>
+        {% else %}
+        <div class="empty">{{ tr('common.none') }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>{{ tr('admin.activate') }}</h3></div>
+    <div class="pad">
+      <p class="small muted">{{ 'Activation is append-only and requires a passing self-test. Model files are immutable; old decisions keep their original model version.' if lang=='en' else 'সক্রিয়করণ শুধু যোগ হয় এবং সফল সেলফ-টেস্ট দরকার। মডেল ফাইল অপরিবর্তনীয়; পুরনো সিদ্ধান্ত নিজের মডেল সংস্করণ রাখে।' }}</p>
+      <form method="post" action="/admin/models/activate">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="field"><label>{{ tr('common.reason') }}</label><textarea name="reason" minlength="20" required></textarea></div>
+        <button class="btn primary">{{ tr('admin.activate') }}</button>
+      </form>
+      <div class="note" style="margin-top:12px">
+        {{ 'No model upload endpoint exists. A checkpoint is placed on the host by the operator and hash-verified before loading.' if lang=='en' else 'মডেল আপলোড এন্ডপয়েন্ট নেই। অপারেটর হোস্টে চেকপয়েন্ট রাখেন এবং লোডের আগে হ্যাশ যাচাই হয়।' }}
+      </div>
+      <div class="list" style="margin-top:12px">
+        {% for a in activations %}
+        <li><span class="badge ghost">{{ a.action }}</span><div class="grow"><div class="small">{{ a.reason }}</div><div class="m dim" style="font-size:11px">{{ a.actor }} · {{ a.created_at }}</div></div></li>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% elif tab == 'health' %}
+<div class="grid cols-4">
+  <div class="kpi accent"><div class="lbl">{{ tr('dash.model') }}</div>
+    <div class="n" style="font-size:20px">{{ 'online' if health.model_loaded else 'offline' }}</div>
+    <div class="small dim mono" style="margin-top:4px">{{ health.model }}</div>
+  </div>
+  <div class="kpi"><div class="lbl">{{ 'Database' if lang=='en' else 'ডেটাবেস' }}</div>
+    <div class="n" style="font-size:20px">{{ (health.db_bytes/1024)|round(0)|int }} KB</div>
+    <div class="small dim">{{ health.sessions }} sessions</div>
+  </div>
+  <div class="kpi"><div class="lbl">{{ 'Disk free' if lang=='en' else 'ডিস্ক খালি' }}</div>
+    <div class="n" style="font-size:20px">{{ (health.disk_free/1073741824)|round(1) }} GB</div>
+    <div class="small dim">{{ 'of' if lang=='en' else 'মোট' }} {{ (health.disk_total/1073741824)|round(1) }} GB</div>
+  </div>
+  <div class="kpi"><div class="lbl">{{ 'Inference jobs' if lang=='en' else 'ইনফারেন্স কাজ' }}</div>
+    <div class="n" style="font-size:20px">{{ health.jobs_ok }}<small> ok / {{ health.jobs_failed }} failed</small></div>
+    <div class="small dim">{{ health.images }} {{ tr('common.images')|lower }}</div>
+  </div>
+</div>
+
+<div class="split" style="margin-top:16px">
+  <div class="card">
+    <div class="card-h"><h3>{{ 'Checks' if lang=='en' else 'যাচাই' }}</h3></div>
+    <div class="pad-sm">
+      <div class="list">
+        <li><span class="badge ACCEPT">ok</span><div class="grow"><b>{{ 'Audit chain' if lang=='en' else 'অডিট চেইন' }}</b><div class="small dim">{{ health.audit_rows }} {{ 'append-only rows' if lang=='en' else 'শুধু-যোগ রেকর্ড' }}</div></div></li>
+        <li><span class="badge ACCEPT">ok</span><div class="grow"><b>{{ 'Evidence integrity' if lang=='en' else 'প্রমাণ অখণ্ডতা' }}</b><div class="small dim">{{ 'SHA-256 checked at every decision and report' if lang=='en' else 'প্রতিটি সিদ্ধান্ত ও রিপোর্টে SHA-256 যাচাই' }}</div></div></li>
+        <li><span class="badge HOLD">manual</span><div class="grow"><b>{{ 'Backup' if lang=='en' else 'ব্যাকআপ' }}</b><div class="small dim">{{ 'Operator action: nightly copy + restore drill. Not automated in this demo.' if lang=='en' else 'অপারেটর কাজ: রাতের কপি + রিস্টোর ড্রিল। এই ডেমোতে স্বয়ংক্রিয় নয়।' }}</div></div></li>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h"><h3>{{ 'Model artifact' if lang=='en' else 'মডেল আর্টিফ্যাক্ট' }}</h3></div>
+    <div class="pad-sm small">
+      <div class="mono dim" style="word-break:break-all">{{ health.model_sha }}</div>
+      <div class="note" style="margin-top:10px">{{ 'The Vision service has no database access and the API has no route to it. The detector runs here in-process for the single-container demo; the production topology separates them.' if lang=='en' else 'ভিশন সার্ভিসের ডেটাবেস অ্যাক্সেস নেই এবং এপিআই থেকে এর রুট নেই। ডেমোতে এক কন্টেইনারে চলে; প্রোডাকশনে আলাদা।' }}</div>
+    </div>
+  </div>
+</div>
+
+{% elif tab == 'clauses' %}
+<div class="card">
+  <div class="card-h"><h3>{{ tr('admin.clauses') }}</h3><div class="right"><span class="chip">{{ clauses|length }}</span></div></div>
+  <div class="pad-sm"><div class="note info">{{ tr('admin.clause_readonly') }}</div></div>
+  <div class="tblwrap">
+    <table class="table">
+      <thead><tr><th>{{ tr('lots.buyer') }}</th><th>{{ tr('rev.type') }}</th><th>{{ tr('rev.zone') }}</th><th>{{ tr('rev.size_band') }}</th><th>{{ 'Severity' if lang=='en' else 'সিরিয়িটি' }}</th><th>{{ 'Clause' if lang=='en' else 'ক্লজ' }}</th></tr></thead>
+      <tbody>
+        {% for c in clauses %}
+        <tr>
+          <td>{{ c.buyer_name }}</td>
+          <td>{{ tr('type.' ~ c.defect_type) }}</td>
+          <td class="mono">{{ c.zone_code }}</td>
+          <td>{{ c.size_band or '—' }}</td>
+          <td><span class="badge {{ c.severity }}">{{ tr('severe.' ~ c.severity) }}</span></td>
+          <td class="mono dim">{{ c.clause_ref }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

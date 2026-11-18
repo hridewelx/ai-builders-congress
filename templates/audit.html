@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('audit.title') }}{% endblock %}
+{% block heading %}{{ tr('audit.title') }}{% endblock %}
+{% block subheading %}{{ tr('audit.immutable') }}{% endblock %}
+{% block content %}
+
+<div class="card" style="margin-bottom:14px">
+  <div class="pad-sm">
+    <form method="get" class="inline">
+      <div class="field" style="flex:3"><label>{{ tr('common.search') }}</label><input name="q" value="{{ q }}" placeholder="decision.computed / lot / actor"></div>
+      <button class="btn primary">{{ tr('common.filter') }}</button>
+      {% if can_export %}<a class="btn" href="/audit.csv">↓ CSV</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="tblwrap">
+    <table class="table">
+      <thead><tr><th>#</th><th>{{ tr('common.time') }}</th><th>{{ tr('audit.actor') }}</th><th>{{ tr('audit.action') }}</th><th>{{ tr('audit.entity') }}</th><th>{{ 'Before → after' if lang=='en' else 'আগে → পরে' }}</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="dim mono">{{ r.id }}</td>
+          <td class="small dim" style="white-space:nowrap">{{ r.at }}</td>
+          <td><b class="small">{{ r.actor_label }}</b></td>
+          <td><span class="badge ghost">{{ r.action }}</span></td>
+          <td class="small dim">{{ r.entity }}{% if r.entity_id %} #{{ r.entity_id }}{% endif %}</td>
+          <td style="max-width:420px">
+            {% if r.after %}
+            <details><summary class="small" style="cursor:pointer;color:var(--muted)">{{ 'view payload' if lang=='en' else 'পেলোড দেখুন' }}</summary>
+              <pre class="mono small" style="white-space:pre-wrap;margin:6px 0;color:var(--dim)">{{ r.after }}</pre>
+            </details>
+            {% else %}<span class="dim">—</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty">{{ tr('common.none') }}</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

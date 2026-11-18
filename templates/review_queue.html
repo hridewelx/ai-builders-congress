@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('rev.queue') }}{% endblock %}
+{% block heading %}{{ tr('rev.queue') }}{% endblock %}
+{% block subheading %}{{ lot.lot_code }} · {{ lot.buyer_name }}{% endblock %}
+{% block content %}
+{% include "_lotnav.html" %}
+
+<div class="card">
+  <div class="card-h">
+    <h3>{{ tr('rev.queue') }}</h3>
+    <div class="right">
+      <span class="chip">{{ queue|length }} {% if lang=='en' %}{{ 'view' if queue|length==1 else 'views' }}{% else %}ভিউ{% endif %}</span>
+      {% if queue and queue[0].view.image %}
+      <a class="btn sm primary" href="/review/{{ queue[0].view.image.id }}">{{ tr('common.continue') }} →</a>
+      {% endif %}
+    </div>
+  </div>
+  {% if queue %}
+  <div class="tblwrap">
+    <table class="table">
+      <thead><tr><th>{{ tr('lot.unit') }}</th><th>{{ tr('cap.side') }}</th><th>{{ tr('common.status') }}</th><th>{{ 'Priority' if lang=='en' else 'অগ্রাধিকার' }}</th><th></th></tr></thead>
+      <tbody>
+        {% for q in queue %}
+        <tr>
+          <td style="font-weight:600">{{ q.unit.garment_code }}</td>
+          <td>{{ tr('cap.' ~ q.view.side) }}</td>
+          <td>
+            {% if not q.view.image %}<span class="badge ghost">{{ 'no photo' if lang=='en' else 'ছবি নেই' }}</span>
+            {% elif q.view.inference_status == 'failed' %}<span class="badge HOLD">{{ tr('cap.not_inferred') }}</span>
+            {% elif q.view.open_proposals %}<span class="badge HOLD">{{ q.view.open_proposals }} {{ 'proposals' if lang=='en' else 'প্রস্তাব' }}</span>
+            {% else %}<span class="badge ghost">{{ 'no proposals' if lang=='en' else 'প্রস্তাব নেই' }}</span>{% endif %}
+          </td>
+          <td>
+            {% if q.priority == 3 %}<span class="badge critical">critical routing</span>
+            {% elif q.priority == 2 %}<span class="badge HOLD">manual</span>
+            {% elif q.priority == 1 %}<span class="badge ghost">review</span>
+            {% else %}<span class="dim">—</span>{% endif %}
+          </td>
+          <td class="right">
+            {% if q.view.image %}<a class="btn sm" href="/review/{{ q.view.image.id }}">{{ tr('common.open') }}</a>
+            {% else %}<a class="btn sm ghost" href="/lots/{{ lot.id }}/capture">{{ tr('lot.capture') }}</a>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <b>{{ tr('rev.queue_empty') }}</b>
+    {{ 'A complete sample still needs a decision.' if lang=='en' else 'সম্পূর্ণ নমুনার জন্য এখনো সিদ্ধান্ত দরকার।' }}
+    <div style="margin-top:12px"><a class="btn primary" href="/lots/{{ lot.id }}/decision">{{ tr('dec.compute') }}</a></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% macro icon(name) -%}
+{% if name == 'grid' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+{% elif name == 'layers' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5L21 12"/><path d="m3 16.5 9 4.5 9-4.5"/></svg>
+{% elif name == 'plus' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+{% elif name == 'shield' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4.5 6v6c0 4.4 3.1 7.6 7.5 9 4.4-1.4 7.5-4.6 7.5-9V6L12 3Z"/><path d="m9 12 2 2 4-4"/></svg>
+{% elif name == 'list' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.2"/><circle cx="4" cy="12" r="1.2"/><circle cx="4" cy="18" r="1.2"/></svg>
+{% elif name == 'spark' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/></svg>
+{% elif name == 'book' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+{% elif name == 'lock' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+{% endif %}
+{%- endmacro %}
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Lotline{% endblock %} · Lotline</title>
+  <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23D8FF63'/%3E%3Cpath d='M20 16v32h25' stroke='%230A0F18' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+{% if user %}
+<div class="shell">
+  <aside class="rail">
+    <a class="brand" href="/">
+      <span class="mark">L</span>
+      <span><b>{{ tr('app.name') }}</b><span>Knitwear QC</span></span>
+    </a>
+    <nav class="nav">
+      <a href="/" class="{{ 'on' if active=='dashboard' }}">{{ icon('grid') }}<span class="lbl">{{ tr('nav.dashboard') }}</span></a>
+      <a href="/lots" class="{{ 'on' if active=='lots' }}">{{ icon('layers') }}<span class="lbl">{{ tr('nav.lots') }}</span></a>
+      {% if user.role in ('inspector','supervisor') %}
+      <a href="/lots/new" class="{{ 'on' if active=='newlot' }}">{{ icon('plus') }}<span class="lbl">{{ tr('nav.new_lot') }}</span></a>
+      {% endif %}
+      <a href="/how" class="{{ 'on' if active=='how' }}">{{ icon('book') }}<span class="lbl">{{ tr('nav.how') }}</span></a>
+      {% if user.role in ('supervisor','admin') %}
+      <a href="/audit" class="{{ 'on' if active=='audit' }}">{{ icon('list') }}<span class="lbl">{{ tr('nav.audit') }}</span></a>
+      {% endif %}
+      {% if user.role == 'admin' %}
+      <a href="/admin" class="{{ 'on' if active=='admin' }}">{{ icon('shield') }}<span class="lbl">{{ tr('nav.admin') }}</span></a>
+      {% endif %}
+    </nav>
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>{{ tr('dash.principle') }}</b>
+      {{ tr('app.tagline') }}
+      <div style="margin-top:7px"><span class="badge ghost"><span class="dot" style="background:var(--green)"></span>demo · staged data</span></div>
+    </div>
+    <div class="userbox">
+      <span class="avatar">{{ user.display_name[:1] }}</span>
+      <div class="who"><b>{{ user.display_name }}</b><span>{{ tr('common.' ~ user.role) }}</span></div>
+      <form method="post" action="/logout" style="margin-left:auto">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn sm ghost" title="{{ tr('nav.logout') }}">⏻</button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div style="min-width:0">
+        <h1>{% block heading %}{{ tr('nav.dashboard') }}{% endblock %}</h1>
+        <div class="sub">{% block subheading %}{% endblock %}</div>
+      </div>
+      <div class="right">
+        <a class="btn sm ghost" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}">{{ 'বাংলা' if lang=='en' else 'English' }}</a>
+        <span class="badge ghost">{{ tr('common.' ~ user.role) }}</span>
+      </div>
+    </header>
+    <main class="content">
+      {% if ok %}<div class="note ok" style="margin-bottom:14px">{{ tr('flash.' ~ ok) }}</div>{% endif %}
+      {% if err %}<div class="note bad" style="margin-bottom:14px">{{ tr('err.' ~ err) }}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    <div class="foot">
+      Lotline demo build · {{ tr('app.tagline') }} · staged garment images, no real buyer or personal data ·
+      <a href="/how" style="color:var(--muted)">{{ tr('nav.how') }}</a>
+    </div>
+  </div>
+</div>
+{% else %}
+{% block anon %}{% endblock %}
+{% endif %}
+<script src="/static/app.js"></script>
+</body>
+</html>

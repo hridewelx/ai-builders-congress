@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('plan.title') }}{% endblock %}
+{% block heading %}{{ tr('plan.title') }}{% endblock %}
+{% block subheading %}{{ lot.lot_code }} · {{ lot.buyer_name }} · {{ tr('lots.size') }} {{ lot.lot_size }}{% endblock %}
+{% block content %}
+{% include "_lotnav.html" %}
+
+<div class="split">
+  <div class="card">
+    <div class="card-h"><h3>{{ tr('plan.title') }}</h3>
+      <div class="right">{% if plan %}<span class="chip">v{{ plan.version }}</span>{% endif %}</div>
+    </div>
+    <div class="pad">
+      <p class="muted small" style="margin-bottom:14px">{{ tr('plan.subtitle') }}</p>
+      <div class="note warn" style="margin-bottom:16px">
+        <b>{{ tr('lot.plan_assumption') }}</b><br>
+        {{ 'Single sampling, normal inspection, Level II; critical AQL 0 read as Ac 0 / Re 1; major 2.5; minor 4.0. Lotline never looks a plan up in a table.' if lang=='en' else 'সিঙ্গেল স্যাম্পলিং, নরমাল ইন্সপেকশন, লেভেল II; ক্রিটিক্যাল AQL 0 মানে Ac 0 / Re 1; মেজর 2.5; মাইনর 4.0। লটলাইন কখনো টেবিল থেকে প্ল্যান খোঁজে না।' }}
+      </div>
+
+      {% if not is_supervisor %}
+      <div class="note info">{{ 'Only a Supervisor can enter or change the plan.' if lang=='en' else 'শুধু সুপারভাইজার প্ল্যান দিতে বা বদলাতে পারেন।' }}</div>
+      {% elif locked %}
+      <div class="note bad">{{ tr('lot.locked') }}</div>
+      {% else %}
+      <form method="post" action="/lots/{{ lot.id }}/plan">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="grid cols-2" style="gap:0 16px">
+          <div class="field">
+            <label>{{ tr('plan.n') }}</label>
+            <input name="n" type="number" min="1" value="{{ plan.n if plan else 8 }}" required>
+          </div>
+          <div class="field">
+            <label>{{ tr('plan.mode') }}</label>
+            <select name="counting_mode" required>
+              <option value="highest_class_only" {{ 'selected' if plan and plan.counting_mode=='highest_class_only' }}>{{ tr('plan.mode_highest') }}</option>
+              <option value="every_class" {{ 'selected' if plan and plan.counting_mode=='every_class' }}>{{ tr('plan.mode_every') }}</option>
+            </select>
+          </div>
+        </div>
+
+        <table class="table" style="margin:6px 0 14px">
+          <thead><tr><th>{{ tr('common.details') }}</th><th>{{ tr('plan.aql') }}</th><th>{{ tr('plan.ac') }}</th><th>{{ tr('plan.re') }}</th></tr></thead>
+          <tbody>
+            {% for c in ['critical','major','minor'] %}
+            <tr>
+              <td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
+              <td><input name="{{ c }}_aql" value="{{ plan[c ~ '_aql'] if plan and plan[c ~ '_aql'] is not none else (0.0 if c=='critical' else (2.5 if c=='major' else 4.0)) }}" style="max-width:110px"></td>
+              <td><input name="{{ c }}_ac" type="number" min="0" value="{{ plan[c ~ '_ac'] if plan else (0 if c=='critical' else (1 if c=='major' else 2)) }}" style="max-width:100px" required></td>
+              <td><input name="{{ c }}_re" type="number" min="0" value="{{ plan[c ~ '_re'] if plan else (1 if c=='critical' else (2 if c=='major' else 3)) }}" style="max-width:100px" required></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="grid cols-2" style="gap:0 16px">
+          <div class="field"><label>{{ tr('plan.source_edition') }}</label><input name="source_edition" placeholder="e.g. ISO 2859-1:2026 (licensed copy)"></div>
+          <div class="field"><label>{{ tr('plan.source_ref') }}</label><input name="source_reference" placeholder="Buyer order PO-12345"></div>
+        </div>
+        <div class="note info" style="margin-bottom:14px">
+          {{ 'Validation: Re must equal Ac + 1 for every class. A plan that breaks this is refused here and would become HOLD_PLAN_INVALID.' if lang=='en' else 'যাচাই: প্রতিটি শ্রেণিতে Re = Ac + 1 হতে হবে। এটি ভাঙলে এখানেই বাতিল, নাহলে HOLD_PLAN_INVALID হবে।' }}
+        </div>
+        <button class="btn primary">{{ tr('common.save') }}</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('plan.readback') }}</h3></div>
+      <div class="pad-sm">
+        {% if plan %}
+        <table class="table" style="font-size:12.5px">
+          <tbody>
+            <tr><td class="dim">{{ 'Sample size' if lang=='en' else 'স্যাম্পল সাইজ' }}</td><td class="right mono">{{ plan.n }}</td></tr>
+            <tr><td class="dim">{{ tr('plan.mode') }}</td><td class="right mono">{{ plan.counting_mode }}</td></tr>
+            {% for c in ['critical','major','minor'] %}
+            <tr><td class="dim">{{ tr('plan.' ~ c) }}</td><td class="right mono">{{ plan[c ~ '_ac'] }} / {{ plan[c ~ '_re'] }}</td></tr>
+            {% endfor %}
+            <tr><td class="dim">{{ tr('plan.source_edition') }}</td><td class="right">{{ plan.source_edition or '—' }}</td></tr>
+            <tr><td class="dim">{{ tr('plan.source_ref') }}</td><td class="right">{{ plan.source_reference or '—' }}</td></tr>
+          </tbody>
+        </table>
+        {% if plan.n >= lot.lot_size %}
+        <div class="note warn" style="margin-top:10px">{{ tr('plan.100pct') }}</div>
+        {% endif %}
+        {% else %}
+        <div class="note bad">{{ tr('lot.plan_missing') }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>{{ 'What the report prints' if lang=='en' else 'রিপোর্টে যা থাকবে' }}</h3></div>
+      <div class="pad-sm small muted">
+        <ul style="margin:0;padding-left:18px">
+          <li>{{ 'n entered and n effective' if lang=='en' else 'n দেওয়া ও n কার্যকর' }}</li>
+          <li>{{ 'counting mode, because counts differ by mode' if lang=='en' else 'গণনার পদ্ধতি, কারণ পদ্ধতিভেদে গণনা বদলায়' }}</li>
+          <li>{{ 'per-class Ac/Re and the clause reference used' if lang=='en' else 'প্রতি শ্রেণির Ac/Re ও ব্যবহৃত ক্লজ রেফারেন্স' }}</li>
+          <li>{{ 'source edition, and that default values are an assumption' if lang=='en' else 'উৎস সংস্করণ, এবং ডিফল্ট মান অনুমান' }}</li>
+          <li>{{ 'no reconstructed sampling table, no percentage allowance' if lang=='en' else 'কোনো পুনর্গঠিত টেবিল বা শতাংশ অনুমতি নয়' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

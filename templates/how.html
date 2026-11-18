@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('how.title') }}{% endblock %}
+{% block heading %}{{ tr('how.title') }}{% endblock %}
+{% block subheading %}{{ tr('how.principle') }}{% endblock %}
+{% block content %}
+
+<div class="grid cols-3" style="margin-bottom:16px">
+  <div class="card"><div class="pad-sm">
+    <div class="badge HOLD">{{ 'AI proposes' if lang=='en' else 'এআই প্রস্তাব দেয়' }}</div>
+    <p class="small muted" style="margin-top:9px">{{ 'An unsupervised autoencoder learns what clean knit texture looks like from pixels alone. It proposes boxes and a class guess. It has no severity head, no count, no verdict, and no way to approve a lot.' if lang=='en' else 'একটি আনসুপারভাইজড অটোএনকোডার শুধু পিক্সেল থেকে পরিষ্কার নিট টেক্সচার শেখে। এটি বক্স ও শ্রেণির অনুমান দেয়। সিরিয়িটি, গণনা বা রায় নেই।' }}</p>
+  </div></div>
+  <div class="card"><div class="pad-sm">
+    <div class="badge ESCALATE">{{ 'Humans confirm' if lang=='en' else 'মানুষ নিশ্চিত করে' }}</div>
+    <p class="small muted" style="margin-top:9px">{{ 'A reviewer confirms, edits, rejects or adds each defect, chooses the zone, and marks every view. Severity is mapped from the buyer clause list after confirmation — never from the model.' if lang=='en' else 'পর্যালোচক প্রতিটি ত্রুটি নিশ্চিত, সম্পাদনা, বাতিল বা যোগ করেন, জোন বাছেন এবং প্রতিটি ভিউ চিহ্নিত করেন। সিরিয়িটি নিশ্চিতকরণের পরে ক্রেতার ক্লজ থেকে আসে — মডেল থেকে নয়।' }}</p>
+  </div></div>
+  <div class="card"><div class="pad-sm">
+    <div class="badge ACCEPT">{{ 'The rule decides' if lang=='en' else 'নিয়ম সিদ্ধান্ত দেয়' }}</div>
+    <p class="small muted" style="margin-top:9px">{{ 'A pure function compares confirmed defective-garment counts with the entered Ac/Re in a fixed precedence: plan → REJECT → ESCALATE → HOLD → ACCEPT. Same inputs, same outcome, every time.' if lang=='en' else 'একটি বিশুদ্ধ ফাংশন নিশ্চিত ত্রুটিপূর্ণ গার্মেন্টসের গণনা দেওয়া Ac/Re-এর সঙ্গে নির্দিষ্ট ক্রমে তুলনা করে: প্ল্যান → REJECT → ESCALATE → HOLD → ACCEPT। একই ইনপুট, একই ফলাফল।' }}</p>
+  </div></div>
+</div>
+
+<div class="card" style="margin-bottom:16px">
+  <div class="card-h"><h3>{{ tr('how.pipeline') }}</h3><div class="right"><span class="chip">input → AI → human → rule → evidence</span></div></div>
+  <div class="pad">
+    <div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+      {% for s in [
+        ('1 · Capture', 'Phone JPEG/PNG · EXIF stripped · SHA-256 kept' ),
+        ('2 · Vision', 'patch embeddings · autoencoder residual · boxes'),
+        ('3 · Review', 'confirm / edit / reject / add · zone'),
+        ('4 · Decision', 'count units · compare Ac/Re · 4 outcomes'),
+        ('5 · Report', 'one page · snapshot hash · audit trail')
+      ] %}
+      <div class="unit" style="padding:12px">
+        <div class="small" style="font-weight:700;color:var(--lime)">{{ s[0] }}</div>
+        <div class="small dim" style="margin-top:5px">{{ s[1] }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="note info" style="margin-top:14px">
+      {{ 'Production topology in the specification: Proxy · API · InferenceWorker (no table privilege) · Vision (no database) · PostgreSQL, with the detector isolated on its own network. This demo runs one container and an in-process detector so judges can click through it without Docker.' if lang=='en' else 'স্পেসিফিকেশনের প্রোডাকশন টপোলজি: প্রক্সি · এপিআই · ইনফারেন্সওয়ার্কার (টেবিল অধিকার নেই) · ভিশন (ডেটাবেস নেই) · পোস্টগ্রেস, ডিটেক্টর আলাদা নেটওয়ার্কে। ডেমোতে এক কন্টেইনার ও ইন-প্রসেস ডিটেক্টর।' }}
+    </div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="card">
+    <div class="card-h"><h3>{{ tr('how.model_card') }}</h3>
+      <div class="right">
+        {% set st = card.get('self_test', {}) %}
+        <span class="badge {{ 'ACCEPT' if st.get('passed') else 'HOLD' }}"><span class="dot"></span>{{ 'self-test passed' if st.get('passed') else 'run self-test' }}</span>
+      </div>
+    </div>
+    <div class="pad-sm">
+      <table class="table" style="font-size:12.5px">
+        <tbody>
+          <tr><td class="dim">Model</td><td class="right mono">{{ card.get('model', 'ae-knit-v1') }}</td></tr>
+          <tr><td class="dim">Training data</td><td class="right">{{ card.get('training', '—') }}</td></tr>
+          <tr><td class="dim">Labels used</td><td class="right">none (unsupervised)</td></tr>
+          <tr><td class="dim">Calibration</td><td class="right" style="color:var(--amber)">{{ card.get('calibration', 'none') }}</td></tr>
+          <tr><td class="dim">Evaluation domain</td><td class="right">{{ card.get('domains', '—') }}</td></tr>
+          <tr><td class="dim">Runtime</td><td class="right">{{ card.get('device', '—') }}</td></tr>
+          <tr><td class="dim">Artifact</td><td class="right mono small">{{ (card.get('sha256','') or '')[:28] }}…</td></tr>
+          <tr><td class="dim">Self-test</td><td class="right small">{{ card.get('self_test', {}).get('detail', '—') }}</td></tr>
+        </tbody>
+      </table>
+
+      {% set ev = card.get('evaluation') %}
+      {% if ev %}
+      <div class="lbl" style="margin:14px 0 6px">{{ 'Staged-set localisation (IoU ≥ 0.05), n small' if lang=='en' else 'স্টেজ সেট লোকালাইজেশন (IoU ≥ 0.05), n ছোট' }}</div>
+      <table class="table" style="font-size:12.5px">
+        <thead><tr><th>{{ tr('rev.type') }}</th><th class="num">n</th><th class="num">recall</th></tr></thead>
+        <tbody>
+          {% for r in ev.get('rows', []) %}
+          <tr><td>{{ tr('type.' ~ r.class) }}</td><td class="num">{{ r.n }}</td><td class="num">{{ (r.recall*100)|round(0)|int }}%</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="small dim" style="margin-top:8px">
+        {{ ev.get('views', {}).get('with_proposal', 0) }}/{{ ev.get('views', {}).get('total', 0) }} staged views received at least one proposal ·
+        {{ ev.get('false_positive_views', 0) }} clean views flagged · <b>{{ ev.get('note', '') }}</b>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('how.impact') }}</h3></div>
+      <div class="pad-sm">
+        <div class="grid cols-2" style="gap:9px">
+          <div class="kpi" style="padding:11px"><div class="lbl">{{ tr('common.lot') }}</div><div class="n" style="font-size:20px">{{ stats.lots }}</div></div>
+          <div class="kpi" style="padding:11px"><div class="lbl">{{ tr('common.images') }}</div><div class="n" style="font-size:20px">{{ stats.images }}</div></div>
+          <div class="kpi" style="padding:11px"><div class="lbl">{{ 'proposals' if lang=='en' else 'প্রস্তাব' }}</div><div class="n" style="font-size:20px">{{ stats.proposals }}</div></div>
+          <div class="kpi" style="padding:11px"><div class="lbl">{{ 'human decisions' if lang=='en' else 'মানব সিদ্ধান্ত' }}</div><div class="n" style="font-size:20px">{{ stats.confirmed + stats.rejected }}</div></div>
+        </div>
+        <div class="list" style="margin-top:10px">
+          <li><div class="grow"><b>{{ stats.decisions.get('ACCEPT',0) }} ACCEPT · {{ stats.decisions.get('REJECT',0) }} REJECT</b><div class="small dim">{{ 'two complete lots, opposite outcomes' if lang=='en' else 'দুটি সম্পূর্ণ লট, বিপরীত ফলাফল' }}</div></div></li>
+          <li><div class="grow"><b>{{ stats.decisions.get('HOLD',0) }} HOLD · {{ stats.decisions.get('ESCALATE',0) }} ESCALATE</b><div class="small dim">{{ 'incomplete evidence and an unmapped buyer clause' if lang=='en' else 'অসম্পূর্ণ প্রমাণ ও অম্যাপ করা ক্রেতা ক্লজ' }}</div></div></li>
+          <li><div class="grow"><b>{{ stats.audit }} audit rows</b><div class="small dim">{{ 'every state change, append-only' if lang=='en' else 'প্রতিটি পরিবর্তন, শুধু-যোগ' }}</div></div></li>
+        </div>
+        <div class="note warn" style="margin-top:10px">{{ 'These are demo counts, not factory savings. No time-saving claim is made without a manual baseline.' if lang=='en' else 'এগুলো ডেমো গণনা, কারখানার সাশ্রয় নয়। ম্যানুয়াল বেসলাইন ছাড়া সময়-সাশ্রয়ের দাবি করা হয় না।' }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('how.limits') }}</h3></div>
+      <div class="pad-sm">
+        <ul class="small muted" style="margin:0;padding-left:18px;line-height:1.7">
+          <li>{{ 'Uncalibrated detector: scores are not probabilities.' if lang=='en' else 'অপরিমাপিত ডিটেক্টর: স্কোর সম্ভাবনা নয়।' }}</li>
+          <li>{{ 'Trained and evaluated on staged knit panels only; no factory evidence yet.' if lang=='en' else 'শুধু স্টেজ করা নিট প্যানেলে প্রশিক্ষণ ও মূল্যায়ন; কারখানার প্রমাণ নেই।' }}</li>
+          <li>{{ 'Type classification is a heuristic suggestion; the reviewer can change it.' if lang=='en' else 'ধরন শ্রেণিবিন্যাস একটি অনুমান; পর্যালোচক বদলাতে পারেন।' }}</li>
+          <li>{{ 'Critical non-visual defects (needle, metal) cannot be photographed; a Supervisor records them separately.' if lang=='en' else 'ক্রিটিক্যাল অদৃশ্য ত্রুটি (সুই, ধাতু) ছবিতে ধরা যায় না; সুপারভাইজার আলাদা রেকর্ড করেন।' }}</li>
+          <li>{{ 'Sampling randomness is self-declared. Software cannot verify the draw.' if lang=='en' else 'নমুনার এলোমেলোতা স্ব-ঘোষিত। সফটওয়্যার যাচাই করতে পারে না।' }}</li>
+          <li>{{ 'No ISO certification, no "ISO-compliant AI", no reconstructed sampling table.' if lang=='en' else 'কোনো ISO সার্টিফিকেশন, "ISO-কমপ্লায়েন্ট এআই" বা পুনর্গঠিত টেবিল নেই।' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <div class="card-h"><h3>{{ 'Why this is AI-native, not an AI sticker' if lang=='en' else 'কেন এটি এআই-নেটিভ' }}</h3></div>
+  <div class="pad">
+    <div class="grid cols-3" style="gap:16px">
+      <div>
+        <div class="badge ACCEPT">{{ 'Explainability' if lang=='en' else 'ব্যাখ্যাযোগ্যতা' }}</div>
+        <p class="small muted" style="margin-top:8px">{{ 'Every box comes with a reconstruction-error attention map and a numeric score. The decision page shows the exact reason codes, counts, limits and a SHA-256 of the confirmed-defect snapshot.' if lang=='en' else 'প্রতিটি বক্সের সঙ্গে রিকনস্ট্রাকশন-এরর অ্যাটেনশন ম্যাপ ও স্কোর। সিদ্ধান্ত পৃষ্ঠায় কারণ কোড, গণনা, সীমা ও নিশ্চিত ত্রুটির SHA-256 দেখা যায়।' }}</p>
+      </div>
+      <div>
+        <div class="badge ACCEPT">{{ 'Data sovereignty' if lang=='en' else 'ডেটা সার্বভৌমত্ব' }}</div>
+        <p class="small muted" style="margin-top:8px">{{ 'Inference runs on the device, not in a cloud API. Photos never leave the factory network in the production topology; the model has no network access.' if lang=='en' else 'ইনফারেন্স ডিভাইসে, ক্লাউড এপিআই-তে নয়। প্রোডাকশনে ছবি কারখানার নেটওয়ার্ক ছাড়ে না; মডেলের নেটওয়ার্ক অ্যাক্সেস নেই।' }}</p>
+      </div>
+      <div>
+        <div class="badge ACCEPT">{{ 'Fail-safe by construction' if lang=='en' else 'ব্যর্থতা-নিরাপদ' }}</div>
+        <p class="small muted" style="margin-top:8px">{{ 'A failed job, an empty proposal list, a blurry photo, a missing file, an unmapped clause, or a pending critical check each produce HOLD or ESCALATE. None can produce ACCEPT.' if lang=='en' else 'ব্যর্থ কাজ, খালি প্রস্তাব, ঝাপসা ছবি, হারানো ফাইল, অম্যাপ ক্লজ বা বাকি ক্রিটিক্যাল চেক — প্রতিটি HOLD বা ESCALATE দেয়। কোনোটিই ACCEPT দিতে পারে না।' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

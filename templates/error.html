@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ code }} · Lotline</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  {% set friendly = {
+    'not_found': 'Not found.',
+    'not_allowed': 'You do not have permission for that action.',
+    'csrf': 'Security token expired. Reload the page.',
+    'login_required': 'Sign in to continue.',
+    'locked': 'This lot is decided and locked.',
+    'invalid': 'Some values are not valid.'
+  } %}
+  <div style="min-height:100vh;display:grid;place-items:center;padding:30px">
+    <div class="card" style="max-width:520px;width:100%">
+      <div class="pad" style="text-align:center">
+        <span class="badge ghost">{{ code }}</span>
+        <h2 style="margin:14px 0 8px">{{ friendly.get(message, message) }}</h2>
+        <p class="muted small">{{ tr('app.tagline') }}</p>
+        <div class="btnrow" style="justify-content:center">
+          <a class="btn primary" href="/">{{ tr('nav.dashboard') }}</a>
+          <a class="btn ghost" href="/login">{{ tr('login.title') }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

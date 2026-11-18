@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('rev.title') }} · {{ view.garment_code }}{% endblock %}
+{% block heading %}{{ tr('rev.title') }}{% endblock %}
+{% block subheading %}{{ lot.lot_code }} · {{ view.garment_code }} · {{ tr('cap.' ~ view.side) }} · {{ lot.buyer_name }}{% endblock %}
+{% block content %}
+{% include "_lotnav.html" %}
+
+<div class="grid cols-4" style="margin-bottom:14px">
+  <div class="kpi"><div class="lbl">{{ 'Detector' if lang=='en' else 'ডিটেক্টর' }}</div>
+    <div style="margin-top:8px">
+      {% if status == 'ok' %}<span class="badge ACCEPT"><span class="dot"></span>{{ 'inferred' if lang=='en' else 'ইনফারেন্স হয়েছে' }}</span>
+      {% elif status == 'failed' %}<span class="badge REJECT"><span class="dot"></span>{{ tr('cap.not_inferred') }}</span>
+      {% elif status == 'pending' %}<span class="badge HOLD"><span class="dot"></span>queued</span>
+      {% else %}<span class="badge ghost"><span class="dot"></span>{{ tr('cap.not_inferred') }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="kpi"><div class="lbl">{{ 'Proposals' if lang=='en' else 'প্রস্তাব' }}</div><div class="n">{{ preds|length }}</div></div>
+  <div class="kpi"><div class="lbl">{{ 'Review state' if lang=='en' else 'পর্যালোচনা অবস্থা' }}</div>
+    <div style="margin-top:8px">
+      {% if review %}<span class="badge {{ 'REJECT' if review.state=='confirmed_defects' else ('ACCEPT' if review.state=='reviewed_clean' else 'HOLD') }}"><span class="dot"></span>{{ review.state }}</span>
+      {% else %}<span class="badge ghost">{{ 'unreviewed' if lang=='en' else 'পর্যালোচনা হয়নি' }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="kpi"><div class="lbl">{{ 'Evidence' if lang=='en' else 'প্রমাণ' }}</div>
+    <div class="small mono dim" style="margin-top:9px">{{ image.sha256_working[:18] }}…</div>
+    <div class="small dim">{{ image.width }}×{{ image.height }} · {{ (image.bytes/1024)|round(0)|int }} KB</div>
+  </div>
+</div>
+
+{% if job and job.status == 'failed' %}
+<div class="note bad" style="margin-bottom:14px">
+  <b>{{ tr('cap.not_inferred') }}</b> — {{ 'Zero proposals is not a pass. Review the photo by hand and mark the view.' if lang=='en' else 'শূন্য প্রস্তাব মানে পাস নয়। হাতে ছবি দেখে ভিউ চিহ্নিত করুন।' }}
+  <div class="mono small" style="margin-top:5px">{{ job.error or '' }}</div>
+</div>
+{% elif not preds %}
+<div class="note warn" style="margin-bottom:14px"><b>{{ tr('rev.no_proposals') }}</b></div>
+{% endif %}
+
+<div class="workspace">
+  <div class="stack">
+    <div class="card">
+      <div class="card-h">
+        <h3>{{ tr('rev.heat') }}</h3>
+        <div class="right">
+          <button class="btn sm ghost" id="heatToggle" type="button">{{ 'Show attention map' if lang=='en' else 'অ্যাটেনশন ম্যাপ' }}</button>
+          {% if can_write %}<a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ 'Replace photo' if lang=='en' else 'ছবি বদলান' }}</a>{% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        <div class="viewer" id="viewer">
+          <img id="mainImage" src="/images/{{ image.id }}" data-heat="/images/{{ image.id }}/heat" alt="garment photo">
+          <div class="boxlayer" id="boxLayer">
+            {% for p in preds %}
+            <div class="box {{ 'crit' if p.provisional_critical else ('major' if p.severity in ('major','critical') else '') }}"
+                 data-pid="{{ p.id }}"
+                 style="left:{{ (p.x1*100)|round(3) }}%;top:{{ (p.y1*100)|round(3) }}%;width:{{ ((p.x2-p.x1)*100)|round(3) }}%;height:{{ ((p.y2-p.y1)*100)|round(3) }}%">
+              <span class="tag">{{ tr('type.' ~ (p.confirmed_type or p.defect_type)) }} · {{ p.score }}</span>
+            </div>
+            {% endfor %}
+            <div class="box" id="pendingBox" style="display:none;left:42%;top:42%;width:16%;height:16%;border-style:dashed">
+              <span class="tag">+ {{ tr('rev.add') }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="legend" style="margin-top:10px">
+          <span><i class="sw" style="background:var(--lime)"></i>{{ 'proposal' if lang=='en' else 'প্রস্তাব' }}</span>
+          <span><i class="sw" style="background:var(--red)"></i>{{ 'critical routing' if lang=='en' else 'ক্রিটিক্যাল রুটিং' }}</span>
+          <span><i class="sw" style="background:var(--amber)"></i>{{ 'confirmed major' if lang=='en' else 'নিশ্চিত মেজর' }}</span>
+          <span class="dim">{{ tr('rev.uncalibrated') }}</span>
+        </div>
+        <a class="btn sm ghost" style="margin-top:10px" href="/images/{{ image.id }}" target="_blank">{{ 'Open full size' if lang=='en' else 'পূর্ণ আকারে খুলুন' }} ↗</a>
+      </div>
+    </div>
+
+    {% if can_write %}
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('rev.add') }}</h3>
+        <div class="right"><span class="small dim">{{ 'Click the photo to place the box, then save.' if lang=='en' else 'বক্স বসাতে ছবিতে ক্লিক করুন, তারপর সংরক্ষণ।' }}</span></div>
+      </div>
+      <div class="pad-sm">
+        <form method="post" action="/review/{{ image.id }}/add" id="addForm">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <input type="hidden" name="cx" id="cx" value="0.5">
+          <input type="hidden" name="cy" id="cy" value="0.5">
+          <div class="inline">
+            <div class="field"><label>{{ tr('rev.type') }}</label>
+              <select name="defect_type">
+                {% for t in ['hole','dropped_stitch','skipped_stitch','needle_line','oil_stain','shade_band','other'] %}
+                <option value="{{ t }}">{{ tr('type.' ~ t) }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field" style="max-width:120px"><label>{{ tr('rev.zone') }}</label>
+              <select name="zone">{% for z in zones %}<option value="{{ z }}">{{ z }}</option>{% endfor %}</select>
+            </div>
+            <div class="field" style="max-width:140px"><label>{{ tr('rev.size_band') }} <span class="dim">({{ tr('common.optional') }})</span></label>
+              <input name="size_band" placeholder="XL">
+            </div>
+            <label class="check" style="max-width:190px"><input type="checkbox" name="second_opinion" value="1" style="width:auto"> {{ 'Possible critical — second opinion' if lang=='en' else 'সম্ভাব্য ক্রিটিক্যাল — দ্বিতীয় মত' }}</label>
+            <button class="btn primary sm">{{ tr('common.save') }}</button>
+          </div>
+          <div class="field" style="margin-top:10px"><input name="note" placeholder="{{ tr('common.notes') }} ({{ tr('common.optional') }})"></div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('rev.proposals') }}</h3>
+        <div class="right"><span class="chip">{{ preds|length }}</span></div>
+      </div>
+      <div class="pad-sm">
+        {% for p in preds %}
+        <div class="prop" data-pid="{{ p.id }}" id="prop-{{ p.id }}">
+          <div class="top">
+            <div class="row" style="gap:7px">
+              <b style="font-size:13px">{{ tr('type.' ~ (p.confirmed_type or p.defect_type)) }}</b>
+              {% if p.provisional_critical %}<span class="badge critical">{{ 'critical routing' if lang=='en' else 'ক্রিটিক্যাল রুটিং' }}</span>{% endif %}
+              {% if p.review_state == 'confirmed' %}<span class="badge {{ p.severity or 'HOLD' }}">{{ tr('severe.' ~ p.severity) if p.severity else 'needs clause' }}</span>{% endif %}
+              {% if p.review_state == 'rejected' %}<span class="badge ghost">{{ 'rejected' if lang=='en' else 'বাতিল' }}</span>{% endif %}
+              {% if p.review_state == 'proposed' %}<span class="badge HOLD">{{ 'open' if lang=='en' else 'খোলা' }}</span>{% endif %}
+            </div>
+            <span class="score">{{ p.score }}</span>
+          </div>
+          <div class="small dim" style="margin-top:4px">
+            {{ 'box' if lang=='en' else 'বক্স' }} {{ (p.x1*100)|round(1) }}%, {{ (p.y1*100)|round(1) }}% →
+            {{ (p.x2*100)|round(1) }}%, {{ (p.y2*100)|round(1) }}%
+            {% if p.clause_ref %} · {{ 'clause' if lang=='en' else 'ক্লজ' }} {{ p.clause_ref }}{% endif %}
+            {% if p.confirmed_type and not p.severity %} · <span style="color:var(--amber)">{{ tr('rev.unmapped') }}</span>{% endif %}
+            {% if p.second_review == 'pending' %} · <span style="color:var(--violet)">{{ tr('rev.second_review') }}</span>{% endif %}
+          </div>
+
+          {% if p.review_state == 'proposed' and can_write %}
+          <details>
+            <summary>{{ tr('rev.confirm') }}</summary>
+            <form method="post" action="/review/{{ image.id }}/confirm" style="margin-top:8px">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="prediction_id" value="{{ p.id }}">
+              <div class="inline">
+                <div class="field"><label>{{ tr('rev.type') }}</label>
+                  <select name="defect_type">
+                    {% for t in ['hole','dropped_stitch','skipped_stitch','needle_line','oil_stain','shade_band','other'] %}
+                    <option value="{{ t }}" {{ 'selected' if t==p.defect_type }}>{{ tr('type.' ~ t) }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field" style="max-width:100px"><label>{{ tr('rev.zone') }}</label>
+                  <select name="zone">{% for z in zones %}<option value="{{ z }}">{{ z }}</option>{% endfor %}</select>
+                </div>
+                <div class="field" style="max-width:110px"><label>{{ tr('rev.size_band') }}</label><input name="size_band" placeholder="XL"></div>
+              </div>
+              <div class="field"><input name="note" placeholder="{{ tr('common.notes') }} ({{ tr('common.optional') }})"></div>
+              <button class="btn primary sm">{{ tr('rev.confirm') }}</button>
+            </form>
+            <form method="post" action="/review/{{ image.id }}/reject" style="margin-top:8px">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="prediction_id" value="{{ p.id }}">
+              <button class="btn danger sm">{{ tr('rev.reject') }}</button>
+            </form>
+          </details>
+          {% endif %}
+
+          {% if p.review_state == 'rejected' and p.second_review == 'pending' and is_supervisor and p.reviewed_by != user.id %}
+          <form method="post" action="/review/{{ image.id }}/second-review" class="btnrow" style="margin-top:8px">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <input type="hidden" name="prediction_id" value="{{ p.id }}">
+            <button class="btn sm" name="outcome" value="confirm">{{ 'Confirm the rejection' if lang=='en' else 'বাতিল নিশ্চিত' }}</button>
+            <button class="btn sm danger" name="outcome" value="overturn">{{ 'Overturn to a defect' if lang=='en' else 'ত্রুটিতে রূপান্তর' }}</button>
+          </form>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="empty" style="padding:18px">
+          <b>{{ tr('rev.no_proposals') }}</b>
+          {{ 'Review the photo and mark it. A blank view blocks every decision.' if lang=='en' else 'ছবি দেখে চিহ্নিত করুন। খালি ভিউ সব সিদ্ধান্ত আটকে দেয়।' }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if can_write %}
+    <div class="card">
+      <div class="card-h"><h3>{{ 'Close this view' if lang=='en' else 'ভিউ বন্ধ করুন' }}</h3></div>
+      <div class="pad-sm">
+        {% set confirmed = preds|selectattr('review_state','equalto','confirmed')|list %}
+        {% set unanswered = preds|selectattr('review_state','equalto','proposed')|list %}
+        {% if unanswered %}
+        <div class="note warn" style="margin-bottom:10px">
+          <b>{{ unanswered|length }} {{ 'proposal(s) still open' if lang=='en' else 'প্রস্তাব এখনও খোলা' }}</b> —
+          {{ 'answer each one (confirm or reject) before you close the view. The engine refuses to guess.' if lang=='en' else 'ভিউ বন্ধ করার আগে প্রতিটি প্রস্তাব নিশ্চিত বা বাতিল করুন। ইঞ্জিন অনুমান করে না।' }}
+        </div>
+        {% endif %}
+        {% if status == 'failed' %}
+        <div class="note warn" style="margin-bottom:10px">{{ tr('cap.not_inferred') }} · {{ 'Manual inspection is allowed and recorded as such.' if lang=='en' else 'ম্যানুয়াল পরিদর্শন অনুমোদিত এবং তা রেকর্ড হয়।' }}</div>
+        {% endif %}
+        <form method="post" action="/review/{{ image.id }}/state" class="stack" style="gap:9px">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <input name="note" placeholder="{{ tr('common.notes') }} ({{ tr('common.optional') }})">
+          <div class="btnrow">
+            <button class="btn primary" name="state" value="confirmed_defects" {{ 'disabled' if not confirmed or unanswered }}>
+              {{ tr('rev.confirm') }} ({{ confirmed|length }})
+            </button>
+            <button class="btn" name="state" value="reviewed_clean" {{ 'disabled' if confirmed or unanswered }}>
+              {{ tr('rev.clean') }}
+            </button>
+            <button class="btn danger" name="state" value="needs_retake">{{ tr('rev.retake') }}</button>
+          </div>
+        </form>
+        <div class="note" style="margin-top:11px">
+          {{ tr('rev.severity_server') }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-h"><h3>{{ 'Navigation' if lang=='en' else 'নেভিগেশন' }}</h3></div>
+      <div class="pad-sm btnrow">
+        <a class="btn sm ghost" href="/lots/{{ lot.id }}/review">{{ tr('rev.queue') }}</a>
+        {% if next_item %}<a class="btn sm primary" href="/review/{{ next_item.view.image.id }}">{{ 'Next view' if lang=='en' else 'পরের ভিউ' }} →</a>{% endif %}
+        <a class="btn sm ghost" href="/lots/{{ lot.id }}">{{ tr('lot.overview') }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

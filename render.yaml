@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: lotline-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: LOTLINE_DEMO
+        value: "1"
+      - key: LOTLINE_DATA
+        value: /data
+    disk:
+      name: lotline-data
+      mountPath: /data
+      sizeGB: 1

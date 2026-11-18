@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('cap.title') }}{% endblock %}
+{% block heading %}{{ tr('cap.title') }}{% endblock %}
+{% block subheading %}{{ lot.lot_code }} · {{ tr('cap.guidance') }}{% endblock %}
+{% block content %}
+{% include "_lotnav.html" %}
+
+{% if not can_write %}
+<div class="note warn" style="margin-bottom:14px">
+  {{ 'This lot is read-only for your role or already decided. Ask a Supervisor to reopen it.' if lang=='en' else 'আপনার ভূমিকা বা সিদ্ধান্তের কারণে লটটি শুধু পড়া যায়। সুপারভাইজারকে খুলতে বলুন।' }}
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom:16px">
+  <div class="card-h"><h3>{{ 'Add a garment' if lang=='en' else 'গার্মেন্ট যোগ করুন' }}</h3>
+    <div class="right"><span class="chip">{{ progress.units }} / {{ progress.required_units }}</span></div>
+  </div>
+  <div class="pad-sm">
+    {% if can_write and progress.units < progress.required_units %}
+    <form method="post" action="/lots/{{ lot.id }}/units" class="inline">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field"><label>{{ 'Garment code' if lang=='en' else 'গার্মেন্ট কোড' }}</label>
+        <input name="garment_code" placeholder="G-{{ '%02d' % (progress.units + 1) }}"></div>
+      <button class="btn primary">+ {{ tr('common.save') }}</button>
+    </form>
+    {% else %}
+    <div class="small dim">{{ 'The required sample is complete.' if lang=='en' else 'প্রয়োজনীয় নমুনা সম্পূর্ণ।' }}</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+  {% for u in units %}
+  <div class="card">
+    <div class="card-h"><h3>{{ u.garment_code }}</h3>
+      <div class="right"><span class="small dim">{{ u.views|length }} {% if lang=='en' %}{{ 'view' if u.views|length==1 else 'views' }}{% else %}ভিউ{% endif %}</span></div>
+    </div>
+    <div class="pad-sm">
+      {% for v in u.views %}
+      <div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div class="between" style="margin-bottom:7px">
+          <span class="badge ghost">{{ tr('cap.' ~ v.side) }}</span>
+          {% if v.review_state == 'confirmed_defects' %}
+          <span class="badge REJECT">{{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length }} {{ 'defect(s)' if lang=='en' else 'ত্রুটি' }}</span>
+          {% elif v.review_state == 'reviewed_clean' %}
+          <span class="badge ACCEPT">{{ 'reviewed clean' if lang=='en' else 'পরিষ্কার' }}</span>
+          {% elif v.review_state == 'needs_retake' %}
+          <span class="badge HOLD">{{ tr('rev.retake') }}</span>
+          {% elif v.image %}
+          <span class="badge HOLD">{{ 'pending review' if lang=='en' else 'পর্যালোচনা বাকি' }}</span>
+          {% else %}
+          <span class="badge ghost">—</span>
+          {% endif %}
+        </div>
+        <div class="row" style="gap:9px">
+          {% if v.image %}
+          <a href="/review/{{ v.image.id }}"><img class="thumb" src="/images/{{ v.image.id }}" alt=""></a>
+          <div class="small dim">
+            {{ 'photo stored' if v.inference_status=='ok' else v.inference_status }}
+            {% if v.open_proposals %}<div>{{ v.open_proposals }} {{ 'open proposals' if lang=='en' else 'খোলা প্রস্তাব' }}</div>{% endif %}
+            <a class="small" style="color:var(--lime)" href="/review/{{ v.image.id }}">{{ tr('rev.title') }} →</a>
+          </div>
+          {% else %}
+          <div class="small dim">{{ 'No photo yet.' if lang=='en' else 'এখনো ছবি নেই।' }}</div>
+          {% endif %}
+        </div>
+        {% if can_write %}
+        <form method="post" action="/lots/{{ lot.id }}/views/{{ v.id }}/upload" enctype="multipart/form-data" style="margin-top:9px">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <div class="inline">
+            <div class="field" style="flex:2">
+              <input type="file" name="file" accept="image/jpeg,image/png" capture="environment" required>
+            </div>
+            <button class="btn sm primary">{{ tr('cap.replace') if v.image else tr('cap.upload') }}</button>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card"><div class="empty"><b>{{ tr('lot.no_units') }}</b>{{ tr('cap.guidance') }}</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

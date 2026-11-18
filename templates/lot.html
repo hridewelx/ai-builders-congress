@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}{{ lot.lot_code }}{% endblock %}
+{% block heading %}{{ lot.lot_code }}{% endblock %}
+{% block subheading %}{{ lot.buyer_name }} · {{ lot.product_name }} · {{ lot.color }} · {{ tr('lots.size') }} {{ lot.lot_size }}{% endblock %}
+{% block content %}
+{% include "_lotnav.html" %}
+
+<div class="grid cols-4" style="margin-bottom:16px">
+  <div class="kpi {{ 'accent' if lot.status=='open' }}">
+    <div class="lbl">{{ tr('common.status') }}</div>
+    <div class="row" style="margin-top:7px">
+      <span class="badge {{ 'decided' if lot.status=='decided' else 'open' }}"><span class="dot"></span>{{ lot.status }}</span>
+      {% if lot.status == 'decided' %}<span class="small dim">v{{ lot.version }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{ tr('lot.units_registered') }}</div>
+    <div class="n">{{ progress.units }}<small> / {{ progress.required_units or '—' }}</small></div>
+    <div class="bar" style="margin-top:9px"><i style="width:{{ progress.pct_units }}%"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
+    <div class="n">{{ progress.reviewed }}<small> / {{ progress.views }}</small></div>
+    <div class="bar" style="margin-top:9px"><i style="width:{{ progress.pct_views }}%"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">{{ tr('common.outcome') }}</div>
+    {% if final %}
+    <div style="margin-top:8px"><span class="badge {{ final }}"><span class="dot"></span>{{ tr('out.' ~ final) }}</span></div>
+    {% if override %}<div class="small dim" style="margin-top:6px">{{ tr('dec.overridden') }}</div>{% endif %}
+    {% else %}<div class="n" style="font-size:20px;color:var(--dim)">—</div>{% endif %}
+  </div>
+</div>
+
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-h">
+        <h3>{{ tr('common.units') }}</h3>
+        <div class="right">
+          {% if can_write %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/capture">+ {{ tr('cap.upload') }}</a>
+          <a class="btn sm primary" href="/lots/{{ lot.id }}/review">{{ tr('lot.review') }}</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% if units %}
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+          {% for u in units %}
+          <div class="unit">
+            <div class="t"><b>{{ u.garment_code }}</b><span class="small dim">{{ u.views|length }} {% if lang=='en' %}{{ 'view' if u.views|length==1 else 'views' }}{% else %}ভিউ{% endif %}</span></div>
+            <div class="views">
+              {% for v in u.views %}
+                {% if v.image %}
+                  {% set st = v.review_state %}
+                  <a class="vchip {{ 'done' if st in ('confirmed_defects','reviewed_clean') else ('bad' if st=='needs_retake' else 'pending') }}"
+                     href="/review/{{ v.image.id }}">{{ tr('cap.' ~ v.side) }}{% if st=='confirmed_defects' %} ●{% endif %}</a>
+                {% else %}
+                  <span class="vchip none">{{ tr('cap.' ~ v.side) }} · —</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty"><b>{{ tr('lot.no_units') }}</b>{{ tr('cap.guidance') }}</div>
+        {% endif %}
+      </div>
+      {% if lot.status == 'decided' %}
+      <div class="pad-sm"><div class="note info">{{ tr('lot.locked') }}</div></div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h3>{{ tr('dec.title') }}</h3>
+        <div class="right">
+          {% if user.role != 'admin' %}
+          <a class="btn sm ghost" href="/lots/{{ lot.id }}/decision">{{ tr('common.open') }} →</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% if decision %}
+        <div class="row">
+          <span class="badge {{ decision.outcome }}"><span class="dot"></span>{{ tr('out.' ~ decision.outcome) }}</span>
+          <span class="small dim">#{{ decision.sequence }} · {{ decision.created_at }}</span>
+          {% if override %}<span class="badge ghost">{{ tr('dec.overridden') }}</span>{% endif %}
+        </div>
+        <div class="small muted" style="margin-top:8px">
+          {% for r in (decision.reasons|fromjson) %}
+          <span class="chip" style="margin:0 6px 6px 0"><span class="mono">{{ r }}</span></span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty" style="padding:18px">
+          <b>{{ tr('dec.none') }}</b>
+          {{ tr('dec.compute') }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('lot.plan') }}</h3>
+        <div class="right">{% if user.role == 'supervisor' and lot.status != 'decided' %}<a class="btn sm" href="/lots/{{ lot.id }}/plan">{{ tr('common.open') }}</a>{% endif %}</div>
+      </div>
+      <div class="pad-sm">
+        {% if plan_d %}
+        <div class="row" style="gap:8px;margin-bottom:10px">
+          <span class="chip">{{ 'n' }} {{ plan_d.n }}</span>
+          <span class="chip">{{ plan_d.counting_mode }}</span>
+          {% if plan_d.is_demo %}<span class="badge HOLD">DEMO PLAN</span>{% endif %}
+        </div>
+        <table class="table" style="font-size:12.5px">
+          <thead><tr><th></th><th class="num">Ac</th><th class="num">Re</th></tr></thead>
+          <tbody>
+            {% for c in ['critical','major','minor'] %}
+            <tr><td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
+                <td class="num">{{ plan_d[c].ac }}</td><td class="num">{{ plan_d[c].re }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="note warn" style="margin-top:10px">{{ tr('lot.plan_assumption') }}</div>
+        {% else %}
+        <div class="note bad">{{ tr('lot.plan_missing') }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('lot.nonvisual') }}</h3>
+        <div class="right"><span class="badge {{ 'ACCEPT' if lot.critical_nonvisual_status in ('done','not_required') else ('REJECT' if lot.critical_nonvisual_status=='failed' else 'HOLD') }}"><span class="dot"></span>{{ lot.critical_nonvisual_status }}</span></div>
+      </div>
+      <div class="pad-sm">
+        <div class="small dim" style="margin-bottom:9px">{{ tr('lot.nonvisual_hint') }}</div>
+        {% if user.role == 'supervisor' %}
+        <form method="post" action="/lots/{{ lot.id }}/nonvisual" class="stack" style="gap:8px">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <select name="status">
+            {% for s in ['pending','done','not_required','failed'] %}
+            <option value="{{ s }}" {{ 'selected' if lot.critical_nonvisual_status==s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+          <input name="note" placeholder="{{ tr('common.notes') }} ({{ 'required for failed' if lang=='en' else 'failed-এর জন্য আবশ্যক' }})">
+          <button class="btn sm">{{ tr('common.save') }}</button>
+        </form>
+        {% endif %}
+        {% if lot.nonvisual_note %}<div class="note" style="margin-top:9px">{{ lot.nonvisual_note }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>{{ tr('lot.timeline') }}</h3></div>
+      <div class="pad-sm">
+        <ul class="timeline">
+          {% for a in audit[:9] %}
+          <li>
+            <div class="a">{{ a.action }}</div>
+            <div class="m">{{ a.actor_label }} · {{ a.at }}</div>
+          </li>
+          {% else %}
+          <li><div class="m">{{ tr('common.none') }}</div></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

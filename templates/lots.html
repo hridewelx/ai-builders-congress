@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ tr('nav.lots') }}{% endblock %}
+{% block heading %}{{ tr('lots.title') }}{% endblock %}
+{% block subheading %}{{ tr('dash.subtitle') }}{% endblock %}
+{% block content %}
+
+<div class="card" style="margin-bottom:16px">
+  <div class="pad-sm">
+    <form method="get" class="inline">
+      <div class="field" style="flex:2">
+        <label>{{ tr('common.search') }}</label>
+        <input name="q" value="{{ q }}" placeholder="{{ tr('lots.code') }} / {{ tr('lots.buyer') }}">
+      </div>
+      <div class="field">
+        <label>{{ tr('common.status') }}</label>
+        <select name="state">
+          <option value="">{{ tr('common.all') }}</option>
+          {% for s in ['open','decided','reopened','archived'] %}
+          <option value="{{ s }}" {{ 'selected' if state==s }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>{{ tr('common.outcome') }}</label>
+        <select name="outcome">
+          <option value="">{{ tr('common.all') }}</option>
+          {% for o in ['ACCEPT','REJECT','HOLD','ESCALATE'] %}
+          <option value="{{ o }}" {{ 'selected' if outcome==o }}>{{ tr('out.' ~ o) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn primary">{{ tr('common.filter') }}</button>
+      {% if user.role in ('inspector','supervisor') %}
+      <a class="btn" href="/lots/new">+ {{ tr('nav.new_lot') }}</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  {% if cards %}
+  <div class="tblwrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ tr('lots.code') }}</th>
+          <th>{{ tr('lots.buyer') }}</th>
+          <th>{{ tr('lots.product') }}</th>
+          <th class="num">{{ tr('lots.size') }}</th>
+          <th>{{ tr('lot.progress') }}</th>
+          <th>{{ tr('common.status') }}</th>
+          <th>{{ tr('common.outcome') }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cards %}
+        <tr>
+          <td><a href="/lots/{{ c.id }}" style="font-weight:650">{{ c.lot_code }}</a><div class="small dim">{{ c.color }}</div></td>
+          <td>{{ c.buyer_name }}</td>
+          <td class="muted">{{ c.product_name }}</td>
+          <td class="num">{{ c.lot_size }}</td>
+          <td style="min-width:150px">
+            <div class="bar"><i style="width:{{ c.progress.pct_views }}%"></i></div>
+            <div class="meta"><span>{{ c.progress.units }}/{{ c.progress.required_units or '—' }}</span><span>{{ c.progress.reviewed }}/{{ c.progress.views }}</span></div>
+          </td>
+          <td><span class="badge {{ 'decided' if c.status=='decided' else 'open' }}"><span class="dot"></span>{{ c.status }}</span></td>
+          <td>{% if c.final %}<span class="badge {{ c.final }}"><span class="dot"></span>{{ tr('out.' ~ c.final) }}</span>{% else %}<span class="dim">—</span>{% endif %}</td>
+          <td class="right"><a class="btn sm ghost" href="/lots/{{ c.id }}">{{ tr('common.open') }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><b>{{ tr('lots.empty') }}</b></div>
+  {% endif %}
+</div>
+{% endblock %}

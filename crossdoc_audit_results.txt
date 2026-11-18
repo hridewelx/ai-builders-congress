@@ -1,0 +1,88 @@
+== A. canonical reason codes present per document (count of mentions)
+  HOLD_PLAN_MISSING                          {'PRD': 7, 'SEC': 3, 'SD': 22, 'RP': 1}
+  HOLD_PLAN_INVALID                          {'PRD': 15, 'SEC': 6, 'SD': 25, 'RP': 1}
+  REJECT_CRITICAL_NONVISUAL_FAILED           {'PRD': 13, 'SEC': 7, 'SD': 14, 'RP': 2}
+  REJECT_LIMIT_REACHED                       {'PRD': 9, 'SEC': 4, 'SD': 6, 'RP': 1}
+  ESCALATE_CRITICAL_UNREVIEWED               {'PRD': 5, 'SEC': 1, 'SD': 4, 'RP': 1}
+  ESCALATE_UNMAPPED_CLAUSE                   {'PRD': 17, 'SEC': 7, 'SD': 4, 'RP': 1}
+  ESCALATE_CRITICAL_REJECTION_UNCONFIRMED    {'PRD': 11, 'SEC': 1, 'SD': 5, 'RP': 1}
+  ESCALATE_SECOND_OPINION_REQUESTED          {'PRD': 3, 'SEC': 6, 'SD': 6, 'RP': 1}
+  HOLD_UNITS_MISSING                         {'PRD': 6, 'SEC': 2, 'SD': 6, 'RP': 1}
+  HOLD_VIEWS_PENDING                         {'PRD': 27, 'SEC': 12, 'SD': 7, 'RP': 1}
+  HOLD_CRITICAL_NONVISUAL_PENDING            {'PRD': 3, 'SEC': 2, 'SD': 3, 'RP': 1}
+  HOLD_VIEW_STATE_INCONSISTENT               {'PRD': 2, 'SEC': 1, 'SD': 3, 'RP': 1}
+  HOLD_EVIDENCE_INTEGRITY                    {'PRD': 10, 'SEC': 8, 'SD': 5, 'RP': 1}
+  HOLD_COMPUTE_ERROR                         {'PRD': 3, 'SEC': 1, 'SD': 5, 'RP': 1}
+  ACCEPT_PLAN_MET                            {'PRD': 6, 'SEC': 2, 'SD': 3, 'RP': 1}
+== B. reason-like codes NOT in the canonical list (per document)
+  PRD {}
+  SEC {}
+  SD {}
+  RP {}
+== C. retired names (mentions per document; crosswalk/history rows are expected)
+  CLASS_RE_REACHED                               {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+  ALL_CLASSES_WITHIN_AC                          {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+  PLAN_N_MISMATCH                                {'PRD': 0, 'SEC': 0, 'SD': 1, 'RP': 0}
+  PLAN_CONFIG_ERROR                              {'PRD': 0, 'SEC': 0, 'SD': 1, 'RP': 0}
+  OVERRIDE_RELEASE                               {'PRD': 3, 'SEC': 0, 'SD': 0, 'RP': 0}
+  (?<![A-Z_])PLAN_MISSING(?![A-Z_])              {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+  (?<![A-Z_])UNREVIEWED(?![A-Z_])                {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+  (?<![A-Z_])NOT_INFERRED(?![A-Z_])              {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+== D. references to superseded filenames
+  security-v0_3.md                   {'PRD': 0, 'SEC': 1, 'SD': 0, 'RP': 0}
+  security-v0.2.md                   {'PRD': 0, 'SEC': 1, 'SD': 0, 'RP': 0}
+  SYSTEM_DESIGN_v1_1.md              {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  lotline_research_prompt_v3.md      {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  lotline_architecture_prompt.md     {'PRD': 1, 'SEC': 0, 'SD': 0, 'RP': 0}
+  PRD_v0.2.md                        {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  PRD__3_.md                         {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+== E. role, table and function names per document
+  lotline_owner                    {'PRD': 1, 'SEC': 3, 'SD': 3, 'RP': 0}
+  lotline_app                      {'PRD': 3, 'SEC': 15, 'SD': 19, 'RP': 0}
+  lotline_dispatcher               {'PRD': 2, 'SEC': 4, 'SD': 12, 'RP': 0}
+  lotline_dispatch_writer          {'PRD': 0, 'SEC': 1, 'SD': 3, 'RP': 0}
+  lotline_decision_writer          {'PRD': 0, 'SEC': 4, 'SD': 2, 'RP': 0}
+  lotline_api_writer               {'PRD': 0, 'SEC': 1, 'SD': 2, 'RP': 0}
+  lotline_model_writer             {'PRD': 0, 'SEC': 1, 'SD': 2, 'RP': 0}
+  lotline_backup                   {'PRD': 1, 'SEC': 7, 'SD': 2, 'RP': 0}
+  inference_job                    {'PRD': 6, 'SEC': 10, 'SD': 29, 'RP': 0}
+  model_activation                 {'PRD': 6, 'SEC': 11, 'SD': 13, 'RP': 0}
+  model_selftest                   {'PRD': 5, 'SEC': 8, 'SD': 10, 'RP': 0}
+  v_image_inference_status         {'PRD': 2, 'SEC': 4, 'SD': 2, 'RP': 0}
+  v_active_model                   {'PRD': 2, 'SEC': 5, 'SD': 6, 'RP': 0}
+  v_protected_trigger_check        {'PRD': 1, 'SEC': 4, 'SD': 1, 'RP': 0}
+  next_attempt_at                  {'PRD': 0, 'SEC': 1, 'SD': 7, 'RP': 0}
+  dispatcher_claim_job             {'PRD': 1, 'SEC': 1, 'SD': 8, 'RP': 0}
+  dispatcher_heartbeat             {'PRD': 2, 'SEC': 2, 'SD': 6, 'RP': 0}
+  dispatcher_fail_job              {'PRD': 2, 'SEC': 4, 'SD': 7, 'RP': 0}
+  dispatcher_record_predictions    {'PRD': 5, 'SEC': 5, 'SD': 14, 'RP': 0}
+  dispatcher_claim_selftest        {'PRD': 2, 'SEC': 2, 'SD': 2, 'RP': 0}
+  dispatcher_record_selftest       {'PRD': 2, 'SEC': 2, 'SD': 3, 'RP': 0}
+  api_cancel_job                   {'PRD': 4, 'SEC': 11, 'SD': 15, 'RP': 0}
+  app_register_model               {'PRD': 2, 'SEC': 3, 'SD': 5, 'RP': 0}
+  app_activate_model               {'PRD': 1, 'SEC': 4, 'SD': 8, 'RP': 0}
+  record_decision                  {'PRD': 0, 'SEC': 12, 'SD': 5, 'RP': 0}
+  defect_class                     {'PRD': 4, 'SEC': 5, 'SD': 3, 'RP': 0}
+  counting_mode                    {'PRD': 23, 'SEC': 11, 'SD': 21, 'RP': 4}
+  critical_nonvisual_status        {'PRD': 5, 'SEC': 5, 'SD': 17, 'RP': 6}
+  zone_code                        {'PRD': 2, 'SEC': 3, 'SD': 16, 'RP': 0}
+  size_band                        {'PRD': 4, 'SEC': 5, 'SD': 16, 'RP': 0}
+  InferenceWorker                  {'PRD': 5, 'SEC': 1, 'SD': 63, 'RP': 6}
+  inference-worker                 {'PRD': 16, 'SEC': 38, 'SD': 5, 'RP': 0}
+  `vision`                         {'PRD': 24, 'SEC': 57, 'SD': 9, 'RP': 0}
+== F. obsolete-architecture patterns (expect 0 outside history/audit rows)
+  api joined to infer_net          {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  API sends bytes to inference     {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  `inference` container token      {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  image inference_status column    {'PRD': 4, 'SEC': 0, 'SD': 0, 'RP': 0}
+  PostgreSQL 17                    {'PRD': 0, 'SEC': 0, 'SD': 1, 'RP': 0}
+  per-class n                      {'PRD': 1, 'SEC': 0, 'SD': 2, 'RP': 1}
+  Admin may override               {'PRD': 0, 'SEC': 1, 'SD': 1, 'RP': 0}
+  HOLD overridden                  {'PRD': 0, 'SEC': 0, 'SD': 2, 'RP': 0}
+  Supervisor+                      {'PRD': 0, 'SEC': 0, 'SD': 0, 'RP': 0}
+  is_active on model               {'PRD': 0, 'SEC': 0, 'SD': 1, 'RP': 0}
+== G. PRD references to Security IDs that have no defining row in Security 0.4
+  IDs referenced in PRD: 208  defined in Security 0.4: 208  missing: 0
+  missing (id:count): {}
+  Security 0.4 test IDs defined: T-1..T-95 (95 rows)
+== H. SD references to Security IDs: referenced 11  missing in Security 0.4: {}
