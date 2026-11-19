@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # Tests read the seeded demo database; build it into a throwaway directory
+      # exactly as a fresh deployment would.
+      LOTLINE_DATA: /tmp/lotline
+      LOTLINE_DEMO: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt ruff
+
+      - name: Seed the demo database
+        run: python -m app.seed
+
+      - name: Lint
+        run: ruff check app ml scripts tests
+
+      - name: Test
+        run: python -m pytest -q
