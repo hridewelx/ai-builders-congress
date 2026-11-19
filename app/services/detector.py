@@ -21,9 +21,11 @@ from PIL import Image, ImageFilter
 
 from app.services import vision
 
-MODEL_NAME = "frcnn-mnv3-v1"
-ONNX_PATH = os.environ.get("LOTLINE_ONNX", "data/models/det_v1.onnx")
-CALIBRATION_PATH = os.environ.get("LOTLINE_CALIBRATION", "data/models/calibration.json")
+MODEL_NAME = "frcnn-mnv3-v2"
+MODEL_DOMAIN = ("BDFD9 factory fabric close-ups plus staged knit panels; "
+                "not finished-garment inspection")
+ONNX_PATH = os.environ.get("LOTLINE_ONNX", "data/models/det_v2.onnx")
+CALIBRATION_PATH = os.environ.get("LOTLINE_CALIBRATION", "data/models/calibration_v2.json")
 CLASSES = ["hole", "oil_stain", "needle_line", "dropped_stitch"]
 DEFAULT_THRESHOLD = 0.5
 
@@ -32,7 +34,9 @@ _calibration: dict | None = None
 
 
 def backend() -> str:
-    return os.environ.get("LOTLINE_DETECTOR", "numpy").strip().lower()
+    """``auto`` uses ONNX when present, ``onnx`` requires it, ``numpy`` forces the baseline."""
+    value = os.environ.get("LOTLINE_DETECTOR", "auto").strip().lower()
+    return value if value in {"auto", "onnx", "numpy"} else "auto"
 
 
 def _load_calibration() -> dict:
@@ -60,10 +64,37 @@ def _load_session():
     return _session
 
 
+def selftest() -> tuple[bool, str]:
+    """Load the ONNX session once; used before registering a model version."""
+    if not available():
+        return False, "ONNX artifact or runtime unavailable"
+    try:
+        _load_session()
+        return True, "ONNX session loaded"
+    except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"[:200]
+
+
 def available() -> bool:
-    """True only when the ONNX backend is requested, present and importable."""
-    if backend() != "onnx" or not os.path.exists(ONNX_PATH):
+    """True when ONNX is allowed, the artifact is present and the runtime imports."""
+    if backend() == "numpy" or not os.path.exists(ONNX_PATH):
         return False
+    try:
+        import onnxruntime  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
+def require_available() -> None:
+    """Fail startup when the operator asked for ONNX but it cannot run."""
+    if backend() == "onnx" and not available():
+        raise RuntimeError(
+            f"LOTLINE_DETECTOR=onnx but the detector is unavailable "
+            f"(path={ONNX_PATH}, runtime={'present' if _ort_installed() else 'missing'})")
+
+
+def _ort_installed() -> bool:
     try:
         import onnxruntime  # noqa: F401
     except ImportError:
@@ -128,7 +159,8 @@ def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
         raise
 
     threshold = float(os.environ.get("LOTLINE_DETECT_THRESHOLD", DEFAULT_THRESHOLD))
-    temperature = float(_load_calibration().get("temperature", 1.0))
+    calibration = _load_calibration()
+    temperature = float(calibration.get("runtime_temperature", calibration.get("temperature", 1.0)))
     detections: list[dict] = []
     for box, score, label in zip(boxes, scores.reshape(-1), labels.reshape(-1)):
         calibrated = _temperature(float(score), temperature)
@@ -157,16 +189,28 @@ def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
         "model": MODEL_NAME,
         "threshold": threshold,
         "calibrated": bool(temperature != 1.0),
-        "note": "trained detector, temperature-calibrated; boxes still require human confirmation",
+        "note": ("trained detector, temperature-scaled; ECE is reported in the model card, "
+                 "not a probability guarantee" if temperature != 1.0 else
+                 "trained detector, raw scores; calibration did not improve ECE on validation"),
     }
 
 
 def detect(rgb: np.ndarray, top_k: int = 6) -> dict:
-    """Dispatch to the requested backend, falling back honestly."""
+    """Dispatch to the requested backend.
+
+    ``onnx`` is strict: if the operator asked for the trained model, a failure
+    is an error, not a silent downgrade. ``auto`` may fall back to the baseline
+    and records that in the result note.
+    """
+    requested = backend()
+    if requested == "onnx" and not available():
+        require_available()
     if available():
         try:
             return detect_onnx(rgb, top_k)
         except Exception as exc:  # a broken model must not block an inspection
+            if requested == "onnx":
+                raise
             result = vision.detect(rgb, top_k)
             result["note"] = f"onnx backend failed ({type(exc).__name__}); numpy baseline used"
             return result
