@@ -18,7 +18,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .config import IOU_THRESHOLD, MODELS, SCORE_THRESHOLD
+from .config import CLASSES, IOU_THRESHOLD, MODELS, SCORE_THRESHOLD
 from .evaluate import iou
 
 BIN_START = 0.50
@@ -37,7 +37,7 @@ def bin_index(score: float) -> int:
     return max(0, min(steps - 1, index))
 
 
-def summarise(records: list[dict], min_count: int = 1) -> dict:
+def summarise(records: list[dict], min_count: int = 1, _per_class: bool = True) -> dict:
     """Group scored matches into bands and compute ECE. Pure: no model, no files."""
     bands: dict[int, dict] = {}
     for record in records:
@@ -63,7 +63,19 @@ def summarise(records: list[dict], min_count: int = 1) -> dict:
             "gap": round(precision - mean_score, 4),
             "reliable_example": band["count"] >= min_count,
         })
+    per_class: dict[str, dict] = {}
+    for label in (sorted({int(record["label"]) for record in records}) if _per_class else []):
+        subset = [record for record in records if int(record["label"]) == label]
+        block = summarise(subset, min_count=min_count, _per_class=False)
+        bins = block["bins"]
+        worst = max(bins, key=lambda row: abs(row["gap"])) if bins else None
+        per_class[CLASSES[label - 1] if 1 <= label <= len(CLASSES) else f"label_{label}"] = {
+            "detections": block["detections"], "ece": block["ece"],
+            "worst_band": worst["bin"] if worst else None,
+            "worst_gap": worst["gap"] if worst else None,
+        }
     return {"detections": total, "bins": table, "ece": round(ece, 4),
+            "per_class": per_class,
             "note": ("Measured on validation detections at one IoU. This is the gap between "
                      "score and hit rate, not a calibration claim: a band that matches its "
                      "score is an observation, not a guarantee on another factory.")}

@@ -88,6 +88,17 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 | 0.90-0.95 | 6 | 0.9065 | 0.6667 | -0.2398 |
 | 0.95-1.00 | 39 | 0.9769 | 0.9487 | -0.0282 |
 
+Per class:
+
+| class | detections | ECE | widest band gap |
+| --- | --- | --- | --- |
+| hole | 19 | 0.2262 | 0.50-0.55 (-0.5226) |
+| oil_stain | 8 | 0.143 | 0.65-0.70 (-0.6374) |
+| needle_line | 33 | 0.2804 | 0.85-0.90 (-0.8511) |
+| dropped_stitch | 25 | 0.1338 | 0.55-0.60 (-0.5332) |
+
+- `needle_line` is the least reliable class by both AP and ECE; that is consistent with its approximate mapping from `Vertical LineMark` and is another reason it is labelled "line mark (approx.)" in the interface.
+
 - ECE over 85 validation detections: **0.1346**
 - Read this as why the interface shows a score and not a percentage: where a band's measured precision differs from its score, the score is a ranking, not a probability. A small gap here would be an observation on this data, not a promise about another factory.
 - Source: `det_v2b.pt` on split `val` at IoU 0.5.

@@ -53,3 +53,20 @@ def test_matching_prefers_a_higher_iou_and_respects_class():
     wrong_class = reliability.matches_for_image(
         boxes_gt, labels_gt, [[50, 50, 60, 60]], [0.9], [1])
     assert wrong_class[0]["matched"] is False
+
+
+def test_per_class_breakdown_uses_the_real_class_names():
+    records = [{"score": 0.9, "label": 1, "matched": True},
+               {"score": 0.9, "label": 1, "matched": False},
+               {"score": 0.9, "label": 3, "matched": False}]
+    report = reliability.summarise(records)
+    assert report["per_class"]["hole"]["detections"] == 2
+    assert report["per_class"]["needle_line"]["detections"] == 1
+    # one detection at score 0.9 that matched nothing: |0 - 0.9| = 0.9
+    assert report["per_class"]["needle_line"]["ece"] == 0.9
+    assert sum(row["detections"] for row in report["per_class"].values()) == report["detections"]
+
+
+def test_a_class_with_no_detections_is_absent_not_zero():
+    report = reliability.summarise([{"score": 0.9, "label": 1, "matched": True}])
+    assert "oil_stain" not in report["per_class"]

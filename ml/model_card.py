@@ -167,6 +167,17 @@ def markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
         for row in reliability.get("bins", []):
             lines.append(f"| {row['bin']} | {row['count']} | {row['mean_score']} | "
                          f"{row['measured_precision']} | {row['gap']} |")
+        if reliability.get("per_class"):
+            lines += ["", "Per class:", "",
+                      "| class | detections | ECE | widest band gap |",
+                      "| --- | --- | --- | --- |"]
+            for name, row in reliability["per_class"].items():
+                lines.append(f"| {name} | {row['detections']} | {row['ece']} | "
+                             f"{row['worst_band']} ({row['worst_gap']}) |")
+            lines.append("")
+            lines.append("- `needle_line` is the least reliable class by both AP and ECE; that is "
+                         "consistent with its approximate mapping from `Vertical LineMark` and is "
+                         "another reason it is labelled \"line mark (approx.)\" in the interface.")
         lines += ["",
                   f"- ECE over {reliability.get('detections')} validation detections: "
                   f"**{reliability.get('ece')}**",
