@@ -1,0 +1,9 @@
+{
+  "rule": "SHA-256 exact match plus dHash<=2 bits and thumbnail MAE<=1.5",
+  "official_test_images": 109,
+  "train_val_images_checked": 450,
+  "exact_leaks": 0,
+  "near_duplicate_leaks": 0,
+  "examples": [],
+  "passed": true
+}

@@ -8,12 +8,29 @@ from fastapi.responses import HTMLResponse, Response
 
 from ...core import db
 from ...domain import engine
-from ...services import report, vision
+from ...services import detector, report, vision
 from ...services import review as service
 from ..deps import Denied, require_user
 from ..pages import page
 
 router = APIRouter(tags=["report"])
+
+
+def _model_summary(lot_id: int) -> tuple[str, str]:
+    """Report the model that actually produced this lot's proposals."""
+    rows = db.q("SELECT DISTINCT ij.model_version FROM inference_job ij"
+                " JOIN image i ON i.id=ij.image_id"
+                " WHERE i.lot_id=? AND ij.status='succeeded'"
+                " ORDER BY ij.model_version", (lot_id,))
+    names = sorted({str(row["model_version"]) for row in rows
+                    if row["model_version"] and row["model_version"] != "manual"})
+    if not names:
+        return "manual only", "no model proposal used in this decision"
+    if names == [vision.MODEL_NAME]:
+        return names[0], "staged knit panels only (unsupervised baseline)"
+    if names == [detector.MODEL_NAME]:
+        return names[0], detector.MODEL_DOMAIN
+    return ", ".join(names), "mixed model provenance; inspect the inference jobs for this lot"
 
 
 def _report_ctx(lot_id: int) -> dict:
@@ -33,6 +50,7 @@ def _report_ctx(lot_id: int) -> dict:
                     for c in engine.CLASSES} if limits else {}
     images = db.one("SELECT COUNT(*) AS n FROM image WHERE lot_id=? AND purged=0", (lot_id,))["n"]
     units = db.one("SELECT COUNT(*) AS n FROM sample_unit WHERE lot_id=?", (lot_id,))["n"]
+    model_name, model_domains = _model_summary(lot_id)
     return {
         "lot_code": L["lot_code"], "product": L["product_name"], "buyer": L["buyer_name"],
         "sequence": d["sequence"], "created_at": d["created_at"], "engine_version": d["engine_version"],
@@ -43,7 +61,7 @@ def _report_ctx(lot_id: int) -> dict:
         "units_present": comp.get("units_present"), "required_units": comp.get("required_units"),
         "views_pending": comp.get("views_pending"), "evidence_bad": comp.get("evidence_bad"),
         "nonvisual": L["critical_nonvisual_status"], "images": images, "units": units,
-        "model": vision.MODEL_NAME, "model_domains": "staged knit panels (synthetic), no factory images",
+        "model": model_name, "model_domains": model_domains,
         "manual": bool(d["manual_inspection"]), "selection": L["selection_method"],
         "snapshot_hash": d["snapshot_hash"], "lot": L, "decision": d, "progress": service.progress(lot_id),
         "reasons_raw": reasons,

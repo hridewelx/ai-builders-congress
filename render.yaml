@@ -7,7 +7,8 @@ services:
     envVars:
       - key: LOTLINE_DEMO
         value: "1"
-      # Free instances have no persistent disk. /tmp is writable and the demo
-      # reseeds itself on every cold start, so a restart returns a clean demo.
+      # Free instances have no persistent disk. The image contains a baked seed;
+      # /tmp is writable and start.sh copies that seed on first boot instead of
+      # spending the cold start fitting a model.
       - key: LOTLINE_DATA
         value: /tmp/lotline

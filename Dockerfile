@@ -7,8 +7,12 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 COPY requirements.txt ./
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 RUN pip install -r requirements.txt
 COPY . .
-RUN mkdir -p /data
+RUN mkdir -p /data /seed \
+    && LOTLINE_DATA=/seed python -m app.seed
 EXPOSE 8077
 CMD ["./start.sh"]

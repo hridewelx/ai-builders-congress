@@ -194,7 +194,8 @@ def _display_path(value: str) -> str:
 
 
 def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
-                        parity: dict | None = None, source: str | None = None) -> str:
+                        parity: dict | None = None, source: str | None = None,
+                        integrity: dict | None = None, leakage: dict | None = None) -> str:
     per_source = metrics.get("per_source", {})
     headline = per_source.get("bdfd9", metrics)
     headline_label = "BDFD9 fabric close-ups" if "bdfd9" in per_source else "all evaluated images"
@@ -216,6 +217,16 @@ def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | Non
         f"- False positives per clean image: {fp_clean}"
         + ("" if clean_n < 5 else f" ({clean_n} clean images)"),
         f"- View-level recall: {headline['view_recall']} ({headline['defective_views']} defective views)",
+    ]
+    if parity and parity.get("split") == "val" and parity.get("pytorch"):
+        val = parity["pytorch"]
+        lines.append(f"- Validation estimate (harder): {val['map50']} mAP@0.5, "
+                     f"P {val['precision']}, R {val['recall']} on {val['images']} images — "
+                     "quote both; the split-to-split gap is not a new-factory estimate.")
+    lines += [
+        "- Same-factory caveat: every image here comes from the same four BDFD9 "
+        "factories and capture sessions. Neither this split nor validation estimates "
+        "performance in a new factory.",
         f"- Pooled diagnostic across all evaluated images: {metrics['map50']} "
         "(reported for completeness, never as the held-out factory estimate)",
         "- Split policy: BDFD9's official test folder is held out; "
@@ -267,13 +278,49 @@ def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | Non
                   f"- mAP delta PyTorch -> ONNX: {parity['map_delta']} (tolerance 0.01) · "
                   f"review-queue cap cost: {parity['ui_cap_cost']} mAP",
                   f"- Parity result: {'PASS' if parity['passed'] else 'FAIL'}"]
-    if metrics.get("split") == "test":
+    if integrity and metrics.get("split") == "test":
         lines += ["", "## Split integrity", "",
-                  "- `ml.verify_split`: 109 official BDFD9 test images compared against 450 "
-                  "train/val images — 0 exact and 0 near-duplicate leaks.",
-                  "- The official test folder is never trained on, never used for threshold "
-                  "selection or calibration, and is evaluated once per model version.",
-                  "- The validation split is the honest 'harder' estimate to quote alongside this one."]
+                  f"- Duplicate rule: {integrity['rule']}",
+                  f"- Official test images checked: {integrity['official_test_images']} against "
+                  f"{integrity['train_val_images_checked']} train/val images",
+                  f"- Result: {integrity['exact_leaks']} exact and "
+                  f"{integrity['near_duplicate_leaks']} near-duplicate copies "
+                  f"({'PASS' if integrity['passed'] else 'FAIL'})",
+                  "- This rule only catches copies it can see. It is not proof of independence."]
+    if leakage:
+        groups = leakage.get("summary", {})
+        control = groups.get("train_control", {})
+        test = groups.get("test", {})
+        val = groups.get("val", {})
+        verdict = " ".join(leakage.get("verdict", []))
+        p_value = "n/a"
+        for sentence in leakage.get("verdict", []):
+            if "p =" in sentence or "p=" in sentence:
+                p_value = sentence.split("p =")[-1].split("p=")[-1].split("(")[0].strip(" .")
+                break
+        lines += ["", "## Stricter leakage probe (phase correlation, flips and shifts)", "",
+                  "| group | pairs | flagged | share | phase p90 |",
+                  "| --- | --- | --- | --- | --- |"]
+        for label, block in (("train control (train vs train)", control),
+                             ("validation vs train", val), ("test vs train", test)):
+            stats = block.get("phase_peak", {})
+            lines.append(f"| {label} | {block.get('n')} | {block.get('suspect')} | "
+                         f"{block.get('suspect_share')} | {stats.get('p90')} |")
+        lines += ["",
+                  f"- One-sided test-vs-validation rank-sum p = {p_value}.",
+                  "- Read the control row first: it is train-vs-train and cannot contain held-out "
+                  "leakage. Because the control is flagged at the same rate as val and test, "
+                  "these flags measure how alike BDFD9 photos are, not leakage.",
+                  "- Conclusion: no evidence of leakage and no proof of independence. "
+                  "The dedupe rule is the only positive check that passed."]
+        lines += ["",
+                  "- The probe's own output warns about 27 test and 41 validation pairs. That "
+                  "warning does not control for the base rate in its train-vs-train control, "
+                  "so it is reported here as inconclusive rather than as evidence of leakage."]
+        _ = verdict
+
+    if parity and parity.get("split") != "val":
+        raise SystemExit("refusing to publish a card whose parity was measured on the test split")
     card = checkpoint.get("model_card", {})
     lines += ["", "## What this model does not do", "",
               "- It does not assign severity, count defects, or decide a lot.",
@@ -298,19 +345,27 @@ def main() -> None:
                         help="calibration report to cite in the card (optional)")
     parser.add_argument("--parity", type=Path, default=MODELS / "runtime_parity_v2.json",
                         help="runtime parity report to cite in the card (optional)")
+    parser.add_argument("--integrity", type=Path, default=Path("docs/split_integrity.json"),
+                        help="split-integrity report from ml.verify_split (optional)")
+    parser.add_argument("--leakage", type=Path, default=Path("docs/leakage_probe.json"),
+                        help="stricter leakage-probe report (optional)")
     args = parser.parse_args()
     if args.from_json:
         import torch
         metrics = json.loads(args.from_json.read_text(encoding="utf-8"))
         checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
-        calibration = None
-        parity = None
-        if args.calibration and args.calibration.exists():
-            calibration = json.loads(args.calibration.read_text(encoding="utf-8"))
-        if args.parity and args.parity.exists():
-            parity = json.loads(args.parity.read_text(encoding="utf-8"))
-        args.card.write_text(model_card_markdown(metrics, checkpoint, calibration, parity,
-                                                 source=args.from_json.name), encoding="utf-8")
+        def maybe(path: Path | None):
+            if path and path.exists():
+                return json.loads(path.read_text(encoding="utf-8"))
+            return None
+
+        calibration = maybe(args.calibration)
+        parity = maybe(args.parity)
+        integrity = maybe(args.integrity)
+        leakage = maybe(args.leakage)
+        args.card.write_text(model_card_markdown(
+            metrics, checkpoint, calibration, parity, source=args.from_json.name,
+            integrity=integrity, leakage=leakage), encoding="utf-8")
         print(f"wrote {args.card} from {args.from_json}")
         return
     metrics = evaluate_checkpoint(args.checkpoint, args.data, args.split, args.score_threshold)

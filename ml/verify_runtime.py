@@ -79,7 +79,8 @@ def main() -> int:
     parser.add_argument("--checkpoint", type=Path, default=Path("data/models/det_v2b.pt"))
     parser.add_argument("--onnx", type=Path, default=Path("data/models/det_v2.onnx"))
     parser.add_argument("--data", type=Path, default=Path("data/dataset/det_v2"))
-    parser.add_argument("--split", default="test")
+    parser.add_argument("--split", default="val", choices=["val", "test"],
+                        help="default val: parity must not be measured on the test split")
     parser.add_argument("--calibration", type=Path, default=Path("data/models/calibration_v2.json"))
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--out", type=Path, default=Path("data/models/runtime_parity_v2.json"),

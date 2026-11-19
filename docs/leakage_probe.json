@@ -1,0 +1,1295 @@
+{
+  "source_prefix": "bdfd9",
+  "thresholds": {
+    "phase_peak": 0.3,
+    "ncc32": 0.95,
+    "dhash_frac": 0.1
+  },
+  "summary": {
+    "val": {
+      "n": 68,
+      "phase_peak": {
+        "median": 0.289,
+        "p90": 0.52,
+        "max": 0.973
+      },
+      "ncc32": {
+        "median": 0.832,
+        "p90": 0.952,
+        "max": 0.994
+      },
+      "dhash_frac": {
+        "median": 0.176,
+        "p90": 0.326,
+        "max": 0.401
+      },
+      "suspect": 41,
+      "suspect_share": 0.603,
+      "legacy_rule_flags": 0
+    },
+    "test": {
+      "n": 42,
+      "phase_peak": {
+        "median": 0.29,
+        "p90": 0.421,
+        "max": 0.551
+      },
+      "ncc32": {
+        "median": 0.883,
+        "p90": 0.938,
+        "max": 0.962
+      },
+      "dhash_frac": {
+        "median": 0.145,
+        "p90": 0.219,
+        "max": 0.375
+      },
+      "suspect": 27,
+      "suspect_share": 0.643,
+      "legacy_rule_flags": 0
+    },
+    "train_control": {
+      "n": 120,
+      "phase_peak": {
+        "median": 0.259,
+        "p90": 0.48,
+        "max": 0.949
+      },
+      "ncc32": {
+        "median": 0.844,
+        "p90": 0.942,
+        "max": 0.997
+      },
+      "dhash_frac": {
+        "median": 0.176,
+        "p90": 0.272,
+        "max": 0.386
+      },
+      "suspect": 65,
+      "suspect_share": 0.542,
+      "legacy_rule_flags": 0
+    }
+  },
+  "verdict": [
+    "WARNING: 27 test image(s) have a near-identical train image under flips/shifts/exposure changes that the old dHash rule did not catch. Open the HTML sheet, confirm by eye, then drop them from the evaluation split (or from train) and re-score before quoting a held-out number.",
+    "WARNING: 41 val image(s) have a near-identical train image under flips/shifts/exposure changes that the old dHash rule did not catch. Open the HTML sheet, confirm by eye, then drop them from the evaluation split (or from train) and re-score before quoting a held-out number.",
+    "Test vs validation best-match score: one-sided rank-sum p = 0.562 (n=42 vs 68; information only, the tail is heavy). Control (train vs rest of train) median 0.259, p90 0.480: if val and test sit at the control level the splits are as redundant as the data itself.",
+    "Whatever the numbers say, BDFD9's splits come from the same four factories, so none of this estimates a new factory."
+  ],
+  "rows": {
+    "val": [
+      {
+        "dhash_frac_min": 0.25,
+        "dhash_best": 131,
+        "ncc32_max": 0.836814820766449,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.35066813230514526,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00446.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.25735294818878174,
+        "dhash_best": 102,
+        "ncc32_max": 0.5987660884857178,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.2901035249233246,
+        "phase_best": 1,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00447.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00147.webp"
+      },
+      {
+        "dhash_frac_min": 0.3382352888584137,
+        "dhash_best": 47,
+        "ncc32_max": 0.4411524534225464,
+        "ncc32_best": 152,
+        "phase_peak_max": 0.21922779083251953,
+        "phase_best": 105,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00448.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00251.webp"
+      },
+      {
+        "dhash_frac_min": 0.3235294222831726,
+        "dhash_best": 242,
+        "ncc32_max": 0.5178542137145996,
+        "ncc32_best": 28,
+        "phase_peak_max": 0.3589751720428467,
+        "phase_best": 105,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00449.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00251.webp"
+      },
+      {
+        "dhash_frac_min": 0.2867647111415863,
+        "dhash_best": 61,
+        "ncc32_max": 0.6933717727661133,
+        "ncc32_best": 67,
+        "phase_peak_max": 0.2872021198272705,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00450.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.20588235557079315,
+        "dhash_best": 30,
+        "ncc32_max": 0.5902726650238037,
+        "ncc32_best": 30,
+        "phase_peak_max": 0.3507741689682007,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00451.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.30514705181121826,
+        "dhash_best": 102,
+        "ncc32_max": 0.6001433730125427,
+        "ncc32_best": 27,
+        "phase_peak_max": 0.23863855004310608,
+        "phase_best": 63,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00452.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00209.webp"
+      },
+      {
+        "dhash_frac_min": 0.0992647036910057,
+        "dhash_best": 131,
+        "ncc32_max": 0.9274075627326965,
+        "ncc32_best": 152,
+        "phase_peak_max": 0.2118135690689087,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00453.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.23161764442920685,
+        "dhash_best": 50,
+        "ncc32_max": 0.8554149270057678,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.2810446619987488,
+        "phase_best": 103,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00454.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00249.webp"
+      },
+      {
+        "dhash_frac_min": 0.025735294446349144,
+        "dhash_best": 131,
+        "ncc32_max": 0.9503248333930969,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.2749199867248535,
+        "phase_best": 30,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00455.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00176.webp"
+      },
+      {
+        "dhash_frac_min": 0.22058823704719543,
+        "dhash_best": 51,
+        "ncc32_max": 0.6205060482025146,
+        "ncc32_best": 66,
+        "phase_peak_max": 0.2994687557220459,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00456.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.029411764815449715,
+        "dhash_best": 131,
+        "ncc32_max": 0.9502402544021606,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.3919229507446289,
+        "phase_best": 77,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00457.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00223.webp"
+      },
+      {
+        "dhash_frac_min": 0.09558823704719543,
+        "dhash_best": 131,
+        "ncc32_max": 0.9281760454177856,
+        "ncc32_best": 13,
+        "phase_peak_max": 0.2033889889717102,
+        "phase_best": 57,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00458.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00203.webp"
+      },
+      {
+        "dhash_frac_min": 0.08455882221460342,
+        "dhash_best": 131,
+        "ncc32_max": 0.8930002450942993,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.27340394258499146,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00459.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.1875,
+        "dhash_best": 30,
+        "ncc32_max": 0.8080763816833496,
+        "ncc32_best": 202,
+        "phase_peak_max": 0.23417431116104126,
+        "phase_best": 63,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00460.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00209.webp"
+      },
+      {
+        "dhash_frac_min": 0.036764707416296005,
+        "dhash_best": 131,
+        "ncc32_max": 0.9342571496963501,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.5052696466445923,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00461.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.19117647409439087,
+        "dhash_best": 50,
+        "ncc32_max": 0.7830182313919067,
+        "ncc32_best": 67,
+        "phase_peak_max": 0.3933863639831543,
+        "phase_best": 77,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00462.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00223.webp"
+      },
+      {
+        "dhash_frac_min": 0.05882352963089943,
+        "dhash_best": 131,
+        "ncc32_max": 0.8967465758323669,
+        "ncc32_best": 222,
+        "phase_peak_max": 0.3118016719818115,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00463.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.04779411852359772,
+        "dhash_best": 131,
+        "ncc32_max": 0.936450719833374,
+        "ncc32_best": 201,
+        "phase_peak_max": 0.45497024059295654,
+        "phase_best": 63,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00464.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00209.webp"
+      },
+      {
+        "dhash_frac_min": 0.10661764442920685,
+        "dhash_best": 131,
+        "ncc32_max": 0.8932976126670837,
+        "ncc32_best": 152,
+        "phase_peak_max": 0.27047300338745117,
+        "phase_best": 106,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00465.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00252.webp"
+      },
+      {
+        "dhash_frac_min": 0.1985294073820114,
+        "dhash_best": 79,
+        "ncc32_max": 0.7689394950866699,
+        "ncc32_best": 62,
+        "phase_peak_max": 0.3636854290962219,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00466.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.14338235557079315,
+        "dhash_best": 131,
+        "ncc32_max": 0.8626147508621216,
+        "ncc32_best": 67,
+        "phase_peak_max": 0.3003469407558441,
+        "phase_best": 75,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00467.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00221.webp"
+      },
+      {
+        "dhash_frac_min": 0.13970588147640228,
+        "dhash_best": 131,
+        "ncc32_max": 0.8683058023452759,
+        "ncc32_best": 60,
+        "phase_peak_max": 0.46616968512535095,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00468.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.37132352590560913,
+        "dhash_best": 37,
+        "ncc32_max": 0.26353785395622253,
+        "ncc32_best": 109,
+        "phase_peak_max": 0.14995156228542328,
+        "phase_best": 60,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00469.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00206.webp"
+      },
+      {
+        "dhash_frac_min": 0.38235294818878174,
+        "dhash_best": 110,
+        "ncc32_max": 0.628563642501831,
+        "ncc32_best": 220,
+        "phase_peak_max": 0.1476251184940338,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00470.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.3014705777168274,
+        "dhash_best": 131,
+        "ncc32_max": 0.6443952918052673,
+        "ncc32_best": 51,
+        "phase_peak_max": 0.16044190526008606,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00471.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.37867647409439087,
+        "dhash_best": 34,
+        "ncc32_max": 0.6423434019088745,
+        "ncc32_best": 186,
+        "phase_peak_max": 0.17765188217163086,
+        "phase_best": 77,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00472.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00223.webp"
+      },
+      {
+        "dhash_frac_min": 0.2867647111415863,
+        "dhash_best": 131,
+        "ncc32_max": 0.6334693431854248,
+        "ncc32_best": 100,
+        "phase_peak_max": 0.18950572609901428,
+        "phase_best": 89,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00473.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00235.webp"
+      },
+      {
+        "dhash_frac_min": 0.10661764442920685,
+        "dhash_best": 79,
+        "ncc32_max": 0.8482937812805176,
+        "ncc32_best": 133,
+        "phase_peak_max": 0.2004457265138626,
+        "phase_best": 101,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00474.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00247.webp"
+      },
+      {
+        "dhash_frac_min": 0.20588235557079315,
+        "dhash_best": 131,
+        "ncc32_max": 0.8764444589614868,
+        "ncc32_best": 133,
+        "phase_peak_max": 0.23835110664367676,
+        "phase_best": 101,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00475.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00247.webp"
+      },
+      {
+        "dhash_frac_min": 0.018382353708148003,
+        "dhash_best": 131,
+        "ncc32_max": 0.9563857316970825,
+        "ncc32_best": 5,
+        "phase_peak_max": 0.5886974930763245,
+        "phase_best": 103,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00476.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00249.webp"
+      },
+      {
+        "dhash_frac_min": 0.1875,
+        "dhash_best": 172,
+        "ncc32_max": 0.9133754968643188,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.427151083946228,
+        "phase_best": 101,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00477.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00247.webp"
+      },
+      {
+        "dhash_frac_min": 0.05147058889269829,
+        "dhash_best": 50,
+        "ncc32_max": 0.9306913614273071,
+        "ncc32_best": 182,
+        "phase_peak_max": 0.1460077464580536,
+        "phase_best": 151,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00478.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00297.jpg"
+      },
+      {
+        "dhash_frac_min": 0.37132352590560913,
+        "dhash_best": 166,
+        "ncc32_max": 0.7660595178604126,
+        "ncc32_best": 82,
+        "phase_peak_max": 0.13667786121368408,
+        "phase_best": 7,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00479.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00153.webp"
+      },
+      {
+        "dhash_frac_min": 0.33088234066963196,
+        "dhash_best": 176,
+        "ncc32_max": 0.6252491474151611,
+        "ncc32_best": 145,
+        "phase_peak_max": 0.35193318128585815,
+        "phase_best": 214,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00480.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00360.jpg"
+      },
+      {
+        "dhash_frac_min": 0.4007352888584137,
+        "dhash_best": 16,
+        "ncc32_max": 0.4900498390197754,
+        "ncc32_best": 122,
+        "phase_peak_max": 0.17273610830307007,
+        "phase_best": 12,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00481.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00158.webp"
+      },
+      {
+        "dhash_frac_min": 0.036764707416296005,
+        "dhash_best": 139,
+        "ncc32_max": 0.9361153841018677,
+        "ncc32_best": 279,
+        "phase_peak_max": 0.14316263794898987,
+        "phase_best": 135,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00482.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00281.webp"
+      },
+      {
+        "dhash_frac_min": 0.007352941203862429,
+        "dhash_best": 131,
+        "ncc32_max": 0.9199625849723816,
+        "ncc32_best": 100,
+        "phase_peak_max": 0.14368054270744324,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00483.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.2977941036224365,
+        "dhash_best": 142,
+        "ncc32_max": 0.7660405039787292,
+        "ncc32_best": 276,
+        "phase_peak_max": 0.37050777673721313,
+        "phase_best": 132,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00484.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00278.webp"
+      },
+      {
+        "dhash_frac_min": 0.31617647409439087,
+        "dhash_best": 235,
+        "ncc32_max": 0.6765549778938293,
+        "ncc32_best": 138,
+        "phase_peak_max": 0.29351526498794556,
+        "phase_best": 138,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00485.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00284.jpg"
+      },
+      {
+        "dhash_frac_min": 0.022058824077248573,
+        "dhash_best": 131,
+        "ncc32_max": 0.9483388662338257,
+        "ncc32_best": 172,
+        "phase_peak_max": 0.1605694591999054,
+        "phase_best": 106,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00486.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00252.webp"
+      },
+      {
+        "dhash_frac_min": 0.25,
+        "dhash_best": 88,
+        "ncc32_max": 0.8049910664558411,
+        "ncc32_best": 198,
+        "phase_peak_max": 0.18541356921195984,
+        "phase_best": 77,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00487.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00223.webp"
+      },
+      {
+        "dhash_frac_min": 0.17279411852359772,
+        "dhash_best": 131,
+        "ncc32_max": 0.8096193671226501,
+        "ncc32_best": 141,
+        "phase_peak_max": 0.169753760099411,
+        "phase_best": 199,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00488.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00345.jpg"
+      },
+      {
+        "dhash_frac_min": 0.10661764442920685,
+        "dhash_best": 173,
+        "ncc32_max": 0.8992035984992981,
+        "ncc32_best": 173,
+        "phase_peak_max": 0.19852080941200256,
+        "phase_best": 64,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00489.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00210.webp"
+      },
+      {
+        "dhash_frac_min": 0.11397058516740799,
+        "dhash_best": 131,
+        "ncc32_max": 0.7679206132888794,
+        "ncc32_best": 199,
+        "phase_peak_max": 0.24363373219966888,
+        "phase_best": 200,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00490.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00346.jpg"
+      },
+      {
+        "dhash_frac_min": 0.04779411852359772,
+        "dhash_best": 50,
+        "ncc32_max": 0.9469808340072632,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.38639792799949646,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00491.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.033088237047195435,
+        "dhash_best": 131,
+        "ncc32_max": 0.9556535482406616,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.2710818350315094,
+        "phase_best": 188,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00492.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00334.jpg"
+      },
+      {
+        "dhash_frac_min": 0.1617647111415863,
+        "dhash_best": 61,
+        "ncc32_max": 0.8491560816764832,
+        "ncc32_best": 102,
+        "phase_peak_max": 0.2843974530696869,
+        "phase_best": 64,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00493.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00210.webp"
+      },
+      {
+        "dhash_frac_min": 0.15441176295280457,
+        "dhash_best": 43,
+        "ncc32_max": 0.8525701761245728,
+        "ncc32_best": 13,
+        "phase_peak_max": 0.16528135538101196,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00494.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.25367647409439087,
+        "dhash_best": 102,
+        "ncc32_max": 0.5745753049850464,
+        "ncc32_best": 41,
+        "phase_peak_max": 0.3960859477519989,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00495.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.23161764442920685,
+        "dhash_best": 102,
+        "ncc32_max": 0.5756577253341675,
+        "ncc32_best": 236,
+        "phase_peak_max": 0.339966356754303,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00496.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.23529411852359772,
+        "dhash_best": 245,
+        "ncc32_max": 0.7298963665962219,
+        "ncc32_best": 16,
+        "phase_peak_max": 0.3768400251865387,
+        "phase_best": 226,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00497.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00372.webp"
+      },
+      {
+        "dhash_frac_min": 0.20955882966518402,
+        "dhash_best": 282,
+        "ncc32_max": 0.8622170686721802,
+        "ncc32_best": 232,
+        "phase_peak_max": 0.3429146111011505,
+        "phase_best": 228,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00498.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00374.webp"
+      },
+      {
+        "dhash_frac_min": 0.04779411852359772,
+        "dhash_best": 131,
+        "ncc32_max": 0.969728410243988,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.3350995182991028,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00499.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.22058823704719543,
+        "dhash_best": 228,
+        "ncc32_max": 0.9239843487739563,
+        "ncc32_best": 228,
+        "phase_peak_max": 0.8103053569793701,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00500.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.22058823704719543,
+        "dhash_best": 152,
+        "ncc32_max": 0.8269991874694824,
+        "ncc32_best": 276,
+        "phase_peak_max": 0.5531363487243652,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00501.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.025735294446349144,
+        "dhash_best": 291,
+        "ncc32_max": 0.9937320947647095,
+        "ncc32_best": 291,
+        "phase_peak_max": 0.9338701963424683,
+        "phase_best": 291,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00502.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00437.webp"
+      },
+      {
+        "dhash_frac_min": 0.025735294446349144,
+        "dhash_best": 293,
+        "ncc32_max": 0.9912749528884888,
+        "ncc32_best": 293,
+        "phase_peak_max": 0.9727511405944824,
+        "phase_best": 293,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00503.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00439.webp"
+      },
+      {
+        "dhash_frac_min": 0.10661764442920685,
+        "dhash_best": 131,
+        "ncc32_max": 0.8566809892654419,
+        "ncc32_best": 24,
+        "phase_peak_max": 0.1905525177717209,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00504.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.2132352888584137,
+        "dhash_best": 50,
+        "ncc32_max": 0.5325478911399841,
+        "ncc32_best": 144,
+        "phase_peak_max": 0.2711688280105591,
+        "phase_best": 221,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00505.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00367.webp"
+      },
+      {
+        "dhash_frac_min": 0.07720588147640228,
+        "dhash_best": 131,
+        "ncc32_max": 0.7775250673294067,
+        "ncc32_best": 10,
+        "phase_peak_max": 0.22332873940467834,
+        "phase_best": 277,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00506.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00423.webp"
+      },
+      {
+        "dhash_frac_min": 0.1764705926179886,
+        "dhash_best": 282,
+        "ncc32_max": 0.7366183400154114,
+        "ncc32_best": 240,
+        "phase_peak_max": 0.3275354504585266,
+        "phase_best": 233,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00507.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00379.webp"
+      },
+      {
+        "dhash_frac_min": 0.125,
+        "dhash_best": 61,
+        "ncc32_max": 0.5778308510780334,
+        "ncc32_best": 295,
+        "phase_peak_max": 0.3003787398338318,
+        "phase_best": 228,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00508.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00374.webp"
+      },
+      {
+        "dhash_frac_min": 0.1875,
+        "dhash_best": 50,
+        "ncc32_max": 0.7169299721717834,
+        "ncc32_best": 202,
+        "phase_peak_max": 0.18774959444999695,
+        "phase_best": 279,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00509.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00425.webp"
+      },
+      {
+        "dhash_frac_min": 0.13235294818878174,
+        "dhash_best": 131,
+        "ncc32_max": 0.5881454944610596,
+        "ncc32_best": 276,
+        "phase_peak_max": 0.32073646783828735,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00510.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.04411764815449715,
+        "dhash_best": 239,
+        "ncc32_max": 0.9750703573226929,
+        "ncc32_best": 239,
+        "phase_peak_max": 0.9056916236877441,
+        "phase_best": 239,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00511.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00385.webp"
+      },
+      {
+        "dhash_frac_min": 0.025735294446349144,
+        "dhash_best": 249,
+        "ncc32_max": 0.9933637976646423,
+        "ncc32_best": 249,
+        "phase_peak_max": 0.960003137588501,
+        "phase_best": 249,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00512.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00395.webp"
+      },
+      {
+        "dhash_frac_min": 0.1764705926179886,
+        "dhash_best": 61,
+        "ncc32_max": 0.8141859173774719,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.3908785581588745,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\val\\bdfd9_00513.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      }
+    ],
+    "test": [
+      {
+        "dhash_frac_min": 0.1617647111415863,
+        "dhash_best": 52,
+        "ncc32_max": 0.8899000883102417,
+        "ncc32_best": 51,
+        "phase_peak_max": 0.30185332894325256,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00022.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.14705882966518402,
+        "dhash_best": 51,
+        "ncc32_max": 0.8938153982162476,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.29216068983078003,
+        "phase_best": 1,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00023.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00147.webp"
+      },
+      {
+        "dhash_frac_min": 0.14705882966518402,
+        "dhash_best": 282,
+        "ncc32_max": 0.8750558495521545,
+        "ncc32_best": 5,
+        "phase_peak_max": 0.25353187322616577,
+        "phase_best": 65,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00024.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00211.webp"
+      },
+      {
+        "dhash_frac_min": 0.11029411852359772,
+        "dhash_best": 51,
+        "ncc32_max": 0.9302435517311096,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.2604484260082245,
+        "phase_best": 12,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00025.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00158.webp"
+      },
+      {
+        "dhash_frac_min": 0.31617647409439087,
+        "dhash_best": 43,
+        "ncc32_max": 0.5767872333526611,
+        "ncc32_best": 67,
+        "phase_peak_max": 0.3524593114852905,
+        "phase_best": 103,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00026.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00249.webp"
+      },
+      {
+        "dhash_frac_min": 0.19485294818878174,
+        "dhash_best": 131,
+        "ncc32_max": 0.8424196243286133,
+        "ncc32_best": 152,
+        "phase_peak_max": 0.3381892442703247,
+        "phase_best": 54,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00027.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00200.webp"
+      },
+      {
+        "dhash_frac_min": 0.09191176295280457,
+        "dhash_best": 61,
+        "ncc32_max": 0.9399245977401733,
+        "ncc32_best": 130,
+        "phase_peak_max": 0.34373366832733154,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00028.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.05514705926179886,
+        "dhash_best": 131,
+        "ncc32_max": 0.9220535755157471,
+        "ncc32_best": 170,
+        "phase_peak_max": 0.2808741629123688,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00029.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.20955882966518402,
+        "dhash_best": 282,
+        "ncc32_max": 0.7432677745819092,
+        "ncc32_best": 65,
+        "phase_peak_max": 0.39357247948646545,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00030.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.08088235557079315,
+        "dhash_best": 50,
+        "ncc32_max": 0.8600884675979614,
+        "ncc32_best": 64,
+        "phase_peak_max": 0.4237370193004608,
+        "phase_best": 64,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00031.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00210.webp"
+      },
+      {
+        "dhash_frac_min": 0.22794117033481598,
+        "dhash_best": 43,
+        "ncc32_max": 0.7314015626907349,
+        "ncc32_best": 67,
+        "phase_peak_max": 0.22355422377586365,
+        "phase_best": 40,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00032.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00186.webp"
+      },
+      {
+        "dhash_frac_min": 0.06985294073820114,
+        "dhash_best": 131,
+        "ncc32_max": 0.9258518218994141,
+        "ncc32_best": 5,
+        "phase_peak_max": 0.284100741147995,
+        "phase_best": 58,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00033.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00204.webp"
+      },
+      {
+        "dhash_frac_min": 0.3382352888584137,
+        "dhash_best": 52,
+        "ncc32_max": 0.5155981183052063,
+        "ncc32_best": 53,
+        "phase_peak_max": 0.21971984207630157,
+        "phase_best": 137,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00034.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00283.jpg"
+      },
+      {
+        "dhash_frac_min": 0.11764705926179886,
+        "dhash_best": 282,
+        "ncc32_max": 0.9207473397254944,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.20298486948013306,
+        "phase_best": 99,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00035.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00245.webp"
+      },
+      {
+        "dhash_frac_min": 0.07352941483259201,
+        "dhash_best": 131,
+        "ncc32_max": 0.9428853988647461,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.2412063330411911,
+        "phase_best": 100,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00036.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00246.webp"
+      },
+      {
+        "dhash_frac_min": 0.375,
+        "dhash_best": 91,
+        "ncc32_max": 0.7374963760375977,
+        "ncc32_best": 122,
+        "phase_peak_max": 0.21136116981506348,
+        "phase_best": 71,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00037.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00217.webp"
+      },
+      {
+        "dhash_frac_min": 0.04779411852359772,
+        "dhash_best": 139,
+        "ncc32_max": 0.9317675828933716,
+        "ncc32_best": 129,
+        "phase_peak_max": 0.12682104110717773,
+        "phase_best": 133,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00038.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00279.webp"
+      },
+      {
+        "dhash_frac_min": 0.15808823704719543,
+        "dhash_best": 136,
+        "ncc32_max": 0.903822660446167,
+        "ncc32_best": 133,
+        "phase_peak_max": 0.139004647731781,
+        "phase_best": 126,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00039.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00272.webp"
+      },
+      {
+        "dhash_frac_min": 0.14338235557079315,
+        "dhash_best": 131,
+        "ncc32_max": 0.9239479303359985,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.33513814210891724,
+        "phase_best": 131,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00040.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00277.webp"
+      },
+      {
+        "dhash_frac_min": 0.12867647409439087,
+        "dhash_best": 51,
+        "ncc32_max": 0.9314854741096497,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.32104480266571045,
+        "phase_best": 134,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00041.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00280.webp"
+      },
+      {
+        "dhash_frac_min": 0.16544117033481598,
+        "dhash_best": 131,
+        "ncc32_max": 0.9382781982421875,
+        "ncc32_best": 157,
+        "phase_peak_max": 0.20212942361831665,
+        "phase_best": 196,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00042.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00342.jpg"
+      },
+      {
+        "dhash_frac_min": 0.0992647036910057,
+        "dhash_best": 131,
+        "ncc32_max": 0.8640335202217102,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.16231344640254974,
+        "phase_best": 203,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00043.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00349.jpg"
+      },
+      {
+        "dhash_frac_min": 0.12867647409439087,
+        "dhash_best": 131,
+        "ncc32_max": 0.9355574250221252,
+        "ncc32_best": 102,
+        "phase_peak_max": 0.3964664936065674,
+        "phase_best": 102,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00044.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00248.webp"
+      },
+      {
+        "dhash_frac_min": 0.12132352590560913,
+        "dhash_best": 170,
+        "ncc32_max": 0.877161979675293,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.29347437620162964,
+        "phase_best": 209,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00045.jpg",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00355.jpg"
+      },
+      {
+        "dhash_frac_min": 0.040441177785396576,
+        "dhash_best": 279,
+        "ncc32_max": 0.949743926525116,
+        "ncc32_best": 129,
+        "phase_peak_max": 0.2085007131099701,
+        "phase_best": 241,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00046.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00387.webp"
+      },
+      {
+        "dhash_frac_min": 0.18382352590560913,
+        "dhash_best": 282,
+        "ncc32_max": 0.8556755185127258,
+        "ncc32_best": 218,
+        "phase_peak_max": 0.361613005399704,
+        "phase_best": 230,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00047.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00376.webp"
+      },
+      {
+        "dhash_frac_min": 0.19117647409439087,
+        "dhash_best": 131,
+        "ncc32_max": 0.7696583271026611,
+        "ncc32_best": 218,
+        "phase_peak_max": 0.5286888480186462,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00048.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.18382352590560913,
+        "dhash_best": 272,
+        "ncc32_max": 0.668839693069458,
+        "ncc32_best": 272,
+        "phase_peak_max": 0.5512912273406982,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00049.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.19117647409439087,
+        "dhash_best": 131,
+        "ncc32_max": 0.9040234088897705,
+        "ncc32_best": 59,
+        "phase_peak_max": 0.3874208629131317,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00050.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.1507352888584137,
+        "dhash_best": 131,
+        "ncc32_max": 0.9170529246330261,
+        "ncc32_best": 133,
+        "phase_peak_max": 0.4237682819366455,
+        "phase_best": 231,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00051.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00377.webp"
+      },
+      {
+        "dhash_frac_min": 0.040441177785396576,
+        "dhash_best": 61,
+        "ncc32_max": 0.9622979164123535,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.20421519875526428,
+        "phase_best": 232,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00052.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00378.webp"
+      },
+      {
+        "dhash_frac_min": 0.05147058889269829,
+        "dhash_best": 131,
+        "ncc32_max": 0.8562622666358948,
+        "ncc32_best": 202,
+        "phase_peak_max": 0.4242013692855835,
+        "phase_best": 233,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00053.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00379.webp"
+      },
+      {
+        "dhash_frac_min": 0.1985294073820114,
+        "dhash_best": 131,
+        "ncc32_max": 0.5509296655654907,
+        "ncc32_best": 170,
+        "phase_peak_max": 0.1233062744140625,
+        "phase_best": 236,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00054.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00382.webp"
+      },
+      {
+        "dhash_frac_min": 0.10661764442920685,
+        "dhash_best": 51,
+        "ncc32_max": 0.9372022747993469,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.1352614164352417,
+        "phase_best": 137,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00055.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00283.jpg"
+      },
+      {
+        "dhash_frac_min": 0.04779411852359772,
+        "dhash_best": 131,
+        "ncc32_max": 0.8845151662826538,
+        "ncc32_best": 131,
+        "phase_peak_max": 0.19144640862941742,
+        "phase_best": 261,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00056.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00407.webp"
+      },
+      {
+        "dhash_frac_min": 0.1360294073820114,
+        "dhash_best": 282,
+        "ncc32_max": 0.8405829071998596,
+        "ncc32_best": 113,
+        "phase_peak_max": 0.3124261498451233,
+        "phase_best": 277,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00057.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00423.webp"
+      },
+      {
+        "dhash_frac_min": 0.14338235557079315,
+        "dhash_best": 131,
+        "ncc32_max": 0.8265185356140137,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.22578632831573486,
+        "phase_best": 241,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00058.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00387.webp"
+      },
+      {
+        "dhash_frac_min": 0.18382352590560913,
+        "dhash_best": 50,
+        "ncc32_max": 0.6517189741134644,
+        "ncc32_best": 264,
+        "phase_peak_max": 0.28815627098083496,
+        "phase_best": 277,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00059.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00423.webp"
+      },
+      {
+        "dhash_frac_min": 0.11029411852359772,
+        "dhash_best": 129,
+        "ncc32_max": 0.8817971348762512,
+        "ncc32_best": 97,
+        "phase_peak_max": 0.3584798276424408,
+        "phase_best": 230,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00060.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00376.webp"
+      },
+      {
+        "dhash_frac_min": 0.22058823704719543,
+        "dhash_best": 51,
+        "ncc32_max": 0.4420616924762726,
+        "ncc32_best": 230,
+        "phase_peak_max": 0.30082857608795166,
+        "phase_best": 241,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00061.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00387.webp"
+      },
+      {
+        "dhash_frac_min": 0.15808823704719543,
+        "dhash_best": 51,
+        "ncc32_max": 0.889997124671936,
+        "ncc32_best": 283,
+        "phase_peak_max": 0.28486475348472595,
+        "phase_best": 277,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00062.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00423.webp"
+      },
+      {
+        "dhash_frac_min": 0.16911764442920685,
+        "dhash_best": 282,
+        "ncc32_max": 0.6645690202713013,
+        "ncc32_best": 218,
+        "phase_peak_max": 0.35943323373794556,
+        "phase_best": 233,
+        "legacy_rule_flags": false,
+        "file": "data\\dataset\\det_v2\\images\\test\\bdfd9_00063.webp",
+        "best_train": "data\\dataset\\det_v2\\images\\train\\bdfd9_00379.webp"
+      }
+    ]
+  }
+}

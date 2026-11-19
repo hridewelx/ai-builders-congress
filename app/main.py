@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import APP_TITLE, STATIC_DIR
 from .core import db
-from .services import seed, vision
+from .services import detector, seed, vision
 from .web import errors
 from .web.routes import admin, auth, capture, dashboard, decisions, lots, reports, review, system
 
@@ -41,6 +41,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def _startup() -> None:
+        detector.require_available()
         db.init()
         seed.run()
         try:

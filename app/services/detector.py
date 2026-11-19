@@ -57,7 +57,8 @@ def _load_session():
 
         options = ort.SessionOptions()
         options.intra_op_num_threads = int(os.environ.get("LOTLINE_ORT_THREADS", "2"))
-        options.log_severity_level = 3  # empty-ROI runs log an expected reshape error
+        # Empty-ROI runs emit an expected reshape error; keep it out of server logs.
+        options.log_severity_level = 4
         options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         _session = ort.InferenceSession(ONNX_PATH, sess_options=options,
                                         providers=["CPUExecutionProvider"])
@@ -84,6 +85,24 @@ def available() -> bool:
     except ImportError:
         return False
     return True
+
+
+def active_backend() -> str:
+    """The backend that will actually serve the next request ("onnx" or "numpy")."""
+    mode = backend()
+    if mode == "numpy":
+        return "numpy"
+    if not os.path.exists(ONNX_PATH) or not _ort_installed():
+        if mode == "onnx":
+            raise RuntimeError(f"LOTLINE_DETECTOR=onnx but ONNX is unavailable at {ONNX_PATH}")
+        return "numpy"
+    try:
+        _load_session()
+    except Exception:
+        if mode == "onnx":
+            raise
+        return "numpy"
+    return "onnx"
 
 
 def require_available() -> None:
@@ -151,7 +170,7 @@ def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
     try:
         boxes, scores, labels = session.run(None, {session.get_inputs()[0].name: tensor})[:3]
     except Exception as exc:  # ORT cannot reshape a zero-row ROI tensor
-        if "Reshape" in str(exc) and "0,20" in str(exc).replace(" ", ""):
+        if "Reshape" in str(exc) or "zero" in str(exc).lower():
             # No region survived the ROI head: the honest answer is "no proposal".
             return {"proposals": [], "quality": vision.quality(rgb), "heat_png": _heat(rgb, []),
                     "model": MODEL_NAME, "threshold": float(os.environ.get("LOTLINE_DETECT_THRESHOLD", DEFAULT_THRESHOLD)),
