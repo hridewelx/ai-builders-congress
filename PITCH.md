@@ -16,7 +16,7 @@ claim is shown on screen. Record at 1440×900, browser zoom 100 %, dark theme.
 of eight. Get it wrong and you either ship defects to a buyer or scrap good
 product. Today that judgement lives in a paper sheet and a supervisor's memory."
 
-**On screen:** dashboard, six lots, five different outcomes.
+**On screen:** dashboard, eleven lots, four outcomes and seven reason codes.
 
 ### 0:15–0:30 — The product and its invariant
 
@@ -105,7 +105,7 @@ invariant section.
 
 | # | URL | Action | Length |
 |---|---|---|---|
-| 1 | `/` | slow scroll of six lot cards | 8 s |
+| 1 | `/` | slow scroll of the lot cards | 8 s |
 | 2 | `/how` | hold on pipeline strip | 8 s |
 | 3 | `/lots/6` | hold on garments + outcome | 6 s |
 | 4 | `/review/55` | toggle attention map, confirm zone II, reject 2nd, close view | 40 s |
@@ -184,7 +184,7 @@ uncalibrated, staged-data evaluation, no fabricated AQL table. (5) Bangla-first
 for the 4M-worker RMG inspection workforce.
 
 **Traction evidence in the build.** Six seeded lots covering four distinct
-outcomes (ACCEPT, REJECT, HOLD, ESCALATE) and six reason codes; 70 staged photos;
+outcomes (ACCEPT, REJECT, HOLD, ESCALATE) and seven reason codes; 70 staged photos;
 32 baseline model proposals; 30 reviewed predictions (4 confirmed, 26 rejected);
 180+ audit events; 36 deterministic engine tests passing in 40 ms; working PDF.
 
