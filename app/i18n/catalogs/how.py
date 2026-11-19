@@ -1,0 +1,33 @@
+"""Strings for the how screens."""
+from __future__ import annotations
+
+CATALOG: dict[str, tuple[str, str]] = {
+    "how.step5_title": ("Evidence & Report", "প্রমাণ ও রিপোর্ট"),
+    "how.step5_desc": ("Immutable snapshot hash, 1-page PDF, tamper-evident audit trail.", "অপরিবর্তনীয় স্ন্যাপশট হ্যাশ, ১ পৃষ্ঠার পিডিএফ ও অডিট লগ।"),
+    "how.title": ("How Lotline decides", "Lotline কীভাবে সিদ্ধান্ত নেয়"),
+    "how.principle": ("AI proposes defects. Humans confirm defects. The deterministic sampling engine makes the recommendation.", "AI ত্রুটি প্রস্তাব করে। মানুষ নিশ্চিত করে। নির্ধারক স্যাম্পলিং ইঞ্জিন সুপারিশ দেয়।"),
+    "how.pipeline": ("Pipeline", "পাইপলাইন"),
+    "how.model_card": ("Model card", "মডেল কার্ড"),
+    "how.limits": ("Honest limits", "সৎ সীমাবদ্ধতা"),
+    "how.impact": ("Demo data summary", "ডেমো ডেটার সারসংক্ষেপ"),
+    "how.principles_title": ("Design principles", "ডিজাইন নীতি"),
+    "how.data_sovereignty": ("Data sovereignty", "ডেটা সার্বভৌমত্ব"),
+    "how.fail_safe": ("Fail-safe by construction", "ব্যর্থতা-নিরাপদ স্থাপত্য"),
+    "how.explainability": ("Explainability", "ব্যাখ্যাযোগ্যতা"),
+    "how.glossary": ("Inspection Terminology & Glossary", "ইন্সপেকশন পরিভাষা ও নির্দেশিকা"),
+    "how.self_test_passed": ("Self-test passed", "সেলফ-টেস্ট সফল"),
+    "how.run_self_test": ("Run self-test", "সেলফ-টেস্ট চালান"),
+    "how.model": ("Model", "মডেল"),
+    "how.training": ("Training data", "প্রশিক্ষণের ডেটা"),
+    "how.labels": ("Labels used", "ব্যবহৃত লেবেল"),
+    "how.calibration": ("Calibration", "ক্যালিব্রেশন"),
+    "how.eval_domain": ("Evaluation domain", "মূল্যায়নের ক্ষেত্র"),
+    "how.runtime": ("Runtime", "রানটাইম"),
+    "how.artifact": ("Model artifact", "মডেল আর্টিফ্যাক্ট"),
+    "how.self_test": ("Self-test", "সেলফ-টেস্ট"),
+    "how.demo_topology": ("Demo Architecture (Current)", "ডেমো আর্কিটেকচার (বর্তমান)"),
+    "how.prod_topology": ("Production Target", "প্রোডাকশন লক্ষ্য"),
+    "how.reviewer_actions": ("Total reviewer actions", "পর্যালোচকের মোট কাজ"),
+    "how.confirmed_defects": ("Confirmed defects", "নিশ্চিত ত্রুটি"),
+    "how.pipeline_chip": ("input → AI → human → rule → evidence", "ইনপুট → এআই → মানুষ → নিয়ম → প্রমাণ"),
+}
