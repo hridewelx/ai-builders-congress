@@ -211,6 +211,10 @@ def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | Non
         "",
         f"- Checkpoint: `{_display_path(metrics['checkpoint'])}`",
         f"- Split: `{metrics['split']}` ({metrics['images']} images, {metrics['gt_boxes']} boxes)",
+        (f"- Selection: chosen on validation mAP@0.5 {checkpoint['metrics']['map50']} "
+         f"(epoch {checkpoint['metrics'].get('epoch')}); the test split was scored once for "
+         "this checkpoint, not used to pick it.")
+        if checkpoint.get("metrics", {}).get("map50") is not None else "",
         f"- Score threshold: {metrics['score_threshold']} · IoU: {metrics['iou_threshold']}",
         f"- **Headline ({headline_label}): {headline['map50']} mAP@0.5**",
         f"- Precision / recall: {headline['precision']} / {headline['recall']}",

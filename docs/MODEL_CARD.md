@@ -4,6 +4,7 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 
 - Checkpoint: `data/models/det_v2b.pt`
 - Split: `test` (64 images, 76 boxes)
+- Selection: chosen on validation mAP@0.5 0.7479 (epoch 10); the test split was scored once for this checkpoint, not used to pick it.
 - Score threshold: 0.5 · IoU: 0.5
 - **Headline (BDFD9 fabric close-ups): 0.9474 mAP@0.5**
 - Precision / recall: 0.7761 / 0.8667
