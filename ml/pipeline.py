@@ -131,7 +131,8 @@ def _sha(path: Path) -> str | None:
 
 
 def run(stage: str, force: bool = False, state_path: Path = STATE_FILE,
-        eval_path: Path = EVAL_RESULT, runner=subprocess.run) -> dict:
+        eval_path: Path = EVAL_RESULT, runner=subprocess.run,
+        on_success=None) -> dict:
     """Execute one stage's commands in order and record what happened."""
     state = load_state(state_path)
     guard(stage, state, force, eval_path)
@@ -152,6 +153,8 @@ def run(stage: str, force: bool = False, state_path: Path = STATE_FILE,
     record["finished"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     state["runs"].append(record)
     save_state(state, state_path)
+    if on_success is not None:
+        on_success(stage)
     return record
 
 
@@ -186,7 +189,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "plan":
         print(json.dumps(plan(), indent=2))
         return 0
-    record = run(args.stage, force=args.force)
+    from . import registry
+
+    record = run(args.stage, force=args.force,
+                 on_success=lambda name: registry.record(f"pipeline stage: {name}"))
     print(json.dumps(record, indent=2))
     return 0
 
