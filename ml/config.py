@@ -52,6 +52,17 @@ SOURCE_CLASS_MAP = {
 # Training defaults; override on the command line.
 IMG_SIZE = 640
 SEED = 42
-SCORE_THRESHOLD = 0.5
+SCORE_THRESHOLD = 0.5  # fallback when no operating-point record exists
+
+
+def active_threshold(default: float = SCORE_THRESHOLD) -> float:
+    """Review threshold recorded by ``ml.operating_point``, or the fallback."""
+    import json
+
+    try:
+        payload = json.loads((MODELS / "operating_point_v2.json").read_text(encoding="utf-8"))
+        return float(payload["chosen_threshold"])
+    except (OSError, KeyError, ValueError, TypeError):
+        return default
 IOU_THRESHOLD = 0.5
 VAL_FRACTION = 0.2

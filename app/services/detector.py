@@ -27,7 +27,19 @@ MODEL_DOMAIN = ("BDFD9 factory fabric close-ups plus staged knit panels; "
 ONNX_PATH = os.environ.get("LOTLINE_ONNX", "data/models/det_v2.onnx")
 CALIBRATION_PATH = os.environ.get("LOTLINE_CALIBRATION", "data/models/calibration_v2.json")
 CLASSES = ["hole", "oil_stain", "needle_line", "dropped_stitch"]
-DEFAULT_THRESHOLD = 0.5
+OPERATING_POINT = "data/models/operating_point_v2.json"
+
+
+def recorded_threshold(default: float = 0.5) -> float:
+    """Threshold chosen on validation by ``ml.operating_point`` (env still overrides)."""
+    try:
+        with open(OPERATING_POINT, encoding="utf-8") as fh:
+            return float(json.load(fh)["chosen_threshold"])
+    except (OSError, KeyError, ValueError, TypeError):
+        return default
+
+
+DEFAULT_THRESHOLD = recorded_threshold()
 
 _session = None
 _calibration: dict | None = None

@@ -195,7 +195,8 @@ def _display_path(value: str) -> str:
 
 def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
                         parity: dict | None = None, source: str | None = None,
-                        integrity: dict | None = None, leakage: dict | None = None) -> str:
+                        integrity: dict | None = None, leakage: dict | None = None,
+                        operating_point: dict | None = None) -> str:
     per_source = metrics.get("per_source", {})
     headline = per_source.get("bdfd9", metrics)
     headline_label = "BDFD9 fabric close-ups" if "bdfd9" in per_source else "all evaluated images"
@@ -235,6 +236,10 @@ def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | Non
         "(reported for completeness, never as the held-out factory estimate)",
         "- Split policy: BDFD9's official test folder is held out; "
         "`python -m ml.verify_split` must pass before this card is published.",
+        f"- Review threshold: {operating_point['chosen_threshold']} chosen on validation "
+        f"({operating_point['objective']}); this test table was scored at "
+        f"{metrics['score_threshold']}, which is never re-tuned on test."
+        if operating_point else
         "- Runtime keeps the same 0.5 threshold; temperature scaling, when enabled, is "
         "monotonic with 0.5 as its fixed point, so the selected boxes match this table. "
         "The review UI caps at 6 proposals and suppresses overlapping boxes, so visible "
@@ -351,6 +356,9 @@ def main() -> None:
                         help="runtime parity report to cite in the card (optional)")
     parser.add_argument("--integrity", type=Path, default=Path("docs/split_integrity.json"),
                         help="split-integrity report from ml.verify_split (optional)")
+    parser.add_argument("--operating-point", type=Path,
+                        default=MODELS / "operating_point_v2.json",
+                        help="threshold record from ml.operating_point (optional)")
     parser.add_argument("--leakage", type=Path, default=Path("docs/leakage_probe.json"),
                         help="stricter leakage-probe report (optional)")
     args = parser.parse_args()
@@ -367,9 +375,10 @@ def main() -> None:
         parity = maybe(args.parity)
         integrity = maybe(args.integrity)
         leakage = maybe(args.leakage)
+        operating_point = maybe(args.operating_point)
         args.card.write_text(model_card_markdown(
             metrics, checkpoint, calibration, parity, source=args.from_json.name,
-            integrity=integrity, leakage=leakage), encoding="utf-8")
+            integrity=integrity, leakage=leakage, operating_point=operating_point), encoding="utf-8")
         print(f"wrote {args.card} from {args.from_json}")
         return
     metrics = evaluate_checkpoint(args.checkpoint, args.data, args.split, args.score_threshold)
