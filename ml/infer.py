@@ -74,7 +74,7 @@ def draw(image_path: Path, detections: list[dict], out_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the detector on images.")
-    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v1.pt")
+    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v2b.pt")
     parser.add_argument("--image", type=Path, nargs="*", default=[])
     parser.add_argument("--dir", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=None)
