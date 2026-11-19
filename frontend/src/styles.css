@@ -1,0 +1,268 @@
+/* React-only helpers. The product theme itself lives in /static/app.css. */
+
+/* Review workspace layout */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.viewer {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+
+.viewer-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.zoom-level {
+  min-width: 44px;
+  text-align: center;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.viewer-hint {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend .sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* Bounding-box overlay for the review workspace. */
+.boxlayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.boxlayer .box {
+  pointer-events: auto;
+}
+
+.box {
+  position: absolute;
+  border: 2px dashed var(--lime);
+  border-radius: 6px;
+  background: var(--lime-subtle);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.box:hover,
+.box.sel {
+  background: rgba(132, 204, 22, 0.2);
+  border-color: var(--lime-strong);
+}
+
+.box .tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1.5px 6px;
+  border-radius: 5px;
+  background: var(--lime);
+  color: var(--navy);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.box.crit {
+  border-color: var(--red);
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.box.crit .tag {
+  background: var(--red);
+  color: #fff;
+}
+
+.box.major {
+  border-color: var(--amber);
+  background: rgba(180, 83, 9, 0.1);
+}
+
+.box.major .tag {
+  background: var(--amber);
+  color: #fff;
+}
+
+/* Proposal cards */
+.prop {
+  padding: 11px 12px;
+  margin-bottom: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.prop:last-child {
+  margin-bottom: 0;
+}
+
+.prop.sel {
+  border-color: var(--lime-border);
+  background: var(--lime-subtle);
+}
+
+.prop.is-confirmed {
+  border-left: 3px solid var(--green);
+}
+
+.prop.is-rejected {
+  border-left: 3px solid var(--dim);
+  opacity: 0.82;
+}
+
+.prop .top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.boot-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #0f172a);
+}
+
+.boot-mark {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.boot-note {
+  color: var(--muted, #64748b);
+  font-size: 13px;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--muted, #64748b);
+  font-size: 13px;
+}
+
+.spin {
+  animation: lotline-spin 0.9s linear infinite;
+}
+
+@keyframes lotline-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.dialog-backdrop .dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.dialog.is-open {
+  animation: lotline-dialog-in 0.16s ease-out;
+}
+
+@keyframes lotline-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+}
+
+.toast.is-visible {
+  display: flex;
+}
+
+.toast {
+  align-items: center;
+  gap: 10px;
+}
+
+@media print {
+  .rail,
+  .topbar,
+  .foot,
+  .no-print,
+  .mobile-scrim,
+  .toast {
+    display: none !important;
+  }
+
+  .content {
+    padding: 0 !important;
+  }
+
+  .shell {
+    display: block !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}

@@ -12,6 +12,7 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
+from .api import router as api_router
 from .config import APP_TITLE, STATIC_DIR
 from .core import db
 from .services import detector, seed, vision
@@ -26,6 +27,8 @@ def create_app() -> FastAPI:
     app = FastAPI(title=APP_TITLE, docs_url=None, redoc_url=None)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     errors.register(app)
+
+    app.include_router(api_router)
 
     for module in (auth, dashboard, lots, capture, review, decisions, reports, admin, system):
         app.include_router(module.router)

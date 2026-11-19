@@ -11,13 +11,21 @@ ESCALATE**, with the exact reason code and the exact rule that produced it.
 Built for the **International AI Builders Congress 2026 · IndustrySphere AI
 (Quality Vision)** challenge, Dhaka.
 
+| Login | Dashboard | Lots |
+|---|---|---|
+| ![](docs/screens/login.png) | ![](docs/screens/dashboard.png) | ![](docs/screens/lots.png) |
+
 | Lot overview | Human review | Decision |
 |---|---|---|
 | ![](docs/screens/lot.png) | ![](docs/screens/review.png) | ![](docs/screens/decision.png) |
 
-| Dashboard | Report | Bangla |
+| Report | Audit | Admin |
 |---|---|---|
-| ![](docs/screens/dashboard.png) | ![](docs/screens/report.png) | ![](docs/screens/lot-bn.png) |
+| ![](docs/screens/report.png) | ![](docs/screens/audit.png) | ![](docs/screens/admin.png) |
+
+| How it works | Bangla |
+|---|---|
+| ![](docs/screens/how.png) | ![](docs/screens/lot-bn.png) |
 
 ---
 
@@ -50,23 +58,35 @@ This is enforced structurally, not by policy text:
 
 ## Run it (2 minutes, no Docker)
 
+The demo has two processes: the **FastAPI backend** (API + deterministic engine)
+and the **React + TypeScript + Vite** single-page app. Next.js is deliberately
+not used; see `lotline_research_prompt_v3.md` §D1 for the reasoning.
+
 ```bash
-# Python 3.11+ ; on this machine use the full interpreter path
+# terminal 1 — backend
 python -m app.seed          # 6 lots, 70 staged photos, ~30 s (first run fits the autoencoder)
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8077
+
+# terminal 2 — React SPA (proxies /api and /static to 127.0.0.1:8077)
+npm --prefix frontend install
+npm --prefix frontend run dev
 ```
 
-Or with make: `make seed`, `make run`, `make test`, `make data`, `make reset`.
+Or with make: `make seed`, `make run`, `make test`, `make data`, `make reset`
+(or `run.bat` / `./run.sh` for the backend).
 
-or `run.bat` (Windows) / `./run.sh`.
-
-Open <http://127.0.0.1:8077> and press **Inspector**, **Supervisor** or
+Open <http://127.0.0.1:5173> and press **Inspector**, **Supervisor** or
 **Admin** for one-click demo access (no password typing during a pitch).
 The seeded password is `QualityFloor2026!`.
 
+The legacy server-rendered pages remain at <http://127.0.0.1:8077> as a
+reference implementation; the React app in `frontend/` is the current UI and
+talks only to the JSON API under `/api`.
+
 ```bash
-python -m pytest -q         # 36 engine tests, ~40 ms
+python -m pytest -q         # 135 tests, ~2 s
 python -m ruff check app    # import order, undefined names, dead code
+npm --prefix frontend run build   # tsc -b + vite production build
 ```
 
 `python -m app.seed --force` rebuilds the demo from scratch.
@@ -137,9 +157,13 @@ UI and in the PDF report.
 ## Architecture (demo)
 
 ```
-browser ── TLS ──▶ FastAPI (app/main.py)
+browser ── React + TypeScript + Vite SPA (React Router · TanStack Query)
+              │  /api (JSON) · /static (theme, fonts, photos)
+              ▼
+         FastAPI (app/main.py)
                      │  Argon2id · server sessions · CSRF · Origin check · role gate
-                     ├──▶ app/web/routes/          (auth · lots · capture · review · decisions · reports · admin)
+                     ├──▶ app/api/                 (JSON API: auth · lots · capture · review · decisions · admin · system)
+                     ├──▶ app/web/routes/          (legacy Jinja reference screens, kept for tests)
                      ├──▶ app/services/review.py ──▶ app/domain/engine.py  (pure, deterministic)
                      │        │                         └─ 15 reason codes, precedence
                      │        ├──▶ app/core/db.py          (SQLite WAL, append-only decisions)
@@ -221,15 +245,21 @@ app/
   services/vision.py      unsupervised knit-defect detector (numpy) + self-test
   services/report.py      one-page FPDF report (ASCII-safe fallback; DejaVu in Docker)
   services/seed.py        demo data generator (idempotent, --force to rebuild)
-  web/pages.py            template environment + shared context
+  api/                    JSON API used by the React SPA (auth, lots, review, decisions, admin, system)
+  web/pages.py            template environment + shared context (legacy screens)
   web/deps.py             sessions, role gates, CSRF, write permissions
-  web/routes/             auth · dashboard · lots · capture · review · decisions · reports · admin · system
+  web/routes/             legacy Jinja routes: auth · dashboard · lots · capture · review · decisions · reports · admin · system
   i18n.py                 English + Bangla strings
+frontend/                 React 19 + TypeScript + Vite SPA
+  src/pages/              login · dashboard · lots · new lot · lot · plan · capture · review · decision · report · audit · admin · how
+  src/components/         app shell, lot tabs, proposal/reason lists, shared UI primitives
+  src/lib/                typed fetch client, Bangla/Dhaka formatters, session + i18n provider
+  src/styles.css          React-only layout helpers; the product theme stays in static/app.css
 scripts/build_dataset.py  build or download the staged dataset, verify every hash
 ml/                       GPU workstream (owner: Hridoy) — dataset, train, evaluate, export
-templates/                Jinja2 screens
-static/                   design system CSS + review-workspace JS
-tests/                    36 deterministic engine tests
+static/                   design system CSS + fonts + brand assets
+templates/                legacy Jinja screens (reference + test fixtures)
+tests/                    135 deterministic engine, API, rendering and security tests
 docs/spec/                the original 13.6k-line specification set this build implements
 tools/                    specification cross-document audit (legacy, kept for provenance)
 ```
