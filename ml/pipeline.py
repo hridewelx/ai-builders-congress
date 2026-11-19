@@ -49,6 +49,11 @@ STAGES: dict[str, dict] = {
         "steps": [["-m", "ml.operating_point"]],
         "outputs": ["data/models/operating_point_v2.json"],
     },
+    "reliability": {
+        "about": "measure what each score band delivered, on validation only",
+        "steps": [["-m", "ml.reliability", "--split", "val"]],
+        "outputs": ["data/models/reliability_v2.json"],
+    },
     "eval": {
         "about": "score the held-out test split exactly once",
         "steps": [["-m", "ml.evaluate", "--split", "test",
