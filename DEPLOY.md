@@ -78,15 +78,22 @@ docker run -p 8077:8077 -v lotline_data:/data lotline
 | `LOTLINE_DB` | `$LOTLINE_DATA/lotline.db` | explicit database path |
 | `PORT` | `8077` | port for the container start script |
 | `LOTLINE_SECURE_COOKIE` | `0` | set to `1` behind HTTPS so the session cookie is `Secure` |
+| `LOTLINE_INFERENCE_MODE` | `background` | `background` queues scoring on a worker thread; `sync` keeps it in the request (tests, scripts) |
+| `LOTLINE_DATABASE_URL` | unset | `postgresql://` DSN for a pilot; leave unset to keep the demo's SQLite file |
 
 ## Before a *real* pilot (not the demo)
 
 1. `LOTLINE_DEMO=0`, real accounts, password rotation, `LOTLINE_SECURE_COOKIE=1`.
-2. Replace SQLite with PostgreSQL (`app/core/db.py` schema is already normalised).
-3. Move vision to the InferenceWorker/Vision split in `docs/spec/SYSTEM_DESIGN_v1_2.md`.
+2. Install `requirements-postgres.txt`, set `LOTLINE_DATABASE_URL`, and copy the
+   demo data with `python scripts/migrate_to_postgres.py`; `app/core/db.py`
+   chooses the dialect from the DSN.
+3. Run the inference worker as its own process for more than one API replica;
+   the job rows and transitions are already in the database.
 4. Calibrate the detector on a labelled factory holdout and publish the model card.
-5. Back up `/data` (evidence files are content-addressed and hash-checked; losing
-   them turns every affected decision into `HOLD_EVIDENCE_INTEGRITY`).
+5. Back up `/data` with `python scripts/backup.py --out /backups/lotline-<date>`
+   (evidence files are content-addressed and hash-checked; losing them turns
+   every affected decision into `HOLD_EVIDENCE_INTEGRITY`). Watch `/metrics` for
+   latency and 5xx drift.
 
 ## Demo reset
 

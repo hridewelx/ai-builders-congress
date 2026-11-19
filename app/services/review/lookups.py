@@ -18,10 +18,15 @@ def map_clause(buyer_id: int, defect_type: str, zone: str, size_band: str | None
                   (buyer_id, defect_type, zone))
 
 
-def lot(lot_id: int):
-    return db.one("SELECT l.*, b.name AS buyer_name, b.id AS buyer_id, p.name AS product_name, p.family"
-                  " FROM lot l JOIN buyer b ON b.id=l.buyer_id JOIN product p ON p.id=l.product_id"
-                  " WHERE l.id=?", (lot_id,))
+def lot(lot_id: int, organization_id: int | None = None):
+    sql = ("SELECT l.*, b.name AS buyer_name, b.id AS buyer_id, p.name AS product_name, p.family"
+           " FROM lot l JOIN buyer b ON b.id=l.buyer_id JOIN product p ON p.id=l.product_id"
+           " WHERE l.id=?")
+    args: tuple = (lot_id,)
+    if organization_id is not None:
+        sql += " AND l.organization_id=?"
+        args += (organization_id,)
+    return db.one(sql, args)
 
 
 def active_plan(lot_id: int):

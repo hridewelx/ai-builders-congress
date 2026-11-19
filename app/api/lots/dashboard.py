@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from ...core import db
+from ...core.permissions import organization_id
 from ...services import review as service
 from ...services.stats import demo_stats
 from ..deps import check_csrf, current_user, role_required
@@ -14,7 +15,7 @@ router = APIRouter(tags=["lots"])
 @router.get("/dashboard")
 def dashboard(request: Request):
     session = current_user(request)
-    cards = lot_cards()
+    cards = lot_cards(organization_id(session))
     return {
         "cards": cards[:4],
         "counters": service.counters(),
@@ -26,9 +27,9 @@ def dashboard(request: Request):
 
 @router.get("/lots")
 def lots(request: Request, state: str = "", outcome: str = "", q: str = ""):
-    current_user(request)
+    session = current_user(request)
     return {
-        "cards": lot_cards(state, outcome, q),
+        "cards": lot_cards(organization_id(session), state, outcome, q),
         "state": state, "outcome": outcome, "q": q,
         "counters": service.counters(),
     }
@@ -38,7 +39,7 @@ def lots(request: Request, state: str = "", outcome: str = "", q: str = ""):
 def new_lot_form(request: Request):
     session = current_user(request)
     role_required(session, "inspector", "supervisor")
-    return catalogs()
+    return catalogs(organization_id(session))
 
 
 @router.post("/lots")
@@ -54,13 +55,18 @@ async def create_lot(request: Request):
     selection = str(data.get("selection_method", "self-declared random")).strip()
     if not code or lot_size < 1 or not buyer_id or not product_id:
         raise HTTPException(status_code=422, detail="invalid")
-    if db.one("SELECT id FROM lot WHERE lot_code=?", (code,)):
+    org = organization_id(session)
+    if not db.one("SELECT id FROM buyer WHERE id=? AND organization_id=?", (buyer_id, org)):
+        raise HTTPException(status_code=422, detail="invalid")
+    if not db.one("SELECT id FROM product WHERE id=? AND organization_id=?", (product_id, org)):
+        raise HTTPException(status_code=422, detail="invalid")
+    if db.one("SELECT id FROM lot WHERE organization_id=? AND lot_code=?", (org, code)):
         raise HTTPException(status_code=409, detail="exists")
     lot_id = db.x(
         "INSERT INTO lot(organization_id,lot_code,product_id,buyer_id,color,lot_size,status,"
         "critical_nonvisual_status,selection_method,created_by,created_at)"
-        " VALUES (1,?,?,?,?,?, 'open','pending',?,?,?)",
-        (code, product_id, buyer_id, color, lot_size, selection,
+        " VALUES (?,?,?,?,?,?, 'open','pending',?,?,?)",
+        (org, code, product_id, buyer_id, color, lot_size, selection,
          session["user"]["id"], db.now()))
     db.audit(session["user"]["id"], session["user"]["display_name"], "lot.created", "lot", lot_id,
              after={"lot_code": code, "lot_size": lot_size})

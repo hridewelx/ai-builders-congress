@@ -23,7 +23,7 @@ def run(force: bool = False) -> None:
                   "model_activation", "model_selftest", "model_version", "audit_event", "login_attempt",
                   "user_session", "app_user", "organization"):
             db.x(f"DELETE FROM {t}")
-        db.x("DELETE FROM sqlite_sequence")
+        db.reset_sequences()
 
     db.x("INSERT INTO organization(id,name) VALUES (1,'Demo Knitwear Ltd')")
     add_user("admin@lotline.demo", "Nadia Rahman", "admin")

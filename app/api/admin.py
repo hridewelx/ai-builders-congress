@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 
 from ..config import DB_PATH
 from ..core import db, security
+from ..core.permissions import organization_id
 from ..services import detector, vision
 from ..services import report as report_service
 from ..services import review as service
@@ -25,7 +26,9 @@ router = APIRouter(tags=["admin"])
 @router.get("/audit")
 def audit_log(request: Request, q: str = ""):
     session = role_required(current_user(request), "supervisor", "admin")
-    rows = db.q("SELECT * FROM audit_event ORDER BY id DESC LIMIT 300")
+    rows = db.q("SELECT a.* FROM audit_event a LEFT JOIN app_user u ON u.id=a.actor_id"
+                " WHERE a.actor_id IS NULL OR u.organization_id=? ORDER BY a.id DESC LIMIT 300",
+                (organization_id(session),))
     out = []
     for row in rows:
         data = dict(row)
@@ -40,7 +43,9 @@ def audit_log(request: Request, q: str = ""):
 @router.get("/audit.csv")
 def audit_csv(request: Request):
     session = role_required(current_user(request), "admin")
-    rows = db.q("SELECT * FROM audit_event ORDER BY id DESC")
+    rows = db.q("SELECT a.* FROM audit_event a LEFT JOIN app_user u ON u.id=a.actor_id"
+                " WHERE a.actor_id IS NULL OR u.organization_id=? ORDER BY a.id DESC",
+                (organization_id(session),))
     buffer = io.StringIO()
     writer = csv.writer(buffer)
     writer.writerow(["id", "at", "actor", "action", "entity", "entity_id", "before", "after"])
@@ -56,13 +61,14 @@ def audit_csv(request: Request):
 @router.get("/admin")
 def admin_page(request: Request, tab: str = "users"):
     session = role_required(current_user(request), "admin")
-    users = db.q("SELECT * FROM app_user ORDER BY id")
+    org = organization_id(session)
+    users = db.q("SELECT * FROM app_user WHERE organization_id=? ORDER BY id", (org,))
     models = db.q("SELECT * FROM model_version ORDER BY id DESC")
     tests = db.q("SELECT * FROM model_selftest ORDER BY id DESC LIMIT 8")
     activations = db.q("SELECT * FROM model_activation ORDER BY id DESC LIMIT 10")
     clauses = db.q("SELECT c.*, b.name AS buyer_name FROM clause_mapping c"
-                   " JOIN buyer b ON b.id=c.buyer_id"
-                   " ORDER BY b.name, c.defect_type, c.zone_code")
+                   " JOIN buyer b ON b.id=c.buyer_id WHERE b.organization_id=?"
+                   " ORDER BY b.name, c.defect_type, c.zone_code", (org,))
     free = shutil.disk_usage(service.STORE)
     health = {
         "db_bytes": os.path.getsize(db.DB_PATH) if os.path.exists(db.DB_PATH) else 0,
@@ -125,8 +131,8 @@ async def create_user(request: Request):
     if security.policy_errors(password, email, display_name):
         raise HTTPException(status_code=422, detail="policy")
     user_id = db.x("INSERT INTO app_user(organization_id,email,display_name,role,password_hash,"
-                   "status,must_change,created_at) VALUES (1,?,?,?,?,'active',1,?)",
-                   (email, display_name or email.split("@")[0], role,
+                   "status,must_change,created_at) VALUES (?,?,?,?,?,'active',1,?)",
+                   (organization_id(session), email, display_name or email.split("@")[0], role,
                     security.hash_password(password), db.now()))
     db.audit(session["user"]["id"], session["user"]["display_name"], "user.created", "app_user",
              user_id, after={"email": email, "role": role})
@@ -137,7 +143,8 @@ async def create_user(request: Request):
 async def user_action(request: Request, user_id: int):
     session = role_required(current_user(request), "admin")
     check_csrf(request, session)
-    user = db.one("SELECT * FROM app_user WHERE id=?", (user_id,))
+    user = db.one("SELECT * FROM app_user WHERE id=? AND organization_id=?",
+                  (user_id, organization_id(session)))
     if not user:
         raise HTTPException(status_code=404, detail="not_found")
     data = await request.json()
@@ -146,7 +153,8 @@ async def user_action(request: Request, user_id: int):
     temp_password = None
     if action == "disable":
         if user["role"] == "admin" and db.one(
-                "SELECT COUNT(*) AS n FROM app_user WHERE role='admin' AND status='active'")["n"] <= 1:
+                "SELECT COUNT(*) AS n FROM app_user WHERE role='admin' AND status='active'"
+                " AND organization_id=?", (organization_id(session),))["n"] <= 1:
             raise HTTPException(status_code=409, detail="last_admin")
         db.x("UPDATE app_user SET status='disabled' WHERE id=?", (user_id,))
         security.revoke_user_sessions(user_id)

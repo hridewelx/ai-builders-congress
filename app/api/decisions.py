@@ -4,6 +4,8 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from ..core import db
+from ..core.permissions import can_write_lot, decision_for, lot_for, organization_id
+from ..core.permissions import override_for as override_in_org
 from ..domain import engine
 from ..domain.reason_catalog import REASON_CATALOG
 from ..services import review as service
@@ -14,7 +16,7 @@ router = APIRouter(tags=["decision"])
 
 
 def _decision_page(lot_id: int, session: dict) -> dict:
-    lot = service.lot(lot_id)
+    lot = lot_for(session, lot_id)
     if not lot:
         raise HTTPException(status_code=404, detail="not_found")
     like = service.latest_decision(lot_id)
@@ -23,7 +25,6 @@ def _decision_page(lot_id: int, session: dict) -> dict:
     history_rows = db.q("SELECT d.*, u.display_name AS decided_by FROM decision d"
                         " JOIN app_user u ON u.id=d.created_by WHERE d.lot_id=?"
                         " ORDER BY d.sequence DESC", (lot_id,))
-    from ..core.permissions import can_write_lot
     return {
         "lot": clean(lot),
         "plan": service.plan_dict(service.active_plan(lot_id)),
@@ -51,10 +52,9 @@ def decision_page(request: Request, lot_id: int):
 async def compute(request: Request, lot_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    lot = service.lot(lot_id)
+    lot = lot_for(session, lot_id)
     if not lot:
         raise HTTPException(status_code=404, detail="not_found")
-    from ..core.permissions import can_write_lot
     if not can_write_lot(session, lot):
         raise HTTPException(status_code=403, detail="not_allowed")
     if lot["status"] == "decided":
@@ -69,7 +69,7 @@ async def compute(request: Request, lot_id: int):
 async def override(request: Request, decision_id: int):
     session = role_required(current_user(request), "supervisor")
     check_csrf(request, session)
-    decision = db.one("SELECT * FROM decision WHERE id=?", (decision_id,))
+    decision = decision_for(session, decision_id)
     if not decision:
         raise HTTPException(status_code=404, detail="not_found")
     data = await request.json()
@@ -104,7 +104,7 @@ async def override(request: Request, decision_id: int):
 async def approve(request: Request, override_id: int):
     session = role_required(current_user(request), "supervisor")
     check_csrf(request, session)
-    override_row = db.one("SELECT * FROM override WHERE id=?", (override_id,))
+    override_row = override_in_org(session, override_id)
     if not override_row:
         raise HTTPException(status_code=404, detail="not_found")
     if override_row["supervisor_id"] == session["user"]["id"]:
@@ -130,7 +130,7 @@ def report(request: Request, lot_id: int):
     session = current_user(request)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
-    context = report_context(lot_id)
+    context = report_context(lot_id, organization_id(session))
     if not context:
         raise HTTPException(status_code=404, detail="not_found")
     return {"rc": context, "reason_catalog": REASON_CATALOG}

@@ -33,3 +33,10 @@ ZONES = ["I", "II", "III"]
 DEMO_LOGIN = os.environ.get("LOTLINE_DEMO", "1") == "1"
 APP_NAME = "Lotline"
 APP_TITLE = "Lotline — knitwear lot acceptance"
+
+# --- inference --------------------------------------------------------------
+# background: upload returns at once and a worker thread scores the image.
+# sync: run in the request (tests and single-shot scripts).
+INFERENCE_MODE = os.environ.get("LOTLINE_INFERENCE_MODE", "background").strip().lower()
+if INFERENCE_MODE not in {"background", "sync"}:
+    INFERENCE_MODE = "background"

@@ -1,0 +1,4 @@
+# Optional pilot database. The demo image installs requirements.txt only, so a
+# judge never downloads a Postgres driver. Set LOTLINE_DATABASE_URL to a
+# postgresql:// DSN and install this file to use the same code against Postgres.
+psycopg[binary]==3.2.9

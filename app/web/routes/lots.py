@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from ...core import db
 from ...services import review as service
-from ..deps import Denied, assert_csrf, can_write_lot, require_role, require_user
+from ..deps import Denied, assert_csrf, can_write_lot, lot_required, require_role, require_user
 from ..pages import lang_of, page
 
 router = APIRouter(tags=["lots"])
@@ -31,9 +31,7 @@ def evidence_summary(lot_id: int) -> dict:
 @router.get("/lots/{lot_id}", response_class=HTMLResponse)
 def lot_page(request: Request, lot_id: int):
     s = require_user(request)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     plan = service.active_plan(lot_id)
     p = service.progress(lot_id)
     units = service.units_with_views(lot_id)
@@ -51,9 +49,7 @@ def lot_page(request: Request, lot_id: int):
 @router.get("/lots/{lot_id}/plan", response_class=HTMLResponse)
 def plan_page(request: Request, lot_id: int):
     s = require_user(request)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     plan = service.active_plan(lot_id)
     p = service.progress(lot_id)
     units = service.units_with_views(lot_id)
@@ -74,9 +70,7 @@ def plan_save(request: Request, lot_id: int, csrf: str = Form(""), n: int = Form
               confirmed: str = Form(""), is_demo: int = Form(0)):
     s = require_role(request, "supervisor")
     assert_csrf(request, s, csrf)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     if L["status"] == "decided":
         raise Denied(403, "locked")
 
@@ -221,9 +215,7 @@ def nonvisual(request: Request, lot_id: int, csrf: str = Form(""), status: str =
               note: str = Form("")):
     s = require_role(request, "supervisor")
     assert_csrf(request, s, csrf)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     if status not in ("pending", "done", "not_required", "failed"):
         raise Denied(422, "invalid")
     if status == "failed" and len(note.strip()) < 3:

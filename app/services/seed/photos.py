@@ -131,5 +131,7 @@ def settle_view(img_id, reviewer, confirm_index=None, zone="I", as_type=None):
 
 
 def review_view(img_id, state, reviewer, note=None):
-    db.x("INSERT OR REPLACE INTO view_review(image_id,state,note,reviewed_by,reviewed_at) VALUES (?,?,?,?,?)",
+    db.x("INSERT INTO view_review(image_id,state,note,reviewed_by,reviewed_at) VALUES (?,?,?,?,?)"
+         " ON CONFLICT(image_id) DO UPDATE SET state=excluded.state, note=excluded.note,"
+         " reviewed_by=excluded.reviewed_by, reviewed_at=excluded.reviewed_at",
          (img_id, state, note, reviewer, db.now()))

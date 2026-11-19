@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ...config import ZONES
 from ...core import db
+from ...core.permissions import can_write_lot, lot_for
 from ...services import review as service
 from ...services import vision
 from ..deps import current_user
@@ -16,7 +17,7 @@ router = APIRouter(tags=["lots"])
 @router.get("/lots/{lot_id}/review")
 def review_queue(request: Request, lot_id: int):
     session = current_user(request)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
     return {"lot": clean(lot), "queue": clean(service.review_queue(lot_id))}
@@ -30,7 +31,9 @@ def review_detail(request: Request, image_id: int):
     image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
     if not image:
         raise HTTPException(status_code=404, detail="not_found")
-    lot = service.lot(image["lot_id"])
+    lot = lot_for(session, image["lot_id"])
+    if not lot:
+        raise HTTPException(status_code=404, detail="not_found")
     view = db.one("SELECT v.*, u.garment_code, u.id AS unit_id FROM unit_view v"
                   " JOIN sample_unit u ON u.id=v.sample_unit_id WHERE v.id=?", (image["view_id"],))
     review = db.one("SELECT rr.*, a.display_name AS reviewer FROM view_review rr"
@@ -44,7 +47,6 @@ def review_detail(request: Request, image_id: int):
     queue = service.review_queue(image["lot_id"])
     next_item = next((item for item in queue
                       if item["view"]["image"] and item["view"]["image"]["id"] != image_id), None)
-    from ...core.permissions import can_write_lot
     return {
         "lot": clean(lot),
         "image": clean(image),

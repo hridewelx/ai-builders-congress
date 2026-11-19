@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from ...core import db
 from ...domain import engine
 from ...services import review as service
-from ..deps import Denied, assert_csrf, can_write_lot, require_role, require_user
+from ..deps import Denied, assert_csrf, can_write_lot, lot_required, require_role, require_user
 from ..pages import page
 
 router = APIRouter(tags=["decision"])
@@ -19,9 +19,7 @@ router = APIRouter(tags=["decision"])
 def compute_decision(request: Request, lot_id: int, csrf: str = Form(""), note: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     if not can_write_lot(s, L):
         raise Denied(403, "not_allowed")
     if L["status"] == "decided":
@@ -35,9 +33,7 @@ def compute_decision(request: Request, lot_id: int, csrf: str = Form(""), note: 
 @router.get("/lots/{lot_id}/decision", response_class=HTMLResponse)
 def decision_page(request: Request, lot_id: int):
     s = require_user(request)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     plan = service.plan_dict(service.active_plan(lot_id))
     d = service.latest_decision(lot_id)
     ov = service.override_for(d["id"]) if d else None
@@ -65,7 +61,7 @@ def make_override(request: Request, decision_id: int, csrf: str = Form(""), disp
     s = require_role(request, "supervisor")
     assert_csrf(request, s, csrf)
     d = db.one("SELECT * FROM decision WHERE id=?", (decision_id,))
-    if not d:
+    if not d or not lot_required(s, d["lot_id"]):
         raise Denied(404, "not_found")
     if d["outcome"] not in ("ACCEPT", "REJECT"):
         return RedirectResponse(f"/lots/{d['lot_id']}/decision?err=override_not_allowed", status_code=303)
@@ -97,6 +93,9 @@ def approve_override(request: Request, override_id: int, csrf: str = Form(""), d
     assert_csrf(request, s, csrf)
     o = db.one("SELECT * FROM override WHERE id=?", (override_id,))
     if not o:
+        raise Denied(404, "not_found")
+    o_decision = db.one("SELECT * FROM decision WHERE id=?", (o["decision_id"],))
+    if not o_decision or not lot_required(s, o_decision["lot_id"]):
         raise Denied(404, "not_found")
     if o["supervisor_id"] == s["user"]["id"]:
         return RedirectResponse(f"/lots/{db.one('SELECT lot_id FROM decision WHERE id=?', (o['decision_id'],))['lot_id']}/decision?err=self_approval",

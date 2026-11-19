@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from fastapi import HTTPException, Request
 
-from ...services import review as service
 from ..deps import audit_denied
 
 
@@ -15,15 +14,16 @@ def _lang(request: Request) -> str:
 
 def _ensure_write(request: Request, session: dict, lot) -> None:
     from ...core.permissions import can_write_lot
-    if not can_write_lot(session, lot):
+    if not lot or not can_write_lot(session, lot):
         audit_denied(request, session)
         raise HTTPException(status_code=403, detail="not_allowed")
     if lot["status"] in ("decided", "archived"):
         raise HTTPException(status_code=403, detail="locked")
 
 
-def _lot_or_404(lot_id: int):
-    lot = service.lot(lot_id)
+def _lot_or_404(lot_id: int, session: dict):
+    from ...core.permissions import lot_for
+    lot = lot_for(session, lot_id)
     if not lot:
         raise HTTPException(status_code=404, detail="not_found")
     return lot

@@ -14,8 +14,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .api import router as api_router
 from .config import APP_TITLE, STATIC_DIR
-from .core import db
-from .services import detector, seed, vision
+from .core import db, metrics
+from .services import detector, inference, seed, vision
 from .web import errors
 from .web.routes import admin, auth, capture, dashboard, decisions, lots, reports, review, system
 
@@ -36,8 +36,16 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
         started = time.perf_counter()
-        response = await call_next(request)
+        metrics.begin()
+        try:
+            response = await call_next(request)
+        except Exception:
+            metrics.observe(request.method, 500, time.perf_counter() - started)
+            raise
+        finally:
+            metrics.end()
         elapsed_ms = (time.perf_counter() - started) * 1000
+        metrics.observe(request.method, response.status_code, elapsed_ms / 1000)
         log.info("%s %s -> %s (%.0f ms)", request.method, request.url.path,
                  response.status_code, elapsed_ms)
         return response
@@ -47,6 +55,7 @@ def create_app() -> FastAPI:
         detector.require_available()
         db.init()
         seed.run()
+        inference.start()
         try:
             vision._train_or_load()
         except Exception:  # a missing model must never stop the app from serving

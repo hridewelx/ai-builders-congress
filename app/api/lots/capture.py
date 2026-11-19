@@ -8,9 +8,10 @@ import os
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from ...config import MAX_BYTES, MAX_IMAGE_EDGE, MAX_PIXELS, ZONES
+from ...config import MAX_BYTES, MAX_IMAGE_EDGE, MAX_PIXELS
 from ...core import db
-from ...services import detector, vision
+from ...core.permissions import lot_for
+from ...services import inference
 from ...services import review as service
 from ..deps import check_csrf, current_user, role_required
 from ..serializers import clean
@@ -21,7 +22,7 @@ router = APIRouter(tags=["lots"])
 @router.get("/lots/{lot_id}/capture")
 def capture(request: Request, lot_id: int):
     session = current_user(request)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
     from ...core.permissions import can_write_lot
@@ -38,7 +39,7 @@ def capture(request: Request, lot_id: int):
 async def add_unit(request: Request, lot_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     _ensure_write(request, session, lot)
     data = await request.json()
     plan = service.active_plan(lot_id)
@@ -62,7 +63,7 @@ async def add_unit(request: Request, lot_id: int):
 async def upload(request: Request, lot_id: int, view_id: int, file: UploadFile = File(...)):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     _ensure_write(request, session, lot)
     view = db.one("SELECT v.* FROM unit_view v JOIN sample_unit u ON u.id=v.sample_unit_id"
                   " WHERE v.id=? AND u.lot_id=?", (view_id, lot_id))
@@ -110,46 +111,9 @@ async def upload(request: Request, lot_id: int, view_id: int, file: UploadFile =
     db.audit(session["user"]["id"], session["user"]["display_name"], "image.uploaded", "lot", lot_id,
              after={"image_id": image_id, "view_id": view_id, "bytes": len(data),
                     "sha256": sha_working[:16]})
-    run_inference(image_id, session["user"]["id"])
-    return {"ok": True, "image_id": image_id}
+    status = inference.enqueue(image_id, session["user"]["id"])
+    return {"ok": status in ("ok", "queued"), "image_id": image_id, "status": status}
 
-
-
-def run_inference(image_id: int, user_id: int) -> str:
-    image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
-    if not image:
-        return "failed"
-    lot = service.lot(image["lot_id"])
-    model_name = detector.MODEL_NAME if detector.available() else vision.MODEL_NAME
-    job_id = db.x("INSERT INTO inference_job(image_id,status,model_version,created_at) VALUES (?,?,?,?)",
-                  (image_id, "running", model_name, db.now()))
-    import time
-    started = time.time()
-    try:
-        with Image.open(os.path.join(service.STORE, image["stored_name"])) as handle:
-            result = detector.detect(__import__("numpy").array(handle.convert("RGB")))
-        for proposal in result["proposals"]:
-            critical = 0
-            for zone in ZONES:
-                clause = service.map_clause(lot["buyer_id"], proposal["type"], zone, None)
-                if clause and clause["severity"] == "critical":
-                    critical = 1
-            db.x("INSERT INTO prediction(job_id,image_id,defect_type,score,x1,y1,x2,y2,review_state,"
-                 "provisional_critical,created_at) VALUES (?,?,?,?,?,?,?,?,'proposed',?,?)",
-                 (job_id, image_id, proposal["type"], proposal["score"], proposal["box"][0],
-                  proposal["box"][1], proposal["box"][2], proposal["box"][3], critical, db.now()))
-        actual_model = result.get("model", model_name)
-        db.x("UPDATE inference_job SET status='succeeded', model_version=?, finished_at=?, latency_ms=?"
-             " WHERE id=?", (actual_model, db.now(), int((time.time() - started) * 1000), job_id))
-        db.audit(user_id, str(user_id), "inference.succeeded", "image", image_id,
-                 after={"proposals": len(result["proposals"]), "model": actual_model})
-        return "ok"
-    except Exception as exc:  # a detector failure must never block manual review
-        db.x("UPDATE inference_job SET status='failed', error=?, finished_at=? WHERE id=?",
-             (str(exc)[:300], db.now(), job_id))
-        db.audit(user_id, str(user_id), "inference.failed", "image", image_id,
-                 after={"error": str(exc)[:200]})
-        return "failed"
 
 
 @router.post("/images/{image_id}/infer")
@@ -159,6 +123,6 @@ def infer_again(request: Request, image_id: int):
     image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
     if not image:
         raise HTTPException(status_code=404, detail="not_found")
-    _ensure_write(request, session, service.lot(image["lot_id"]))
-    status = run_inference(image_id, session["user"]["id"])
-    return {"ok": status == "ok", "status": status}
+    _ensure_write(request, session, lot_for(session, image["lot_id"]))
+    status = inference.enqueue(image_id, session["user"]["id"])
+    return {"ok": status in ("ok", "queued"), "status": status}

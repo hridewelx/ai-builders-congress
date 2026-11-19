@@ -8,7 +8,16 @@ from ...config import ZONES
 from ...core import db
 from ...services import review as service
 from ...services import vision
-from ..deps import Denied, assert_csrf, can_write_lot, ensure_write, require_role, require_user
+from ..deps import (
+    Denied,
+    assert_csrf,
+    can_write_lot,
+    ensure_write,
+    image_required,
+    lot_required,
+    require_role,
+    require_user,
+)
 from ..pages import page
 
 router = APIRouter(tags=["review"])
@@ -17,9 +26,7 @@ router = APIRouter(tags=["review"])
 @router.get("/lots/{lot_id}/review", response_class=HTMLResponse)
 def review_queue_page(request: Request, lot_id: int):
     s = require_user(request)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
     return page(request, "review_queue.html", active="lots", lot=L, queue=service.review_queue(lot_id))
@@ -30,10 +37,8 @@ def review_page(request: Request, img_id: int):
     s = require_user(request)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    L = service.lot(img["lot_id"])
+    img = image_required(s, img_id)
+    L = lot_required(s, img["lot_id"])
     view = db.one("SELECT v.*, u.garment_code, u.id AS unit_id FROM unit_view v"
                   " JOIN sample_unit u ON u.id=v.sample_unit_id WHERE v.id=?", (img["view_id"],))
     review = db.one("SELECT rr.*, a.display_name AS reviewer FROM view_review rr"
@@ -58,10 +63,8 @@ def confirm_prediction(request: Request, img_id: int, csrf: str = Form(""), pred
                        note: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    L = service.lot(img["lot_id"])
+    img = image_required(s, img_id)
+    L = lot_required(s, img["lot_id"])
     ensure_write(request, s, L)
     p = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?", (prediction_id, img_id))
     if not p:
@@ -86,10 +89,8 @@ def confirm_prediction(request: Request, img_id: int, csrf: str = Form(""), pred
 def reject_prediction(request: Request, img_id: int, csrf: str = Form(""), prediction_id: int = Form(0)):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    ensure_write(request, s, service.lot(img["lot_id"]))
+    img = image_required(s, img_id)
+    ensure_write(request, s, lot_required(s, img["lot_id"]))
     p = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?", (prediction_id, img_id))
     if not p:
         raise Denied(404, "not_found")
@@ -108,6 +109,7 @@ def second_review(request: Request, img_id: int, csrf: str = Form(""), predictio
                   outcome: str = Form("confirm")):
     s = require_role(request, "supervisor")
     assert_csrf(request, s, csrf)
+    image_required(s, img_id)
     p = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?", (prediction_id, img_id))
     if not p:
         raise Denied(404, "not_found")
@@ -126,10 +128,8 @@ def add_defect(request: Request, img_id: int, csrf: str = Form(""), defect_type:
                cx: float = Form(0.5), cy: float = Form(0.5), second_opinion: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    L = service.lot(img["lot_id"])
+    img = image_required(s, img_id)
+    L = lot_required(s, img["lot_id"])
     ensure_write(request, s, L)
     if defect_type not in vision.HUMAN_CLASSES:
         raise Denied(422, "invalid")
@@ -161,10 +161,8 @@ def set_view_state(request: Request, img_id: int, csrf: str = Form(""), state: s
                    note: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    L = service.lot(img["lot_id"])
+    img = image_required(s, img_id)
+    L = lot_required(s, img["lot_id"])
     ensure_write(request, s, L)
     if state not in ("reviewed_clean", "confirmed_defects", "needs_retake"):
         raise Denied(422, "invalid")
@@ -178,7 +176,9 @@ def set_view_state(request: Request, img_id: int, csrf: str = Form(""), state: s
     if openp:
         # finishing manually cancels the queue but never leaves an unanswered proposal
         return RedirectResponse(f"/review/{img_id}?err=review_first", status_code=303)
-    db.x("INSERT OR REPLACE INTO view_review(image_id,state,note,reviewed_by,reviewed_at) VALUES (?,?,?,?,?)",
+    db.x("INSERT INTO view_review(image_id,state,note,reviewed_by,reviewed_at) VALUES (?,?,?,?,?)"
+         " ON CONFLICT(image_id) DO UPDATE SET state=excluded.state, note=excluded.note,"
+         " reviewed_by=excluded.reviewed_by, reviewed_at=excluded.reviewed_at",
          (img_id, state, note.strip() or None, s["user"]["id"], db.now()))
     db.audit(s["user"]["id"], s["user"]["display_name"], f"view.{state}", "image", img_id)
     if state == "needs_retake":
