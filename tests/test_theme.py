@@ -15,7 +15,15 @@ from pathlib import Path
 
 import pytest
 
-CSS = Path("static/app.css").read_text(encoding="utf-8")
+
+def _cascade_order() -> list[Path]:
+    """app.css is an entry point: it imports the real sheets in cascade order."""
+    entry = Path("static/app.css").read_text(encoding="utf-8")
+    names = re.findall(r'@import url\("/static/(css/[^"]+)"\);', entry)
+    return [Path("static") / name for name in names]
+
+
+CSS = "".join(path.read_text(encoding="utf-8") for path in _cascade_order())
 ROOT = Path("templates")
 
 
@@ -104,6 +112,16 @@ def test_no_component_paints_text_with_the_dark_brand_colour():
         if "color: var(--navy)" in line.replace("background-color", "")
     ]
     assert offenders == [], f"text painted with --navy: {offenders}"
+
+
+def test_the_stylesheet_is_split_into_numbered_sheets_in_cascade_order():
+    sheets = _cascade_order()
+    assert sheets, "app.css must import the sheets"
+    assert sheets[0].name == "tokens.css", "tokens must come first"
+    assert sheets[-1].name == "dark.css", "the dark overrides must come last"
+    for sheet in sheets:
+        assert sheet.exists(), sheet
+        assert len(sheet.read_text(encoding="utf-8").splitlines()) <= 600, f"{sheet} is too long"
 
 
 def test_hardcoded_white_surfaces_are_not_used_outside_the_print_stylesheet():

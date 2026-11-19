@@ -1,0 +1,179 @@
+/* ==================================================================
+   LOTLINE — Premium Tailwind & shadcn/ui Inspired Design System
+   Sleek Zinc/Slate Chrome · Crisp Borders · Modern Typography & Shadows
+   Tokens are defined once here. No external font or asset requests.
+   ================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/static/fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/inter-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Noto Sans Bengali";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/noto-sans-bengali-400-normal.woff2") format("woff2");
+  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
+}
+
+@font-face {
+  font-family: "Noto Sans Bengali";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/noto-sans-bengali-600-normal.woff2") format("woff2");
+  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1, U+11DF0-11DF1;
+}
+
+:root {
+  /* Modern shadcn Slate / Zinc Palette */
+  --navy: #0f172a;        /* slate-900 / primary dark */
+  --navy-2: #1e293b;      /* slate-800 */
+  --navy-3: #334155;      /* slate-700 */
+  --lime: #84cc16;        /* lime-500 electric accent */
+  --lime-strong: #65a30d; /* lime-600 */
+  --lime-subtle: rgba(132, 204, 22, 0.12);
+  --lime-border: rgba(132, 204, 22, 0.3);
+
+  /* Clean Modern Canvas */
+  --bg: #f8fafc;          /* slate-50: luminous, clean background */
+  --surface: #ffffff;     /* pure white card surface */
+  --surface-subtle: #f1f5f9; /* slate-100 */
+  --text: #0f172a;        /* slate-900: razor-sharp readable text */
+  --muted: #5b6b82;       /* AA on both the canvas and the subtle surface */
+  --line: #e2e8f0;        /* slate-200: crisp hairline border */
+  --line-strong: #cbd5e1; /* slate-300: input and active border */
+
+  /* Semantic Outcome Colors (shadcn badge pastel palette) */
+  --green: #15803d;       /* emerald-700 / green-700 */
+  --green-bg: #ecfdf5;    /* emerald-50 */
+  --green-line: #a7f3d0;  /* emerald-200 */
+  --green-dot: #10b981;
+
+  --amber: #b45309;       /* amber-700 */
+  --amber-ink: #92400e;   /* amber-800 */
+  --amber-bg: #fffbeb;    /* amber-50 */
+  --amber-line: #fde68a;  /* amber-200 */
+  --amber-dot: #f59e0b;
+
+  --red: #b91c1c;         /* red-700 */
+  --red-ink: #991b1b;     /* red-800 */
+  --red-bg: #fef2f2;      /* red-50 */
+  --red-line: #fecaca;    /* red-200 */
+  --red-dot: #ef4444;
+
+  --blue: #4338ca;        /* indigo-700 */
+  --blue-ink: #3730a3;    /* indigo-800 */
+  --blue-bg: #eef2ff;     /* indigo-50 */
+  --blue-line: #c7d2fe;   /* indigo-200 */
+  --blue-dot: #6366f1;
+
+  /* Legacy aliases for template compatibility */
+  --ink: var(--bg);
+  --ink2: #f1f5f9;
+  --surface2: #f8fafc;
+  --line2: var(--line-strong);
+  --dim: #5b6b82;
+  --violet: #6d28d9;
+  --teal: #0f766e;
+  --accent-text: #4d7c0f;
+  /* Text that must sit on a surface (navy in light, near-white in dark) */
+  --ink-strong: #0f172a;
+  --ink-soft: #334155;    /* secondary ink, e.g. a buyer name */
+  --sep: #cbd5e1;         /* the quiet dot and slash between facts */
+  --topbar-bg: rgba(255, 255, 255, 0.85);
+
+  /* shadcn border radii & elevation shadows */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 12px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+
+  --font: "Inter", "Noto Sans Bengali", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bn: "Noto Sans Bengali", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Two-tone ring: a surface gap plus a solid line, so it stays visible
+     on white cards and on the tinted chips, not just on the canvas. */
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px #5b6b82;
+
+  --rail-w: 254px;
+  --rail-w-collapsed: 76px;
+  --topbar-h: 64px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html[lang="bn"] body {
+  font-family: var(--bn);
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+html[lang="bn"] h1, html[lang="bn"] h2, html[lang="bn"] h3, html[lang="bn"] h4 {
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+html[lang="bn"] .badge, html[lang="bn"] .btn, html[lang="bn"] .kpi .lbl {
+  line-height: 1.4;
+}
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 600; letter-spacing: -0.025em; color: var(--text); }
+p { margin: 0 0 10px; }
+b, strong { font-weight: 600; }
+small, .small { font-size: 12px; }
+.dim { color: var(--dim); }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.right { text-align: right; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.grow { flex: 1; min-width: 0; }
+
+.skip-link {
+  position: fixed; left: 16px; top: -60px; z-index: 200;
+  background: var(--navy); color: #fff; padding: 10px 16px; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: 13px; transition: top 0.15s ease;
+  box-shadow: var(--shadow-md);
+}
+.skip-link:focus { top: 16px; }
+.icon { flex: none; display: inline-block; vertical-align: -0.15em; }
+

@@ -1,0 +1,286 @@
+/* ------------------------------------------------------------------
+   Lot Cards (Linear / Stripe operational card)
+------------------------------------------------------------------- */
+.lot-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lot-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.lot-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lot-code-link {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  transition: color 0.15s ease;
+}
+.lot-code-link:hover {
+  color: var(--ink-strong);
+  text-decoration: underline;
+}
+.lot-meta-sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.buyer-pill {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.ink-soft { color: var(--ink-soft); }
+.meta-sep {
+  color: var(--sep);
+}
+
+/* Two-Line Disposition Cockpit */
+.disp-cockpit {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.disp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.disp-lbl {
+  color: var(--muted);
+  font-weight: 500;
+}
+.disp-lbl.bold {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Progress Wrap */
+.lot-progress-wrap {
+  margin-top: 4px;
+}
+.lot-progress-wrap .bar {
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.lot-progress-wrap .bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #65a30d, #84cc16);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Card Footer */
+.lot-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.bg-lime { background: var(--lime); }
+.navy-ink { color: var(--ink-strong); }
+.font-bold { font-weight: 700; }
+.font-medium { font-weight: 500; }
+.mt-6 { margin-top: 6px; }
+.kpi-grid-dashboard { margin-bottom: 22px; }
+.pending-override-card {
+  margin-bottom: 20px;
+  border-color: var(--amber-line);
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.04), transparent);
+}
+.override-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--amber-ink);
+}
+.tbl-reason { max-width: 320px; }
+.admin-health-card { margin-bottom: 20px; border-color: var(--line); }
+.admin-health-grid { gap: 12px; }
+.admin-stat-box {
+  background: var(--surface-subtle);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.workspace-head { margin-bottom: 16px; }
+.workspace-head-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.workspace-title {
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.workspace-subtitle {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.badge-count { font-size: 11px; font-weight: 600; }
+.btnrow-gap { display: flex; gap: 8px; align-items: center; }
+.lot-toolbar {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  display: flex;
+}
+.search-input { padding-left: 32px; width: 100%; }
+.lot-cards-grid { gap: 14px; }
+.lot-bar { height: 5px; }
+.lot-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.lot-empty-match {
+  padding: 32px 16px;
+  text-align: center;
+}
+.lot-empty-match-btn { margin-top: 10px; }
+.dashboard-sidebar-stack { gap: 18px; }
+.card-pad { padding: 16px; }
+.card-title-h3 {
+  font-size: 14px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.detector-model-name {
+  font-family: var(--mono);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.detector-model-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+.detector-stats-grid { gap: 8px; margin-top: 14px; }
+.detector-stat-num { font-size: 17px; margin: 4px 0 0; }
+.detector-illustrative-wrap { margin-top: 14px; }
+.btn-model-card { margin-top: 12px; width: 100%; justify-content: center; }
+.pipeline.is-explainer .pipeline-dot {
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  color: var(--ink-strong);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Lot detail cockpit */
+.lot-action-card { margin-bottom: 16px; }
+.lot-action-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.lot-chips-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.lot-cta-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.kpi-grid-lot { margin-bottom: 20px; }
+.kpi-row-status { margin: 8px 0 4px; display: flex; align-items: center; gap: 6px; }
+.bar-lime { height: 5px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+.bar-lime i { display: block; height: 100%; background: var(--lime); border-radius: 999px; transition: width 0.3s ease; }
+.disp-kpi-box { margin-top: 6px; font-size: 12px; line-height: 1.4; }
+.disp-kpi-row { display: flex; gap: 6px; align-items: center; }
+.disp-kpi-row + .disp-kpi-row { margin-top: 4px; }
+.disp-kpi-sub { margin-top: 3px; font-size: 10px; }
+.disp-empty-n { font-size: 22px; color: var(--dim); margin: 6px 0 2px; }
+.garment-units-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.garment-unit-card { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.garment-unit-head { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.garment-views-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.dec-summary-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.dec-empty-box { padding: 18px; text-align: center; }
+.plan-chips-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.plan-table { font-size: 12.5px; }
+.plan-note-warn { margin-top: 10px; }
+.nv-form { display: flex; flex-direction: column; gap: 8px; }
+.nv-note-box { margin-top: 9px; }
+.link-quiet { font-size: 12px; color: var(--muted); text-decoration: none; }
+.link-quiet:hover { color: var(--ink-strong); text-decoration: underline; }
+.btn.disabled, .btn:disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+/* Dialog classes */
+.config-dialog { max-width: 640px; }
+.dialog-title-h2 { display: flex; align-items: center; gap: 8px; font-size: 16px; margin: 0; }
+.config-note { margin-bottom: 14px; }
+.config-grid { gap: 14px; }
+.config-box {
+  background: var(--subtle);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.config-box-lbl { font-weight: 700; margin-bottom: 6px; }
+.catalog-list { margin: 0; padding-left: 16px; line-height: 1.5; }
+.config-clause-desc { margin-top: 14px; }
+.mt-2 { margin-top: 2px; }
+
+/* Legacy .steps */
+.steps { display: flex; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
+.step { flex: 1; padding: 11px 14px; border-right: 1px solid var(--line); min-width: 0; }
+.step:last-child { border-right: 0; }
+.step .k { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.step .v { font-size: 13px; margin-top: 3px; font-weight: 600; color: var(--text); }
+.step.on { background: var(--surface-subtle); }
+
