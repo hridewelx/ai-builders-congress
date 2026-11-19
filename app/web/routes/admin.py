@@ -5,10 +5,12 @@ import io
 import json
 import os
 import shutil
+from pathlib import Path
 
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
+from ...config import DB_PATH
 from ...core import db, security
 from ...services import detector, vision
 from ...services import review as service
@@ -76,6 +78,32 @@ def admin_page(request: Request):
     }
     return page(request, "admin.html", active="admin", tab=tab, users=users, models=models, tests=tests,
                 activations=acts, clauses=clauses, health=health, card=load_model_card())
+
+
+@router.get("/admin/model/registry")
+def model_registry(request: Request):
+    """Which artifacts exist, and how the live detector is actually behaving.
+
+    Answers a pilot's two questions without SSH: what changed, and how often do
+    inspectors accept the boxes. The confirmation rate is not accuracy — the
+    report says so in its own `note`.
+    """
+    require_role(request, "admin")
+    from ml import live_metrics, registry
+
+    try:
+        latest = registry.latest()
+        entries = len(registry.history())
+    except (OSError, ValueError):
+        latest, entries = None, 0
+    try:
+        rows = [dict(row) for row in live_metrics._query(Path(DB_PATH), 30)]
+        live = live_metrics.summarise(rows, live_metrics.operating_threshold())
+    except (SystemExit, OSError):
+        live = {"proposals": 0, "note": "no database readable from this process"}
+    return Response(json.dumps({"registry": {"entries": entries, "latest": latest},
+                                "live_30_days": live}, ensure_ascii=False, indent=2),
+                    media_type="application/json")
 
 
 @router.post("/admin/users")
