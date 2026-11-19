@@ -1,16 +1,14 @@
 """Phase 3 tests: Dashboard, Lots list, Create Lot, Audit log, and Report view."""
 from __future__ import annotations
 
-import json
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 
 from app.core import db
-from app.domain import engine
-from app.i18n import t, format_num
+from app.i18n import format_num, t
 from app.services import review as service
 from app.services import vision
-from app.web.pages import ctx, num_filter, num_grouped_filter, dt_local_filter
+from app.web.pages import ctx, dt_local_filter, num_filter, num_grouped_filter
 from app.web.routes.dashboard import lot_cards
 from app.web.routes.reports import _report_ctx
 from app.web.stats import demo_stats, load_model_card
@@ -31,6 +29,9 @@ def test_dashboard_page():
 
     counters = service.counters()
     card = load_model_card()
+    # The explainer page must always know which model serves live uploads,
+    # even when the seeder wrote an older model_card.json.
+    assert "live_model" in card
     stats = demo_stats()
 
     for lang in ["en", "bn"]:

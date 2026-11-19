@@ -4,15 +4,17 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+
 import pytest
 from starlette.requests import Request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.core import db
-from app.services import review as service
 from app.domain import engine
+from app.services import review as service
 from app.web.pages import ctx, templates
+
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():

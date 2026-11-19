@@ -312,7 +312,6 @@ STR = {
     "lot.awaiting_supervisor": ("Awaiting supervisor", "সুপারভাইজারের অপেক্ষায়"),
     "lot.awaiting_supervisor_desc": ("Only supervisors can configure and confirm the AQL sampling plan for this lot.",
                                      "শুধুমাত্র সুপারভাইজার এই লটের জন্য AQL স্যাম্পলিং প্ল্যান তৈরি ও অনুমোদন করতে পারেন।"),
-    "lot.create_plan": ("Create sampling plan", "প্ল্যান তৈরি করুন"),
     "lot.no_changes": ("No changes since last computation.", "সর্বশেষ গণনার পর কোনো পরিবর্তন হয়নি।"),
     "dec.final_disposition": ("Final disposition", "চূড়ান্ত সিদ্ধান্ত"),
     "dec.current_decision": ("Current decision", "বর্তমান সিদ্ধান্ত"),

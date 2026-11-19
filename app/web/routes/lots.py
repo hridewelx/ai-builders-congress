@@ -4,9 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from ... import i18n
 from ...core import db
-from ...domain import engine
 from ...services import review as service
 from ..deps import Denied, assert_csrf, can_write_lot, require_role, require_user
 from ..pages import lang_of, page

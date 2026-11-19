@@ -5,10 +5,9 @@ from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 
 from app.core import db
-from app.domain import engine
-from app.i18n import t, format_num
+from app.i18n import format_num, t
 from app.services import vision
-from app.web.pages import ctx, num_filter, num_grouped_filter, dt_local_filter
+from app.web.pages import ctx, dt_local_filter, num_filter, num_grouped_filter
 from app.web.stats import load_model_card
 
 templates = Jinja2Templates(directory="templates")

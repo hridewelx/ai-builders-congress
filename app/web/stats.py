@@ -9,13 +9,28 @@ from ..core import db
 
 
 def load_model_card() -> dict:
-    """Load the generated model card, or an empty card when none exists yet."""
+    """Load the generated model card, filling live-model fields from the runtime.
+
+    ``model_card.json`` is written by the seeder and can be older than the code.
+    The explainer page must never show "same as seeded" when a trained ONNX
+    detector is actually serving uploads, so the live fields are derived here.
+    """
     path = os.path.join(MODEL_DIR, "model_card.json")
     try:
         with open(path, encoding="utf-8") as fh:
-            return json.load(fh)
+            card = json.load(fh)
     except (OSError, ValueError):
-        return {}
+        card = {}
+    from ..services import detector
+
+    live = detector.available()
+    card.setdefault("live_model", detector.MODEL_NAME if live else "not enabled (numpy baseline)")
+    card.setdefault("live_labels", "supervised: BDFD9 factory fabric (CC BY 4.0) plus staged panels"
+                    if live else "none")
+    card.setdefault("live_training", "BDFD9 train/valid plus staged train; official test held out"
+                    if live else "n/a")
+    card.setdefault("live_domains", detector.MODEL_DOMAIN if live else "n/a")
+    return card
 
 
 def demo_stats() -> dict:
