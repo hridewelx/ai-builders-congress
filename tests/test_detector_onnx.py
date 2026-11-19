@@ -59,3 +59,27 @@ def test_readyz_does_not_claim_trained_weights_when_missing(monkeypatch):
     assert payload["detector"] == "numpy"
     assert payload["model"] is None
     assert payload["weights_loaded"] is False
+
+
+def test_only_the_typed_reshape_error_means_no_proposals():
+    """A message that merely resembles the reshape error must not be swallowed."""
+    from onnxruntime.capi import onnxruntime_pybind11_state as ort_state
+
+    generic = RuntimeError("Reshape node failed: zero elements")
+    assert detector._is_empty_roi_failure(generic) is False
+    typed = ort_state.Fail("Non-zero status code returned while running Reshape node.")
+    assert detector._is_empty_roi_failure(typed) is True
+
+
+def test_other_onnx_failures_are_not_masked(monkeypatch):
+    class Broken:
+        def get_inputs(self):
+            return [type("Input", (), {"name": "images", "shape": [1, 3, 640, 640]})()]
+
+        def run(self, *_args, **_kwargs):
+            raise RuntimeError("CUDA provider exploded")
+
+    monkeypatch.setenv("LOTLINE_DETECTOR", "onnx")
+    monkeypatch.setattr(detector, "_load_session", lambda: Broken())
+    with pytest.raises(RuntimeError, match="exploded"):
+        detector.detect(np.zeros((64, 64, 3), dtype=np.uint8))

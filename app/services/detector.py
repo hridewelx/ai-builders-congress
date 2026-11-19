@@ -172,6 +172,25 @@ def _heat(rgb: np.ndarray, detections: list[dict]) -> bytes:
     return buffer.getvalue()
 
 
+def _is_empty_roi_failure(exc: BaseException) -> bool:
+    """True only for ONNX Runtime's zero-row ROI reshape error.
+
+    A perfectly clean frame produces no proposals, and the exported graph cannot
+    reshape a zero-length tensor. That specific, typed failure means "nothing to
+    propose". Any other failure is a real error and must not be swallowed, so the
+    check is on the exception class, not on the message text alone.
+    """
+    try:
+        from onnxruntime.capi import onnxruntime_pybind11_state as ort_state
+    except ImportError:  # onnxruntime is an optional dependency
+        return False
+    # ORT reports this as status 1 (Fail) on the CPU provider and as
+    # InvalidArgument on some versions; both are ONNX Runtime's own types, so a
+    # look-alike exception from elsewhere can never be mistaken for it.
+    typed = isinstance(exc, (ort_state.Fail, ort_state.InvalidArgument))
+    return typed and "reshape" in str(exc).lower()
+
+
 def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
     """Run the trained detector; result contract matches ``vision.detect``."""
     session = _load_session()
@@ -181,8 +200,8 @@ def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
     tensor = np.asarray(image, dtype=np.float32).transpose(2, 0, 1)[None] / 255.0
     try:
         boxes, scores, labels = session.run(None, {session.get_inputs()[0].name: tensor})[:3]
-    except Exception as exc:  # ORT cannot reshape a zero-row ROI tensor
-        if "Reshape" in str(exc) or "zero" in str(exc).lower():
+    except Exception as exc:
+        if _is_empty_roi_failure(exc):
             # No region survived the ROI head: the honest answer is "no proposal".
             return {"proposals": [], "quality": vision.quality(rgb), "heat_png": _heat(rgb, []),
                     "model": MODEL_NAME, "threshold": float(os.environ.get("LOTLINE_DETECT_THRESHOLD", DEFAULT_THRESHOLD)),
