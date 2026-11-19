@@ -218,6 +218,8 @@ def main() -> None:
     parser.add_argument("--operating-point", type=Path,
                         default=MODELS / "operating_point_v2.json",
                         help="threshold record from ml.operating_point (optional)")
+    parser.add_argument("--reliability", type=Path, default=MODELS / "reliability_v2.json",
+                        help="reliability bins from ml.reliability (optional)")
     parser.add_argument("--leakage", type=Path, default=Path("docs/leakage_probe.json"),
                         help="stricter leakage-probe report (optional)")
     args = parser.parse_args()
@@ -235,9 +237,10 @@ def main() -> None:
         integrity = maybe(args.integrity)
         leakage = maybe(args.leakage)
         operating_point = maybe(args.operating_point)
+        reliability = maybe(args.reliability)
         write_card(args.card, args.card_json, metrics, checkpoint, calibration, parity,
                    operating_point=operating_point, source=args.from_json.name,
-                   integrity=integrity, leakage=leakage)
+                   integrity=integrity, leakage=leakage, reliability=reliability)
         print(f"wrote {args.card} and {args.card_json} from {args.from_json}")
         return
     metrics = evaluate_checkpoint(args.checkpoint, args.data, args.split, args.score_threshold)

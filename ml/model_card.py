@@ -24,7 +24,8 @@ def _display_path(value: str) -> str:
 def markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
                         parity: dict | None = None, source: str | None = None,
                         integrity: dict | None = None, leakage: dict | None = None,
-                        operating_point: dict | None = None) -> str:
+                        operating_point: dict | None = None,
+                        reliability: dict | None = None) -> str:
     per_source = metrics.get("per_source", {})
     headline = per_source.get("bdfd9", metrics)
     headline_label = "BDFD9 fabric close-ups" if "bdfd9" in per_source else "all evaluated images"
@@ -159,6 +160,22 @@ def markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
                   "so it is reported here as inconclusive rather than as evidence of leakage."]
         _ = verdict
 
+    if reliability:
+        lines += ["", "## Reliability of the score (validation, never test)", "",
+                  "| band | detections | mean score | measured precision | gap |",
+                  "| --- | --- | --- | --- | --- |"]
+        for row in reliability.get("bins", []):
+            lines.append(f"| {row['bin']} | {row['count']} | {row['mean_score']} | "
+                         f"{row['measured_precision']} | {row['gap']} |")
+        lines += ["",
+                  f"- ECE over {reliability.get('detections')} validation detections: "
+                  f"**{reliability.get('ece')}**",
+                  "- Read this as why the interface shows a score and not a percentage: where a "
+                  "band's measured precision differs from its score, the score is a ranking, not "
+                  "a probability. A small gap here would be an observation on this data, not a "
+                  "promise about another factory.",
+                  f"- Source: `{Path(reliability.get('checkpoint', '')).name}` on split "
+                  f"`{reliability.get('split')}` at IoU {reliability.get('iou')}."]
     if parity and parity.get("split") != "val":
         raise SystemExit("refusing to publish a card whose parity was measured on the test split")
     card = checkpoint.get("model_card", {})
@@ -244,11 +261,12 @@ def json_card(metrics: dict, checkpoint: dict, calibration: dict | None = None,
 def write(out_md: Path, out_json: Path, metrics: dict, checkpoint: dict,
           calibration: dict | None = None, parity: dict | None = None,
           operating_point: dict | None = None, source: str | None = None,
-          integrity: dict | None = None, leakage: dict | None = None) -> dict:
+          integrity: dict | None = None, leakage: dict | None = None,
+          reliability: dict | None = None) -> dict:
     """Write both artefacts from one set of measurements."""
     text = markdown(metrics, checkpoint, calibration, parity,
                     source=source, integrity=integrity, leakage=leakage,
-                    operating_point=operating_point)
+                    operating_point=operating_point, reliability=reliability)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_md.write_text(text, encoding="utf-8")
     card = json_card(metrics, checkpoint, calibration, parity, operating_point)

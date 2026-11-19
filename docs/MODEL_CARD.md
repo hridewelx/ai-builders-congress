@@ -73,6 +73,25 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 
 - The probe's own output warns about 27 test and 41 validation pairs. That warning does not control for the base rate in its train-vs-train control, so it is reported here as inconclusive rather than as evidence of leakage.
 
+## Reliability of the score (validation, never test)
+
+| band | detections | mean score | measured precision | gap |
+| --- | --- | --- | --- | --- |
+| 0.50-0.55 | 5 | 0.5158 | 0.2 | -0.3158 |
+| 0.55-0.60 | 8 | 0.5464 | 0.375 | -0.1714 |
+| 0.60-0.65 | 6 | 0.5927 | 0.6667 | 0.0739 |
+| 0.65-0.70 | 6 | 0.6547 | 0.6667 | 0.0119 |
+| 0.70-0.75 | 3 | 0.6997 | 1.0 | 0.3003 |
+| 0.75-0.80 | 4 | 0.7484 | 1.0 | 0.2516 |
+| 0.80-0.85 | 5 | 0.7995 | 0.2 | -0.5995 |
+| 0.85-0.90 | 3 | 0.8451 | 0.6667 | -0.1784 |
+| 0.90-0.95 | 6 | 0.9065 | 0.6667 | -0.2398 |
+| 0.95-1.00 | 39 | 0.9769 | 0.9487 | -0.0282 |
+
+- ECE over 85 validation detections: **0.1346**
+- Read this as why the interface shows a score and not a percentage: where a band's measured precision differs from its score, the score is a ranking, not a probability. A small gap here would be an observation on this data, not a promise about another factory.
+- Source: `det_v2b.pt` on split `val` at IoU 0.5.
+
 ## What this model does not do
 
 - It does not assign severity, count defects, or decide a lot.

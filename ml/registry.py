@@ -24,6 +24,7 @@ TRACKED = {
     "evaluation": MODELS / "eval_test_v2.json",
     "operating_point": MODELS / "operating_point_v2.json",
     "calibration": MODELS / "calibration_v2.json",
+    "reliability": MODELS / "reliability_v2.json",
 }
 
 
