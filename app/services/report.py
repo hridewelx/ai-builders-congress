@@ -51,6 +51,9 @@ OUTCOME_RGB = {"ACCEPT": (22, 120, 80), "REJECT": (170, 40, 40),
                "HOLD": (150, 100, 10), "ESCALATE": (110, 60, 150)}
 
 
+LANGUAGE_NOTE = "Report language: English. The application interface is available in Bangla."
+
+
 class Report(FPDF):
     def header(self):
         self.set_font(self.family if hasattr(self, "family") else "Helvetica", "B", 15)
@@ -59,6 +62,9 @@ class Report(FPDF):
         self.set_font(self.family if hasattr(self, "family") else "Helvetica", "", 8)
         self.set_text_color(110, 120, 135)
         self.cell(0, 4, "AI proposes. Humans confirm. The deterministic sampling engine decides.", new_x="LMARGIN", new_y="NEXT")
+        # The UI is Bangla-first; the PDF is English because the bundled fonts
+        # have no Bengali glyphs. Say so rather than let a reader wonder.
+        self.cell(0, 4, LANGUAGE_NOTE, new_x="LMARGIN", new_y="NEXT")
         self.ln(1)
         self.set_draw_color(220, 225, 232)
         self.line(14, self.get_y(), 196, self.get_y())

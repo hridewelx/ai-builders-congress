@@ -50,3 +50,18 @@ def test_pdf_builds_without_any_system_font(monkeypatch):
     data = report.build(_context())
     assert data.startswith(b"%PDF")
     assert len(data) > 1000
+
+
+def test_report_states_its_language(monkeypatch):
+    """The PDF is English while the UI is Bangla; the report must say so."""
+    captured: list[str] = []
+    original = report.Report.cell
+
+    def spy(self, w=None, h=None, text="", *args, **kwargs):
+        captured.append(str(text))
+        return original(self, w, h, text, *args, **kwargs)
+
+    monkeypatch.setattr(report.Report, "cell", spy)
+    data = report.build(_context())
+    assert data.startswith(b"%PDF")
+    assert any("Report language: English" in text for text in captured)
