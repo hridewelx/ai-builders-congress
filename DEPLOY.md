@@ -95,3 +95,39 @@ python -m app.seed --force      # rebuilds lots, photos, decisions, audit trail
 ```
 
 or delete `$LOTLINE_DATA/lotline.db` and the `store/` folder and restart.
+
+---
+
+## Handoff: the five-minute deploy (for whoever presses the button)
+
+Everything below is already committed on `main`. No code changes, no database
+setup, no environment variables.
+
+**Before you start:** the GitHub repo is private, so your Render account needs
+access to `hridewelx/ai-builders-congress` (invite sent from the repo settings).
+
+1. Render → **New → Blueprint** → pick the repo → **Apply**. `render.yaml` sets
+   the plan, the health check and `LOTLINE_DATA=/tmp/lotline`; accept it as-is.
+2. Wait for the build (~4–6 min: Debian slim + CPU-only wheels, no torch).
+3. `/healthz` goes green, then open the URL. The login page has three one-click
+   demo buttons (Inspector / Supervisor / Admin, password `QualityFloor2026!`).
+4. Verify from any machine with the repo checked out:
+
+```bash
+python scripts/smoke_live.py https://<app>.onrender.com --wait 300
+# expect: 0 failure(s), 0 warning(s); /readyz reports detector=numpy
+```
+
+**Do not change these three things:**
+
+- **No persistent disk.** Free instances reject disks; the image already bakes a
+  seed at `/seed` and `start.sh` copies it to `/tmp/lotline` on first boot.
+- **No Postgres, no Redis, no extra services.** One process, SQLite, in-process
+  model.
+- **Do not edit `start.sh` or the Dockerfile command.** It must bind `$PORT`.
+
+**If the build fails**, the log to read is the `pip install` step; then paste the
+tail into the team chat rather than "fixing" the Dockerfile on the deadline day.
+
+**Cold start:** a sleeping free instance takes ~30–50 s to answer the first
+click. Open the URL once a minute before recording or judging.
