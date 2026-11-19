@@ -14,10 +14,21 @@ _FONT_CANDIDATES = [
 ]
 
 
+# Core PDF fonts are latin-1 only. When no Unicode font is found, transliterate the
+# punctuation the report actually uses instead of raising FPDFUnicodeEncodingException.
+_ASCII = str.maketrans({"–": "-", "—": "-", "•": "-", "…": "...",
+                        "’": "'", "‘": "'", "“": '"', "”": '"',
+                        "→": "->", "≥": ">=", "≤": "<=", "·": "-"})
+
+
+def _safe(text: str, family: str) -> str:
+    return text.translate(_ASCII) if family == "Helvetica" else text
+
+
 def para(pdf: FPDF, h: float, text: str, **kw) -> None:
     """Full-width paragraph from the left margin (never from a stray x)."""
     pdf.set_x(pdf.l_margin)
-    pdf.multi_cell(0, h, text, **kw)
+    pdf.multi_cell(0, h, _safe(text, getattr(pdf, "lotline_family", "Helvetica")), **kw)
 
 
 def _font_family(pdf: FPDF) -> str:
@@ -25,7 +36,9 @@ def _font_family(pdf: FPDF) -> str:
         if os.path.exists(regular) and os.path.exists(bold):
             pdf.add_font("App", "", regular)
             pdf.add_font("App", "B", bold)
+            pdf.lotline_family = "App"
             return "App"
+    pdf.lotline_family = "Helvetica"
     return "Helvetica"
 
 OUTCOME_TEXT = {
@@ -66,8 +79,8 @@ def build(ctx: dict) -> bytes:
     pdf.cell(120, 7, "Lot inspection report", new_x="LEFT", new_y="NEXT")
     pdf.set_font(pdf.family if hasattr(pdf, "family") else "Helvetica", "", 9)
     pdf.set_text_color(90, 100, 115)
-    pdf.cell(120, 5, f"Lot {ctx['lot_code']} · {ctx['product']} · {ctx['buyer']}", new_x="LEFT", new_y="NEXT")
-    pdf.cell(120, 5, f"Decision #{ctx['sequence']} · {ctx['created_at']} · engine {ctx['engine_version']}",
+    pdf.cell(120, 5, f"Lot {ctx['lot_code']} | {ctx['product']} | {ctx['buyer']}", new_x="LEFT", new_y="NEXT")
+    pdf.cell(120, 5, f"Decision #{ctx['sequence']} | {ctx['created_at']} | engine {ctx['engine_version']}",
              new_x="LEFT", new_y="NEXT")
     pdf.ln(3)
 
@@ -86,7 +99,7 @@ def build(ctx: dict) -> bytes:
         o = ctx["override"]
         pdf.set_fill_color(255, 244, 214)
         pdf.set_font(pdf.family if hasattr(pdf, "family") else "Helvetica", "B", 9)
-        para(pdf, 5, f"  OVERRIDDEN — system: {ctx['outcome']}, supervisor: {o['final_disposition'].replace('OVERRIDE_', '')}. "
+        para(pdf, 5, f"  OVERRIDDEN - system: {ctx['outcome']}, supervisor: {o['final_disposition'].replace('OVERRIDE_', '')}. "
                              f"Reason: {o['reason']}" + (" (approved by a second Supervisor)" if o.get("approved") else
                                                          " (PENDING second-Supervisor approval; system outcome remains in force)"),
                        fill=True)
@@ -153,8 +166,8 @@ def build(ctx: dict) -> bytes:
     pdf.cell(0, 5, "Reasons recorded (canonical codes)", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font(pdf.family if hasattr(pdf, "family") else "Helvetica", "", 8)
     for r in ctx["reasons"]:
-        pdf.cell(6, 4.4, "•")
-        para(pdf, 4.4, f"{r['code']} — {r['text']}")
+        pdf.cell(6, 4.4, "-")
+        para(pdf, 4.4, f"{r['code']} - {r['text']}")
     pdf.ln(1)
 
     # Evidence and gates
@@ -163,13 +176,13 @@ def build(ctx: dict) -> bytes:
     pdf.set_font(pdf.family if hasattr(pdf, "family") else "Helvetica", "", 8)
     ev = [
         f"Critical non-visual check: {ctx['nonvisual']}",
-        f"Images in evidence: {ctx['images']} · units: {ctx['units']} · detector: {ctx['model']} ({ctx['model_domains']})",
-        f"Manual inspection: {'yes' if ctx['manual'] else 'no'} · selection method: {ctx['selection']}",
-        f"Snapshot SHA-256: {ctx['snapshot_hash'][:32]}…",
+        f"Images in evidence: {ctx['images']} | units: {ctx['units']} | detector: {ctx['model']} ({ctx['model_domains']})",
+        f"Manual inspection: {'yes' if ctx['manual'] else 'no'} | selection method: {ctx['selection']}",
+        f"Snapshot SHA-256: {ctx['snapshot_hash'][:32]}...",
         "Scope: the critical class covers visible defects only. Photo evidence cannot prove needle or metal absence.",
     ]
     for line in ev:
-        para(pdf, 4.2, "• " + line)
+        para(pdf, 4.2, "- " + line)
     pdf.ln(2)
 
     # Signature

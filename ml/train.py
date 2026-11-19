@@ -135,6 +135,12 @@ def train(args) -> dict:
                             collate_fn=collate, num_workers=0)
 
     model = build_model(pretrained=not args.no_pretrained, min_size=args.size, max_size=args.size)
+    if getattr(args, "init", None):
+        initial = torch.load(args.init, map_location="cpu", weights_only=False)
+        if initial.get("size", args.size) != args.size:
+            raise SystemExit(f"checkpoint size {initial.get('size')} does not match --size {args.size}")
+        model.load_state_dict(initial["model"])
+        print(f"initialized from {args.init}")
     model.to(device)
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(params, lr=args.lr, momentum=0.9, weight_decay=5e-4)
@@ -144,7 +150,8 @@ def train(args) -> dict:
     history = []
     best_map = -1.0
     MODELS.mkdir(parents=True, exist_ok=True)
-    checkpoint = MODELS / "det_v1.pt"
+    checkpoint = Path(args.out) if getattr(args, "out", None) else MODELS / "det_v1.pt"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
 
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -171,8 +178,10 @@ def train(args) -> dict:
         metrics.update({"epoch": epoch, "train_loss": running / max(1, len(train_loader)),
                         "seconds": round(time.time() - started, 1)})
         history.append(metrics)
+        fp_clean = (f"{metrics['fp_per_clean']:.2f}" if metrics["fp_per_clean"] is not None
+                    else "n/a (no clean images)")
         print(f"epoch {epoch}: val mAP@0.5 {metrics['map50']:.3f} · "
-              f"recall {metrics['recall']:.3f} · FP/clean {metrics['fp_per_clean']:.2f}")
+              f"recall {metrics['recall']:.3f} · FP/clean {fp_clean}")
         if metrics["map50"] > best_map:
             best_map = metrics["map50"]
             torch.save({"model": model.state_dict(), "classes": CLASSES, "size": args.size,
@@ -180,7 +189,9 @@ def train(args) -> dict:
             print(f"saved best checkpoint -> {checkpoint}")
 
     report = {"model_card": describe(), "args": vars(args), "epochs": history, "best_map50": best_map}
-    (MODELS / "train_metrics.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    metrics_path = Path(args.metrics) if getattr(args, "metrics", None) else MODELS / "train_metrics.json"
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    metrics_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
 
@@ -212,6 +223,12 @@ def main() -> None:
     parser.add_argument("--no-pretrained", action="store_true")
     parser.add_argument("--score-threshold", type=float, default=0.35)
     parser.add_argument("--log-every", type=int, default=20)
+    parser.add_argument("--out", default=str(MODELS / "det_v1.pt"),
+                        help="checkpoint path (default keeps det_v1.pt)")
+    parser.add_argument("--metrics", default=str(MODELS / "train_metrics.json"),
+                        help="training history path")
+    parser.add_argument("--init", default=None,
+                        help="optional checkpoint to fine-tune from")
     args = parser.parse_args()
     report = train(args)
     print(json.dumps({"best_map50": report["best_map50"]}, indent=2))

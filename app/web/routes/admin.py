@@ -10,8 +10,8 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from ...core import db, security
+from ...services import detector, vision
 from ...services import review as service
-from ...services import vision
 from ..deps import Denied, assert_csrf, require_role
 from ..pages import page
 from ..stats import load_model_card
@@ -133,10 +133,15 @@ def admin_user_action(request: Request, user_id: int, csrf: str = Form(""), acti
 def admin_selftest(request: Request, csrf: str = Form("")):
     s = require_role(request, "admin")
     assert_csrf(request, s, csrf)
-    ok, detail = vision.selftest()
+    if detector.available():
+        model_name = detector.MODEL_NAME
+        ok, detail = detector.selftest()
+    else:
+        model_name = vision.MODEL_NAME
+        ok, detail = vision.selftest()
     db.x("INSERT INTO model_selftest(model_name,passed,detail,created_at) VALUES (?,?,?,?)",
-         (vision.MODEL_NAME, 1 if ok else 0, detail, db.now()))
-    db.audit(s["user"]["id"], s["user"]["display_name"], "model.selftest", "model_version", vision.MODEL_NAME,
+         (model_name, 1 if ok else 0, detail, db.now()))
+    db.audit(s["user"]["id"], s["user"]["display_name"], "model.selftest", "model_version", model_name,
              after={"passed": ok, "detail": detail})
     return RedirectResponse("/admin?tab=models&ok=saved", status_code=303)
 
@@ -147,11 +152,12 @@ def admin_activate(request: Request, csrf: str = Form(""), reason: str = Form(""
     assert_csrf(request, s, csrf)
     if len(reason.strip()) < 20:
         return RedirectResponse("/admin?tab=models&err=reason_short", status_code=303)
-    last = db.one("SELECT * FROM model_selftest ORDER BY id DESC LIMIT 1")
+    model_name = detector.MODEL_NAME if detector.available() else vision.MODEL_NAME
+    last = db.one("SELECT * FROM model_selftest WHERE model_name=? ORDER BY id DESC LIMIT 1", (model_name,))
     if not last or not last["passed"]:
         return RedirectResponse("/admin?tab=models&err=selftest_required", status_code=303)
     db.x("INSERT INTO model_activation(model_name,action,actor,reason,created_at) VALUES (?,?,?,?,?)",
-         (vision.MODEL_NAME, "activate", s["user"]["display_name"], reason.strip(), db.now()))
-    db.audit(s["user"]["id"], s["user"]["display_name"], "model.activated", "model_version", vision.MODEL_NAME,
+         (model_name, "activate", s["user"]["display_name"], reason.strip(), db.now()))
+    db.audit(s["user"]["id"], s["user"]["display_name"], "model.activated", "model_version", model_name,
              after={"reason": reason.strip()})
     return RedirectResponse("/admin?tab=models&ok=saved", status_code=303)

@@ -39,6 +39,8 @@ def export(checkpoint_path: Path, out_path: Path, size: int = 640, opset: int = 
     )
     from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
+    from .data import sha256_file
+
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     size = checkpoint.get("size", size)
     model = fasterrcnn_mobilenet_v3_large_fpn(weights=None, weights_backbone=None,
@@ -75,7 +77,10 @@ def export(checkpoint_path: Path, out_path: Path, size: int = 640, opset: int = 
     )
 
     report = {"onnx_path": str(out_path), "size": size, "opset": opset,
-              "classes": CLASSES, "parity": None, "parity_image": report_image}
+              "classes": CLASSES, "parity": None, "parity_image": report_image,
+              "checkpoint": str(checkpoint_path),
+              "checkpoint_sha256": sha256_file(checkpoint_path)[:16],
+              "onnx_sha256": sha256_file(out_path)[:16]}
     try:
         import numpy as np
         import onnxruntime as ort
@@ -102,17 +107,20 @@ def export(checkpoint_path: Path, out_path: Path, size: int = 640, opset: int = 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export the detector to ONNX.")
-    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v1.pt")
-    parser.add_argument("--out", type=Path, default=MODELS / "det_v1.onnx")
+    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v2b.pt")
+    parser.add_argument("--out", type=Path, default=MODELS / "det_v2.onnx")
     parser.add_argument("--opset", type=int, default=17)
     parser.add_argument("--image", type=Path, default=None)
+    parser.add_argument("--report", type=Path, default=MODELS / "export_report_v2.json",
+                        help="parity report path (keep per-version reports separate)")
     args = parser.parse_args()
     image = args.image
     if image is None:
-        candidates = sorted(Path("data/dataset/det_v1/images/val").glob("*"))
+        candidates = sorted(Path("data/dataset/det_v2/images/val").glob("*"))
         image = candidates[0] if candidates else None
     report = export(args.checkpoint, args.out, opset=args.opset, image_path=image)
-    (MODELS / "export_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    args.report.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
 
 

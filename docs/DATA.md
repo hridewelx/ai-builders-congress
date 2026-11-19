@@ -1,7 +1,9 @@
 # Data card — Lotline demo
 
-Everything in this repository's data directory is **synthetic**. No real buyer,
-factory, worker or inspection record is used anywhere in the demo.
+The staged demo photos and generated evidence are **synthetic**. The trained
+detector also learns from **BDFD9**, a public CC BY 4.0 dataset of real
+knit/woven fabric photographs from Bangladeshi factories. No buyer, worker or
+factory inspection record is used anywhere in the demo.
 
 ## What is generated
 
@@ -11,8 +13,8 @@ factory, worker or inspection record is used anywhere in the demo.
 | Evidence images (content-addressed JPEGs) | `data/store/` | `python -m app.seed` | no |
 | Detector weights + model card | `data/models/ae_knit_v1.npz`, `model_card.json` | first seed / `vision.save()` | no |
 | Staged evaluation dataset | `data/dataset/v1/` | `python scripts/build_dataset.py` | no |
-| Trained detector (PyTorch + ONNX) and calibration | `data/models/det_v1.pt`, `det_v1.onnx`, `calibration.json` | `python -m ml.train` / `ml.export_onnx` / `ml.calibrate` | no |
-| Combined training set (BDFD9 + staged) | `data/dataset/det_v1/` | `python -m ml.data build` | no |
+| Trained detector (PyTorch + ONNX) and calibration | `data/models/det_v2.pt`, `det_v2.onnx`, `calibration_v2.json` | `python -m ml.train` / `ml.export_onnx` / `ml.calibrate` | no |
+| Combined training set (BDFD9 + staged) | `data/dataset/det_v2/` | `python -m ml.data build` | no |
 
 `data/` is git-ignored on purpose: evidence is generated, not shipped, and a
 cloned repository must never contain inspection records.
@@ -79,18 +81,43 @@ Pipeline choices that must be stated wherever these numbers are used:
 
 - Polygons are converted to axis-aligned boxes; box AP is therefore generous
   for elongated marks.
-- Exact copies and near-duplicates are removed with SHA-256 plus dHash(8x8) and
-  a thumbnail mean-absolute-difference check; duplicates always land in the
-  same split.
-- The split is grouped by perceptual hash, not by file name, and the staged set
-  and BDFD9 are split together. BDFD9 still shares fabric and session context
-  between its own train/valid folders, so the validation score is optimistic
-  for an unseen factory.
-- Only **two** clean images survive in validation. The reported "0.00 FP per
-  clean image" is therefore not a false-positive rate and must not be quoted as
-  one.
-- BDFD9's own test split is not used for training or threshold selection; it is
-  kept for the post-submission check.
+- Exact copies and near-duplicates are removed within each source split with
+  SHA-256 plus dHash(8x8) and a thumbnail mean-absolute-difference check. A
+  train/valid copy that duplicates a test image is dropped; test content is
+  never absorbed into train/val.
+- Source splits are preserved: BDFD9 `train`/`valid`/`test` and the staged set's
+  `train`/`test` are exported as-is. Only images without a source split are
+  assigned 80/20 by perceptual-hash group. `--resplit` is an explicit,
+  non-default escape hatch and was not used for the shipped model.
+- BDFD9's official test split is exported as `images/test` and is not used for
+  training or threshold selection. `python -m ml.verify_split` checks the built
+  train/val against it by SHA-256 and near-duplicate hash; it must print PASS
+  before a checkpoint is published.
+- Validation in `det_v2` has **zero clean images**, so "FP per clean image" is
+  undefined on validation, not 0. The official test split has 7 clean images;
+  report that separately and do not describe it as a rate.
+- BDFD9 shares fabric and session context between its own train and valid
+  folders, so even a clean split is optimistic for an unseen factory.
+
+## det_v2 split
+
+Built from 648 candidate images; 134 exact/near duplicates were removed, leaving
+514 images and 676 boxes.
+
+| split | images | BDFD9 | staged | boxes |
+|---|---:|---:|---:|---:|
+| train | 382 | 300 | 82 | 514 |
+| val | 68 | 68 | 0 | 86 |
+| test | 64 | 42 | 22 | 76 |
+
+The official BDFD9 test folder contains 109 image files. 47 carry at least one
+in-scope label; 42 survive within-test deduplication and are exported to
+`images/test`; the other 5 are duplicates of those 42. No official test image
+appears in train or val (verified by `python -m ml.verify_split`).
+
+`data/dataset/det_v1` and the `det_v1.*` checkpoints predate this policy. Their
+random re-split read BDFD9's `test/` folder, so `det_v1` is a historical
+artifact and must not be cited or deployed. The shipped checkpoint is `det_v2`.
 
 Attribution: BDFD9 is published under CC BY 4.0; any public demo or report that
 shows its images must credit the dataset authors and the licence.

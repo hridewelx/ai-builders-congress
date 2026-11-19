@@ -135,10 +135,11 @@ def run_inference(img_id: int, user_id: int, request: Request | None = None) -> 
                  "provisional_critical,created_at) VALUES (?,?,?,?,?,?,?,?,'proposed',?,?)",
                  (job_id, img_id, p["type"], p["score"], p["box"][0], p["box"][1], p["box"][2], p["box"][3],
                   crit, db.now()))
-        db.x("UPDATE inference_job SET status='succeeded', finished_at=?, latency_ms=? WHERE id=?",
-             (db.now(), int((time.time() - t0) * 1000), job_id))
+        actual_model = res.get("model", model_name)
+        db.x("UPDATE inference_job SET status='succeeded', model_version=?, finished_at=?, latency_ms=? WHERE id=?",
+             (actual_model, db.now(), int((time.time() - t0) * 1000), job_id))
         db.audit(user_id, str(user_id), "inference.succeeded", "image", img_id,
-                 after={"proposals": len(res["proposals"]), "model": res.get("model", model_name)})
+                 after={"proposals": len(res["proposals"]), "model": actual_model})
         return "ok"
     except Exception as exc:
         db.x("UPDATE inference_job SET status='failed', error=?, finished_at=? WHERE id=?",

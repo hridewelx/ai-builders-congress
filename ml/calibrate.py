@@ -109,25 +109,31 @@ def calibrate(checkpoint_path: Path, data_root: Path, split: str = "val") -> dic
     ece_before, bins_before = expected_calibration_error(scores)
     temperature = fit_temperature(scores)
     ece_after, bins_after = expected_calibration_error(apply_temperature(scores, temperature))
+    applied = ece_after < ece_before
     return {
         "method": "single temperature scaling on logit(score)",
         "temperature": temperature,
+        "runtime_temperature": temperature if applied else 1.0,
+        "applied": applied,
         "n_detections": len(scores),
         "base_rate": round(sum(tp for _, tp in scores) / len(scores), 4),
         "ece_before": round(ece_before, 4),
         "ece_after": round(ece_after, 4),
         "bins_before": bins_before,
         "bins_after": bins_after,
-        "note": "Applies to this split's distribution only; recalibrate after any retrain or domain change.",
+        "note": ("Temperature improves ECE on this split; applied at runtime."
+                 if applied else
+                 "Temperature fit NLL but did not improve ECE; runtime keeps raw scores.")
+                + " Applies to this split's distribution only; recalibrate after any retrain or domain change.",
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Calibrate detector scores.")
-    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v1.pt")
-    parser.add_argument("--data", type=Path, default=Path("data/dataset/det_v1"))
+    parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v2b.pt")
+    parser.add_argument("--data", type=Path, default=Path("data/dataset/det_v2"))
     parser.add_argument("--split", default="val")
-    parser.add_argument("--out", type=Path, default=MODELS / "calibration.json")
+    parser.add_argument("--out", type=Path, default=MODELS / "calibration_v2.json")
     args = parser.parse_args()
     report = calibrate(args.checkpoint, args.data, args.split)
     args.out.parent.mkdir(parents=True, exist_ok=True)

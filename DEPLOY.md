@@ -1,7 +1,15 @@
 # Deploying the Lotline demo
 
-The demo is a single process: FastAPI + SQLite + an in-process numpy model. It
-needs ~300 MB RAM and a writable data directory. No GPU, no external API.
+The demo is a single process: FastAPI + SQLite + an in-process model. It needs
+~300 MB RAM (numpy baseline) or ~450 MB with the ONNX detector loaded, and a
+writable data directory. No GPU, no external API.
+
+**What actually ships.** `data/` is git-ignored, so the ONNX artifact is *not*
+in the Render build context. A deployed instance therefore runs the numpy
+baseline and reports "staged knit panels only (unsupervised baseline)" in the
+PDF and on `/readyz`. That is honest, not a bug. To run the trained detector on
+a host, ship `det_v2.onnx` (76 MB) with the build and set `LOTLINE_DETECTOR=onnx`
+(see `requirements.txt`, which already pins onnxruntime).
 
 Judges should be able to click a link. Pick one of these.
 
@@ -13,6 +21,13 @@ Judges should be able to click a link. Pick one of these.
 2. Render → **New → Blueprint** → select the repo. `render.yaml` is included.
 3. Deploy. The first boot seeds the demo (~25 s); `/healthz` turns green.
 4. Open the URL, press **Inspector** on the login screen.
+5. Verify with the smoke script:
+
+```bash
+python scripts/smoke_live.py https://<app>.onrender.com --wait 300
+# expected: 0 failures; /readyz reports detector=numpy on a free instance
+python scripts/smoke_live.py https://<app>.onrender.com --expect-detector onnx  # only if you ship the model
+```
 
 The free instance sleeps after inactivity; the first click takes ~30 s to wake.
 For a judging window, upgrade to the cheapest paid instance or keep it warm.

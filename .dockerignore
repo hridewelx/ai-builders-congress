@@ -1,4 +1,12 @@
-data/
+data/*
+!data/models/
+data/models/*
+!data/models/det_v2.onnx
+!data/models/calibration_v2.json
+!data/models/eval_test_v2.json
+frontend/
+package.json
+package-lock.json
 __pycache__/
 *.pyc
 .pytest_cache/

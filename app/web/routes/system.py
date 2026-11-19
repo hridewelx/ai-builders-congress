@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from ...core import db
+from ...services import detector
 from ..deps import require_user
 from ..pages import page
 from ..stats import demo_stats, load_model_card
@@ -27,4 +28,5 @@ def healthz():
 @router.get("/readyz")
 def readyz():
     db.one("SELECT 1")
-    return JSONResponse({"ready": True})
+    backend = detector.active_backend()
+    return JSONResponse({"ready": True, "detector": backend, "model": detector.MODEL_NAME})

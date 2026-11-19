@@ -1,0 +1,48 @@
+"""ONNX backend edge cases: clean fabric must return no proposals, not an error.
+
+The exported graph raises an ONNX Runtime reshape error when the ROI head sees a
+zero-row tensor (a perfectly flat image). The detector converts exactly that
+failure into "no proposals"; anything else must surface as a real error.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+from app.services import detector
+
+pytestmark = pytest.mark.skipif(
+    not Path(detector.ONNX_PATH).exists(), reason="no ONNX artifact in this checkout")
+
+
+@pytest.fixture()
+def onnx_backend(monkeypatch):
+    monkeypatch.setenv("LOTLINE_DETECTOR", "onnx")
+    detector._session = None
+    yield
+    detector._session = None
+
+
+def test_clean_flat_image_returns_no_proposals(onnx_backend):
+    flat = np.full((640, 640, 3), 128, dtype=np.uint8)
+    result = detector.detect(flat)
+    assert result["proposals"] == []
+    assert result["model"] == detector.MODEL_NAME
+
+
+def test_clean_texture_returns_no_proposals(onnx_backend):
+    rng = np.random.default_rng(0)
+    texture = rng.integers(100, 140, (640, 640, 3), dtype=np.uint8)
+    assert detector.detect(texture)["proposals"] == []
+
+
+def test_backend_reports_onnx_when_artifact_present(onnx_backend):
+    assert detector.active_backend() == "onnx"
+
+
+def test_missing_artifact_falls_back_to_numpy(monkeypatch):
+    monkeypatch.setenv("LOTLINE_DETECTOR", "auto")
+    monkeypatch.setattr(detector, "ONNX_PATH", "data/models/does-not-exist.onnx")
+    assert detector.active_backend() == "numpy"
