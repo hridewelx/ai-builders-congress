@@ -4,10 +4,17 @@
 {% import "_reason_codes.html" as reasons with context %}
 {% block title %}{{ lot.lot_code }}{% endblock %}
 {% block heading %}{{ lot.lot_code }}{% endblock %}
-{% block subheading %}{{ lot.buyer_name }} · {{ lot.product_name }} · {{ lot.color }} · {{ tr('lots.size') }} {{ lot.lot_size }}{% endblock %}
+{% block subheading %}{{ lot.buyer_name }} · {{ lot.product_name }} · {{ lot.color }} · {{ tr('lots.size') }} {{ lot.lot_size|num_grouped }}{% endblock %}
 
 {% block content %}
 {% include "_lotnav.html" %}
+
+{% if request.query_params.get('ok') == 'unchanged' %}
+<div class="note info lot-action-card">
+  {{ icons.icon('check-circle', 16) }}
+  <span>{{ tr('lot.no_changes') }}</span>
+</div>
+{% endif %}
 
 {# --- Derived Pipeline & Status Indicators --- #}
 {% set all_views = units|map(attribute='views')|sum(start=[]) %}
@@ -19,71 +26,119 @@
 {% set all_preds = all_views|map(attribute='predictions')|sum(start=[]) %}
 {% set second_opinions = all_preds|selectattr('second_review','equalto','requested')|list %}
 
+{# Step 1: AI Detection #}
 {% if not images_with_photo %}
-  {% set ai_state = 'pending' %}
+  {% set ai_state = 'not-started' %}
   {% set ai_val = '0 photos' if lang=='en' else '০ ছবি' %}
 {% elif pending_inferred %}
-  {% set ai_state = 'active' %}
-  {% set ai_val = (pending_inferred|length ~ ' queued') if lang=='en' else (pending_inferred|length ~ ' প্রক্রিয়াধীন') %}
+  {% set ai_state = 'in-progress' %}
+  {% set ai_val = (pending_inferred|length|num ~ ' queued') if lang=='en' else (pending_inferred|length|num ~ ' প্রক্রিয়াধীন') %}
 {% else %}
   {% set ai_state = 'done' %}
-  {% set ai_val = (ok_inferred|length ~ ' ok · ' ~ manual_inferred|length ~ ' manual') if lang=='en' else (ok_inferred|length ~ ' সফল · ' ~ manual_inferred|length ~ ' ম্যানুয়াল') %}
+  {% set ai_val = (ok_inferred|length|num ~ ' ok · ' ~ manual_inferred|length|num ~ ' manual') if lang=='en' else (ok_inferred|length|num ~ ' সফল · ' ~ manual_inferred|length|num ~ ' ম্যানুয়াল') %}
 {% endif %}
 
-{% if progress.views > 0 and progress.reviewed == progress.views %}
+{# Step 2: Human Review #}
+{% if not images_with_photo or progress.views == 0 %}
+  {% set rev_state = 'not-started' %}
+  {% set rev_val = tr('pipe.awaiting_photos') %}
+{% elif progress.reviewed == progress.views and progress.views > 0 %}
   {% set rev_state = 'done' %}
-  {% set rev_val = (progress.reviewed ~ ' / ' ~ progress.views ~ ' reviewed') if lang=='en' else (progress.reviewed ~ ' / ' ~ progress.views ~ ' পর্যালোচিত') %}
-{% elif progress.reviewed > 0 %}
-  {% set rev_state = 'active' %}
-  {% set rev_val = (progress.reviewed ~ ' / ' ~ progress.views ~ ' reviewed') if lang=='en' else (progress.reviewed ~ ' / ' ~ progress.views ~ ' পর্যালোচিত') %}
+  {% set rev_val = (progress.reviewed|num ~ ' / ' ~ progress.views|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
 {% else %}
-  {% set rev_state = 'pending' %}
-  {% set rev_val = ('0 / ' ~ progress.views ~ ' reviewed') if lang=='en' else ('০ / ' ~ progress.views ~ ' পর্যালোচিত') %}
+  {% set rev_state = 'in-progress' %}
+  {% set rev_val = (progress.reviewed|num ~ ' / ' ~ progress.views|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
 {% endif %}
 
-{% if decision %}
+{# Step 3: Decision Engine #}
+{% set missing_plan = (not plan_d) or (decision and 'HOLD_PLAN_MISSING' in decision.reasons) %}
+{% if missing_plan %}
+  {% set dec_state = 'blocked' %}
+  {% set dec_val = tr('pipe.blocked_no_plan') %}
+{% elif ai_state != 'done' or rev_state != 'done' %}
+  {% if decision %}
+    {% set dec_state = 'in-progress' %}
+    {% set dec_val = ('In progress: ' ~ tr('out.' ~ decision.outcome)) if lang=='en' else ('চলমান: ' ~ tr('out.' ~ decision.outcome)) %}
+  {% else %}
+    {% set dec_state = 'not-started' %}
+    {% set dec_val = tr('pipe.awaiting_review') %}
+  {% endif %}
+{% elif lot.status == 'decided' %}
+  {% set dec_state = 'done' %}
+  {% set dec_val = tr('out.' ~ (final or decision.outcome)) %}
+{% elif decision %}
   {% set dec_state = 'done' %}
   {% set dec_val = tr('out.' ~ (final or decision.outcome)) %}
 {% else %}
-  {% set dec_state = 'pending' %}
-  {% set dec_val = 'No decision' if lang=='en' else 'সিদ্ধান্ত নেই' %}
+  {% set dec_state = 'in-progress' %}
+  {% set dec_val = tr('pipe.ready_to_compute') %}
 {% endif %}
 
 {% set pipe_steps = [
-  {'label': '1. AI Detection' if lang=='en' else '১. এআই শনাক্তকরণ', 'value': ai_val, 'state': ai_state},
-  {'label': '2. Human Review' if lang=='en' else '২. মানুষ পর্যালোচনা', 'value': rev_val, 'state': rev_state},
-  {'label': '3. Decision Engine' if lang=='en' else '৩. নির্ধারক ইঞ্জিন', 'value': dec_val, 'state': dec_state}
+  {'label': tr('pipe.ai_detection'), 'value': ai_val, 'state': ai_state},
+  {'label': tr('pipe.human_review'), 'value': rev_val, 'state': rev_state},
+  {'label': tr('pipe.decision_engine'), 'value': dec_val, 'state': dec_state}
 ] %}
 
 {{ ui.pipeline_stepper(pipe_steps) }}
 
 {# --- Control Center Actions Bar & Status Chips --- #}
-<div class="card" style="margin-bottom:16px">
-  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      {{ ui.status_badge(lot.status, lot.status|capitalize) }}
+<div class="card lot-action-card">
+  <div class="pad-sm lot-action-bar">
+    <div class="lot-chips-row">
       {% if lot.status == 'decided' %}<span class="badge badge-neutral">v{{ lot.version }}</span>{% endif %}
       {% if manual_inferred|length > 0 %}
-      <span class="badge badge-warning" title="{{ 'Manual review active: zero proposals is not a pass' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা সক্রিয়' }}"><span class="dot"></span>{{ manual_inferred|length }} {{ 'manual review' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা' }}</span>
+      <span class="badge badge-warning" title="{{ 'Manual review active: zero proposals is not a pass' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা সক্রিয়' }}"><span class="dot" aria-hidden="true"></span>{{ manual_inferred|length|num }} {{ 'manual review' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা' }}</span>
       {% endif %}
       {% if retake_views|length > 0 %}
-      <span class="badge badge-danger"><span class="dot"></span>{{ retake_views|length }} {{ 'retake needed' if lang=='en' else 'পুনরায় ছবি দরকার' }}</span>
+      <span class="badge badge-danger"><span class="dot" aria-hidden="true"></span>{{ retake_views|length|num }} {{ 'retake needed' if lang=='en' else 'পুনরায় ছবি দরকার' }}</span>
       {% endif %}
       {% if second_opinions|length > 0 %}
-      <span class="badge badge-info"><span class="dot"></span>{{ second_opinions|length }} {{ 'second opinion pending' if lang=='en' else 'দ্বিতীয় মত বাকি' }}</span>
+      <span class="badge badge-info"><span class="dot" aria-hidden="true"></span>{{ second_opinions|length|num }} {{ 'second opinion pending' if lang=='en' else 'দ্বিতীয় মত বাকি' }}</span>
       {% endif %}
+      {% if all_preds|length > 0 %}
       {{ ui.ai_illustrative() }}
+      {% endif %}
     </div>
 
-    <div class="row" style="gap:8px;flex-wrap:wrap">
+    <div class="lot-cta-row">
       {% if can_write %}
-      <a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
-      <a class="btn sm primary" href="/lots/{{ lot.id }}/review">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></a>
-      <form method="post" action="/lots/{{ lot.id }}/decisions" style="margin:0">
-        <input type="hidden" name="csrf" value="{{ csrf }}">
-        <button class="btn sm subtle" type="submit">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
-      </form>
+        {# Primary CTA State 1: No garments -> Upload is primary, review disabled #}
+        {% if not units %}
+          <a class="btn sm primary" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <button class="btn sm ghost disabled" type="button" disabled title="{{ 'Register garments and upload photos before review' if lang=='en' else 'পর্যালোচনার আগে গার্মেন্ট যোগ ও ছবি আপলোড করুন' }}">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></button>
+          <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+
+        {# Primary CTA State 2: Garments present but unreviewed photos -> Review is primary #}
+        {% elif progress.views == 0 or progress.reviewed < progress.views %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <a class="btn sm primary" href="/lots/{{ lot.id }}/review">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></a>
+          {% if not plan_d %}
+            <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% elif not images_with_photo %}
+            <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% else %}
+            <form method="post" action="/lots/{{ lot.id }}/decisions">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button class="btn sm subtle" type="submit">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+            </form>
+          {% endif %}
+
+        {# Primary CTA State 3: All photos reviewed -> Compute decision is primary #}
+        {% else %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <a class="btn sm" href="/lots/{{ lot.id }}/review">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></a>
+          {% if not plan_d %}
+            <button class="btn sm primary disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% else %}
+            <form method="post" action="/lots/{{ lot.id }}/decisions">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button class="btn sm primary" type="submit">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+            </form>
+          {% endif %}
+        {% endif %}
       {% endif %}
+
       {% if user.role != 'admin' %}
       <a class="btn sm ghost" href="/lots/{{ lot.id }}/plan">{{ icons.icon('sliders', 14) }}<span>{{ tr('lot.plan') }}</span></a>
       <a class="btn sm ghost" href="/lots/{{ lot.id }}/report">{{ icons.icon('file-text', 14) }}<span>{{ tr('lot.report') }}</span></a>
@@ -93,41 +148,39 @@
 </div>
 
 {# --- Top KPI Summary Grid --- #}
-<div class="grid cols-4 kpi-grid" style="margin-bottom:20px">
+<div class="grid cols-4 kpi-grid kpi-grid-lot">
   <div class="kpi {{ 'accent' if lot.status=='open' }}">
     <div class="kpi-head">
       <div class="lbl">{{ tr('common.status') }}</div>
       {% if lot.status == 'decided' %}
         <span class="kpi-badge">v{{ lot.version }}</span>
-      {% else %}
-        <span class="kpi-badge">{{ 'Active' if lang=='en' else 'সক্রিয়' }}</span>
       {% endif %}
     </div>
-    <div class="row" style="margin:8px 0 4px">
-      {{ ui.status_badge(lot.status, lot.status|capitalize) }}
+    <div class="kpi-row-status">
+      {{ ui.status_badge(lot.status) }}
     </div>
-    <div class="meta"><span class="kpi-hint">{{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ lot.lot_size }}</b> pcs</span></div>
+    <div class="meta"><span class="kpi-hint">{{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ lot.lot_size|num_grouped }}</b> {{ tr('common.pcs') }}</span></div>
   </div>
 
   <div class="kpi is-info">
     <div class="kpi-head">
       <div class="lbl">{{ tr('lot.units_registered') }}</div>
-      <span class="kpi-badge">{{ progress.pct_units }}%</span>
+      <span class="kpi-badge">{{ progress.pct_units|num }}%</span>
     </div>
-    <div class="n">{{ progress.units }}<small> / {{ progress.required_units or '—' }}</small></div>
-    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
-      <i style="display:block;height:100%;width:{{ progress.pct_units }}%;background:linear-gradient(90deg, #3b82f6, #6366f1);border-radius:999px"></i>
+    <div class="n">{{ progress.units|num }}<small> / {{ progress.required_units|num if progress.required_units else '—' }}</small></div>
+    <div class="bar bar-lime">
+      <i style="width:{{ progress.pct_units }}%"></i>
     </div>
   </div>
 
   <div class="kpi is-success">
     <div class="kpi-head">
       <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
-      <span class="kpi-badge">{{ progress.pct_views }}%</span>
+      <span class="kpi-badge">{{ progress.pct_views|num }}%</span>
     </div>
-    <div class="n">{{ progress.reviewed }}<small> / {{ progress.views }}</small></div>
-    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
-      <i style="display:block;height:100%;width:{{ progress.pct_views }}%;background:linear-gradient(90deg, #65a30d, #84cc16);border-radius:999px"></i>
+    <div class="n">{{ progress.reviewed|num }}<small> / {{ progress.views|num }}</small></div>
+    <div class="bar bar-lime">
+      <i style="width:{{ progress.pct_views }}%"></i>
     </div>
   </div>
 
@@ -137,31 +190,31 @@
       {% if decision %}
         <span class="kpi-badge">{{ tr('out.' ~ (final or decision.outcome)) }}</span>
       {% else %}
-        <span class="kpi-badge">{{ 'Pending' if lang=='en' else 'মুলতুবি' }}</span>
+        <span class="kpi-badge">{{ tr('status.pending') }}</span>
       {% endif %}
     </div>
     {% if decision %}
-    <div style="margin-top:6px;font-size:12px;line-height:1.4">
-      <div class="row" style="gap:6px;align-items:center">
-        <span class="dim" style="font-size:11px">{{ 'System recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}:</span>
+    <div class="disp-kpi-box">
+      <div class="disp-kpi-row">
+        <span class="dim">{{ 'System recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}:</span>
         {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
       </div>
-      <div class="row" style="gap:6px;align-items:center;margin-top:4px">
-        <span class="dim" style="font-size:11px;font-weight:600">{{ 'Final disposition' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত' }}:</span>
+      <div class="disp-kpi-row font-medium">
+        <span class="dim font-bold">{{ tr('dash.final_disposition' if lot.status == 'decided' else 'dash.current_decision') }}</span>
         {{ ui.decision_badge(final, tr('out.' ~ final)) }}
       </div>
       {% if override %}
-        <div class="small dim" style="margin-top:3px">
+        <div class="disp-kpi-sub">
           {% if override.is_effective %}
-            <span class="badge ghost" style="font-size:10px">{{ tr('dec.overridden') }}</span>
+            <span class="badge ghost">{{ tr('dec.overridden') }}</span>
           {% else %}
-            <span class="badge HOLD" style="font-size:10px">{{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}</span>
+            <span class="badge HOLD"><span class="dot" aria-hidden="true"></span>{{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}</span>
           {% endif %}
         </div>
       {% endif %}
     </div>
     {% else %}
-    <div class="n" style="font-size:22px;color:var(--dim);margin:6px 0 2px">—</div>
+    <div class="n disp-empty-n">—</div>
     <div class="meta"><span class="kpi-hint">{{ tr('dec.none') }}</span></div>
     {% endif %}
   </div>
@@ -174,22 +227,19 @@
       <div class="card-h">
         <h2>{{ tr('common.units') }}</h2>
         <div class="right">
-          {% if can_write %}
-          <a class="btn sm" href="/lots/{{ lot.id }}/capture">+ {{ tr('cap.upload') }}</a>
-          <a class="btn sm primary" href="/lots/{{ lot.id }}/review">{{ tr('lot.review') }}</a>
-          {% endif %}
+          <span class="small dim">{{ units|length|num }} {{ tr('common.units')|lower }}</span>
         </div>
       </div>
       <div class="pad-sm">
         {% if units %}
-        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">
+        <div class="grid garment-units-grid">
           {% for u in units %}
-          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
-            <div class="t between" style="margin-bottom:8px">
+          <div class="unit garment-unit-card">
+            <div class="garment-unit-head">
               <b>{{ u.garment_code }}</b>
-              <span class="small dim">{{ u.views|length }} {% if lang=='en' %}{{ 'views' if u.views|length!=1 else 'view' }}{% else %}ভিউ{% endif %}</span>
+              <span class="small dim">{{ u.views|length|num }} {% if lang=='en' %}{{ 'views' if u.views|length!=1 else 'view' }}{% else %}ভিউ{% endif %}</span>
             </div>
-            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+            <div class="views garment-views-row">
               {% for v in u.views %}
                 {% if v.image %}
                   {% set st = v.review_state %}
@@ -199,7 +249,7 @@
                      title="{{ 'Review photo' if lang=='en' else 'ছবি পর্যালোচনা' }}">
                     {{ tr('cap.' ~ v.side) }}
                     {% if st == 'confirmed_defects' %}
-                      ● {{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length }}
+                      ● {{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length|num }}
                     {% elif st == 'reviewed_clean' %}
                       ✓
                     {% elif st == 'needs_retake' %}
@@ -219,7 +269,7 @@
           {% endfor %}
         </div>
         {% else %}
-        {{ ui.empty_state(tr('lot.no_units'), tr('cap.guidance'), action_label=tr('cap.upload'), action_href='/lots/' ~ lot.id ~ '/capture', icon_name='camera') }}
+        {{ ui.empty_state(tr('lot.no_units'), tr('lot.no_units_body'), action_label=tr('cap.upload'), action_href='/lots/' ~ lot.id ~ '/capture', icon_name='camera') }}
         {% endif %}
       </div>
       {% if lot.status == 'decided' %}
@@ -233,32 +283,32 @@
         <h2>{{ tr('dec.title') }}</h2>
         <div class="right">
           {% if user.role != 'admin' %}
-          <a class="btn sm ghost" href="/lots/{{ lot.id }}/decision">{{ tr('common.open') }} →</a>
+          <a class="link-quiet" href="/lots/{{ lot.id }}/decision">{{ tr('common.open') }} →</a>
           {% endif %}
         </div>
       </div>
       <div class="pad-sm">
         {% if decision %}
-        <div class="row" style="gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <div class="dec-summary-row">
           <div>
             <div class="small dim" style="margin-bottom:2px">{{ 'Recommendation' if lang=='en' else 'সুপারিশ' }}</div>
             {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
           </div>
           <div>
-            <div class="small dim" style="margin-bottom:2px">{{ 'Disposition' if lang=='en' else 'চূড়ান্ত' }}</div>
+            <div class="small dim" style="margin-bottom:2px">{{ tr('dec.final_disposition' if lot.status == 'decided' else 'dec.current_decision') }}</div>
             {{ ui.decision_badge(final, tr('out.' ~ final)) }}
           </div>
-          <span class="small dim" style="margin-left:auto">#{{ decision.sequence }} · {{ decision.created_at }}</span>
+          <span class="small dim" style="margin-left:auto">#{{ decision.sequence|num }} · {{ decision.created_at|dt_local }}</span>
           {% if override %}
             {% if override.is_effective %}
             {{ ui.badge(tr('dec.overridden'), 'pending', dot=False) }}
             {% else %}
-            <span class="badge badge-warning"><span class="dot"></span>{{ 'Approval pending' if lang=='en' else 'অনুমোদন বাকি' }}</span>
+            <span class="badge badge-warning"><span class="dot" aria-hidden="true"></span>{{ 'Approval pending' if lang=='en' else 'অনুমোদন বাকি' }}</span>
             {% endif %}
           {% endif %}
         </div>
 
-        <div class="reason-grid" style="margin-top:11px">
+        <div class="reason-grid mt-6">
           {% for r in (decision.reasons|fromjson) %}
           <div class="reason-row">
             <div class="reason-row-head">
@@ -271,14 +321,20 @@
           {% endfor %}
         </div>
         {% else %}
-        <div class="empty" style="padding:18px">
+        <div class="empty dec-empty-box">
           <b>{{ tr('dec.none') }}</b>
           <p class="small dim" style="margin:6px 0 12px">{{ tr('dec.compute') }}</p>
           {% if can_write %}
-          <form method="post" action="/lots/{{ lot.id }}/decisions">
-            <input type="hidden" name="csrf" value="{{ csrf }}">
-            <button class="btn sm primary" type="submit">{{ tr('dec.compute') }}</button>
-          </form>
+            {% if not plan_d %}
+              <button class="btn sm primary disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ tr('dec.compute') }}</button>
+            {% elif not images_with_photo %}
+              <button class="btn sm primary disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ tr('dec.compute') }}</button>
+            {% else %}
+              <form method="post" action="/lots/{{ lot.id }}/decisions">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <button class="btn sm primary" type="submit">{{ tr('dec.compute') }}</button>
+              </form>
+            {% endif %}
           {% endif %}
         </div>
         {% endif %}
@@ -292,36 +348,56 @@
       <div class="card-h">
         <h2>{{ tr('lot.plan') }}</h2>
         <div class="right">
-          {% if user.role == 'supervisor' and lot.status != 'decided' %}
+          {% if user.role == 'supervisor' and lot.status != 'decided' and plan_d %}
           <a class="btn sm" href="/lots/{{ lot.id }}/plan">{{ tr('common.open') }}</a>
           {% endif %}
         </div>
       </div>
       <div class="pad-sm">
         {% if plan_d %}
-        <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <span class="chip">n = {{ plan_d.n }}</span>
+        <div class="plan-chips-row">
+          <span class="chip">n = {{ plan_d.n|num }}</span>
           <span class="chip">{{ plan_d.counting_mode }}</span>
           {% if plan_d.is_demo %}<span class="badge badge-warning">TEST CONFIGURATION</span>{% endif %}
         </div>
-        <table class="table" style="font-size:12.5px">
+        <table class="table plan-table">
           <thead><tr><th>{{ 'Class' if lang=='en' else 'শ্রেণি' }}</th><th class="num">Ac</th><th class="num">Re</th></tr></thead>
           <tbody>
             {% for c in ['critical','major','minor'] %}
             <tr>
               <td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
-              <td class="num">{{ plan_d[c].ac }}</td>
-              <td class="num">{{ plan_d[c].re }}</td>
+              <td class="num">{{ plan_d[c].ac|num }}</td>
+              <td class="num">{{ plan_d[c].re|num }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <div class="note warn" style="margin-top:10px">
+        <div class="note warn plan-note-warn">
           <b>{{ 'Assumption' if lang=='en' else 'অনুমান' }}:</b> {{ tr('lot.plan_assumption') }}
           <div class="small dim" style="margin-top:3px">Normal inspection · Single sampling · General Level II (ISO 2859-1 / ANSI ASQ Z1.4)</div>
         </div>
         {% else %}
-        <div class="note bad">{{ tr('lot.plan_missing') }}</div>
+          {# Role-aware empty state for sampling plan #}
+          {% if user.role == 'supervisor' %}
+          <div class="empty dec-empty-box">
+            <b>{{ tr('lot.plan_missing') }}</b>
+            <p class="small dim" style="margin:6px 0 14px">{{ 'Configure an AQL sampling plan to enable deterministic lot decisions.' if lang=='en' else 'ডিটারমিনিস্টিক সিদ্ধান্ত গণনার জন্য AQL স্যাম্পলিং প্ল্যান কনফিগার করুন।' }}</p>
+            {% if lot.status != 'decided' %}
+            <a class="btn sm primary" href="/lots/{{ lot.id }}/plan">
+              {{ icons.icon('plus', 14) }}
+              <span>{{ tr('lot.create_plan') }}</span>
+            </a>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="note warn" style="display:flex;align-items:flex-start;gap:10px">
+            {{ icons.icon('clock', 18) }}
+            <div>
+              <b>{{ tr('lot.awaiting_supervisor') }}</b>
+              <div class="small dim" style="margin-top:3px">{{ tr('lot.awaiting_supervisor_desc') }}</div>
+            </div>
+          </div>
+          {% endif %}
         {% endif %}
       </div>
     </div>
@@ -331,21 +407,23 @@
       <div class="card-h">
         <h2>{{ tr('lot.nonvisual') }}</h2>
         <div class="right">
-          <span class="badge {{ 'ACCEPT' if lot.critical_nonvisual_status in ('done','not_required') else ('REJECT' if lot.critical_nonvisual_status=='failed' else 'HOLD') }}">
-            <span class="dot"></span>{{ lot.critical_nonvisual_status }}
+          {% set nv_tone = 'ACCEPT' if lot.critical_nonvisual_status in ('done','not_required') else ('REJECT' if lot.critical_nonvisual_status=='failed' else 'HOLD') %}
+          <span class="badge {{ nv_tone }}">
+            <span class="dot" aria-hidden="true"></span>
+            {{ tr('nv.' ~ lot.critical_nonvisual_status) }}
           </span>
         </div>
       </div>
       <div class="pad-sm">
         <div class="small dim" style="margin-bottom:9px">{{ tr('lot.nonvisual_hint') }}</div>
         {% if user.role == 'supervisor' and lot.status != 'decided' %}
-        <form method="post" action="/lots/{{ lot.id }}/nonvisual" class="stack" style="gap:8px">
+        <form method="post" action="/lots/{{ lot.id }}/nonvisual" class="nv-form">
           <input type="hidden" name="csrf" value="{{ csrf }}">
           <div class="field">
             <label for="nv-status">{{ tr('common.status') }}</label>
             <select id="nv-status" name="status">
               {% for s in ['pending','done','not_required','failed'] %}
-              <option value="{{ s }}" {{ 'selected' if lot.critical_nonvisual_status==s }}>{{ s }}</option>
+              <option value="{{ s }}" {{ 'selected' if lot.critical_nonvisual_status==s }}>{{ tr('nv.' ~ s) }}</option>
               {% endfor %}
             </select>
           </div>
@@ -356,7 +434,12 @@
           <button class="btn sm primary">{{ tr('common.save') }}</button>
         </form>
         {% elif lot.nonvisual_note %}
-        <div class="note" style="margin-top:9px">{{ lot.nonvisual_note }}</div>
+        <div class="note nv-note-box">{{ lot.nonvisual_note }}</div>
+        {% else %}
+        <div class="note nv-note-box">
+          <b>{{ 'Recorded check status' if lang=='en' else 'নথিভুক্ত চেকের অবস্থা' }}:</b> {{ tr('nv.' ~ lot.critical_nonvisual_status) }}
+          <div class="small dim" style="margin-top:3px">{{ tr('lot.supervisor_only_nv') }}</div>
+        </div>
         {% endif %}
       </div>
     </div>
@@ -365,12 +448,17 @@
     <div class="card" id="history">
       <div class="card-h">
         <h2>{{ tr('lot.timeline') }}</h2>
-        <div class="right"><span class="small dim">{{ audit|length }} {{ 'events' if lang=='en' else 'ইভেন্ট' }}</span></div>
+        <div class="right"><span class="small dim">{{ audit|length|num }} {{ 'events' if lang=='en' else 'টি ইভেন্ট' }}</span></div>
       </div>
       <div class="pad-sm">
         {% set timeline_items = [] %}
         {% for a in audit[:12] %}
-          {% set _ = timeline_items.append({'title': a.action, 'meta': (a.actor_label or a.actor_id|string) ~ ' · ' ~ a.at}) %}
+          {% set _ = timeline_items.append({
+            'key': a.action,
+            'title': event_label(a.action),
+            'actor': a.actor_label or ('User #' ~ a.actor_id|string),
+            'datetime': a.at
+          }) %}
         {% endfor %}
         {{ ui.timeline(timeline_items) }}
       </div>

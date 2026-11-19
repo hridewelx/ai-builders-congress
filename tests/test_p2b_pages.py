@@ -58,13 +58,18 @@ def test_plan_page_supervisor_and_inspector():
         scope = {"type": "http", "method": "GET", "path": f"/lots/{lot_id}/plan", "headers": [(b"cookie", f"ll_lang={lang}".encode())], "query_string": b""}
         req = Request(scope)
 
-        # 1. Supervisor sees form and ISO assumptions
+        # 1. Supervisor sees form, demo preset, confirmation, preview card, and assumptions
         c_sup = ctx(req, active="lots", user=user_sup, lot=L, plan=plan, plan_d=plan_d, is_supervisor=True, locked=False)
         html_sup = templates.TemplateResponse(req, "plan.html", c_sup).body.decode("utf-8")
         assert "pipeline" in html_sup
         assert "planForm" in html_sup
         assert "highest_class_only" in html_sup
         assert "every_class" in html_sup
+        assert "btnDemoPreset" in html_sup
+        assert "confirmed" in html_sup
+        assert "planPreviewCard" in html_sup
+        assert "unreferencedNotice" in html_sup
+        assert ("Gate: Sampling Plan" in html_sup) or ("গেট: স্যাম্পলিং প্ল্যান" in html_sup)
         assert "Single sampling" in html_sup or "সিঙ্গেল স্যাম্পলিং" in html_sup
 
         # 2. Inspector sees read-only notice and NO edit form
@@ -73,6 +78,13 @@ def test_plan_page_supervisor_and_inspector():
         assert "pipeline" in html_insp
         assert ("Inspector view (read-only)" in html_insp) or ("ইন্সপেক্টর ভিউ" in html_insp)
         assert "planForm" not in html_insp
+
+    # 3. Lot without plan (Lot 5) starts with empty form fields (no prefilled 8 or 480)
+    L5 = service.lot(5)
+    c_l5 = ctx(req, active="lots", user=user_sup, lot=L5, plan=None, plan_d=None, is_supervisor=True, locked=False)
+    html_l5 = templates.TemplateResponse(req, "plan.html", c_l5).body.decode("utf-8")
+    assert 'value=""' in html_l5 or 'value=' not in html_l5.split('id="plan-n"')[1].split('>')[0] or 'value=""' in html_l5.split('id="plan-n"')[1].split('>')[0]
+    assert 'HOLD_PLAN_MISSING' in html_l5
 
 def test_decision_center_outcomes():
     """Verify Decision Center renders all four outcomes (ACCEPT, REJECT, HOLD, ESCALATE)."""

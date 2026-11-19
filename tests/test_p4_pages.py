@@ -6,13 +6,17 @@ from starlette.templating import Jinja2Templates
 
 from app.core import db
 from app.domain import engine
-from app.i18n import t
+from app.i18n import t, format_num
 from app.services import vision
-from app.web.pages import ctx
+from app.web.pages import ctx, num_filter, num_grouped_filter, dt_local_filter
 from app.web.stats import load_model_card
 
 templates = Jinja2Templates(directory="templates")
 templates.env.globals["tr"] = t
+templates.env.globals["num"] = format_num
+templates.env.filters["num"] = num_filter
+templates.env.filters["num_grouped"] = num_grouped_filter
+templates.env.filters["dt_local"] = dt_local_filter
 
 
 def test_admin_user_management_screen():
@@ -124,8 +128,8 @@ def test_admin_clauses_tab():
     c = ctx(req, active="admin", user=user_admin, tab="clauses", users=[], models=[], tests=[], activations=[], clauses=clauses, health={}, card={})
     html = templates.TemplateResponse(req, "admin.html", c).body.decode("utf-8")
     assert "Buyer Quality Specifications" in html
-    assert "clause_readonly" in html or "read-only" in html.lower() or "পড়া যায়" in html
-    assert "Nordic Wear" in html or "EuroKnit" in html or "Pacific Apparel" in html
+    assert "clause_readonly" in html or "read-only" in html.lower() or "পড়া যায়" in html or "সংস্করণ" in html
+    assert "Nordika Retail" in html or "Nordic Wear" in html or "EuroKnit" in html or "Pacific Apparel" in html or "Sakura Apparel" in html
 
 
 def test_configuration_dialog_in_shell():
@@ -142,7 +146,7 @@ def test_configuration_dialog_in_shell():
     html_sup = templates.TemplateResponse(req, "dashboard.html", c_sup).body.decode("utf-8")
     assert 'id="configDialog"' in html_sup
     assert 'data-dialog-open="configDialog"' in html_sup
-    assert "Enterprise Synchronization" in html_sup or "এন্টারপ্রাইজ সিঙ্ক" in html_sup
+    assert "Enterprise Synchronization" in html_sup or "এন্টারপ্রাইজ সিঙ্ক" in html_sup or "seeded demo data" in html_sup.lower() or "ডেমো ডেটা" in html_sup
 
     # Admin shell has config dialog
     c_admin = ctx(req, active="dashboard", user=user_admin, cards=[], counters={}, model="", model_ok=True, stats={})

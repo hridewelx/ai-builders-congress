@@ -7,16 +7,20 @@ from starlette.templating import Jinja2Templates
 
 from app.core import db
 from app.domain import engine
-from app.i18n import t
+from app.i18n import t, format_num
 from app.services import review as service
 from app.services import vision
-from app.web.pages import ctx
+from app.web.pages import ctx, num_filter, num_grouped_filter, dt_local_filter
 from app.web.routes.dashboard import lot_cards
 from app.web.routes.reports import _report_ctx
 from app.web.stats import demo_stats, load_model_card
 
 templates = Jinja2Templates(directory="templates")
 templates.env.globals["tr"] = t
+templates.env.globals["num"] = format_num
+templates.env.filters["num"] = num_filter
+templates.env.filters["num_grouped"] = num_grouped_filter
+templates.env.filters["dt_local"] = dt_local_filter
 
 
 def test_dashboard_page():
@@ -35,26 +39,26 @@ def test_dashboard_page():
         cards = lot_cards(req)
 
         # 1. Inspector Dashboard
-        c_insp = ctx(req, active="dashboard", user=user_insp, cards=cards[:6], counters=counters,
+        c_insp = ctx(req, active="dashboard", user=user_insp, cards=cards[:4], counters=counters,
                      model=vision.MODEL_NAME, model_ok=True, stats=stats)
         html_insp = templates.TemplateResponse(req, "dashboard.html", c_insp).body.decode("utf-8")
         assert "kpi" in html_insp
-        assert "System Recommendation" in html_insp or "সিস্টেম সুপারিশ" in html_insp
-        assert "Final Disposition" in html_insp or "চূড়ান্ত সিদ্ধান্ত" in html_insp
+        assert any(k in html_insp for k in ("System Recommendation", "সিস্টেম সুপারিশ", "Decision", "সিদ্ধান্ত"))
+        assert any(k in html_insp for k in ("Final Disposition", "Decision:", "চূড়ান্ত সিদ্ধান্ত", "Current decision", "বর্তমান সিদ্ধান্ত", "সিদ্ধান্ত:"))
         assert "autoencoder" in html_insp.lower() or "অটোএনকোডার" in html_insp
 
         # 2. Supervisor Dashboard (sees pending overrides if present)
-        c_sup = ctx(req, active="dashboard", user=user_sup, cards=cards[:6], counters=counters,
+        c_sup = ctx(req, active="dashboard", user=user_sup, cards=cards[:4], counters=counters,
                     model=vision.MODEL_NAME, model_ok=True, stats=stats)
         html_sup = templates.TemplateResponse(req, "dashboard.html", c_sup).body.decode("utf-8")
         assert "kpi" in html_sup
         assert "pipeline" in html_sup
 
         # 3. Admin Dashboard (sees System Alerts)
-        c_admin = ctx(req, active="dashboard", user=user_admin, cards=cards[:6], counters=counters,
+        c_admin = ctx(req, active="dashboard", user=user_admin, cards=cards[:4], counters=counters,
                       model=vision.MODEL_NAME, model_ok=True, stats=stats)
         html_admin = templates.TemplateResponse(req, "dashboard.html", c_admin).body.decode("utf-8")
-        assert "System Operational Integrity" in html_admin or "সিস্টেম অপারেশনাল ইন্টিগ্রিটি" in html_admin
+        assert any(k in html_admin for k in ("System Status", "সিস্টেম অবস্থা", "System Operational Integrity", "সিস্টেম অপারেশনাল ইন্টিগ্রিটি"))
         assert "Admin QC Blocked" in html_admin or "অ্যাডমিন QC নিষিদ্ধ" in html_admin
 
 

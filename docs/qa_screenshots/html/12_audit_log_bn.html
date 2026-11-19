@@ -1,0 +1,2746 @@
+
+
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>অডিট লগ · Lotline</title>
+  <meta name="description" content="লটলাইন — যাচাইযোগ্য এআই-সহায়তাপ্রাপ্ত নিটওয়্যার লট গ্রহণ। এআই প্রস্তাব করে, মানুষ নিশ্চিত করে, নির্ধারক ইঞ্জিন সিদ্ধান্ত দেয়।">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">মূল বিষয়বস্তুতে যান</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="প্রধান নেভিগেশন">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="সাইডবার ছোট করুন" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="মেনু বন্ধ করুন">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="প্রধান">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">ড্যাশবোর্ড</span>
+        </a>
+        <a href="/lots" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">লট</span>
+        </a>
+      </div>
+
+      
+      <div class="nav-group">
+        <div class="nav-label">ওয়ার্কস্পেস</div>
+        <button class="nav-item" type="button" data-dialog-open="configDialog" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+<span class="lbl">কনফিগারেশন</span>
+          <span class="nav-soon" style="background:var(--subtle);color:var(--text);font-weight:600">ভিউ</span>
+        </button>
+      </div>
+      
+
+      
+      <div class="nav-group">
+        <div class="nav-label">তদারকি</div>
+        
+        <a href="/audit" class="on" aria-current="page">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></svg>
+<span class="lbl">অডিট লগ</span>
+        </a>
+        
+        
+        <a href="/admin?tab=users" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></svg>
+<span class="lbl">ব্যবহারকারী ব্যবস্থাপনা</span>
+        </a>
+        
+      </div>
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>এআই কখনো লট অনুমোদন করে না।</b>
+      প্রতিটি গণনা, কারণ ও ওভাররাইড রেকর্ড হয়।
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">N</span>
+      <div class="who">
+        <b>Nusrat Jahan</b>
+        <span>অ্যাডমিন</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="ব্রেডক্রাম্ব">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>অডিট লগ</span>
+          
+        </nav>
+        <h1>অডিট লগ</h1>
+        <div class="sub">শুধু যোগ করা যায়। কোনো ভূমিকা অডিট রেকর্ড সম্পাদনা বা মুছতে পারে না।</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>ডেমো ডেটা · স্টেজ করা ছবি
+</span></span>
+        <a class="lang-link" href="/lang/en?next=/audit" aria-label="Switch to English">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>English</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="অ্যাকাউন্ট মেনু">
+            <span class="avatar" aria-hidden="true">N</span>
+            <span class="user-name">Nusrat Jahan</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Nusrat Jahan</b>
+              <span>nusrat@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+কীভাবে কাজ করে</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+সাইন আউট</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+
+<div class="card" style="margin-bottom:18px">
+  <div class="pad-sm">
+    <form method="get" action="/audit" class="inline" style="flex-wrap:wrap;gap:12px;align-items:flex-end">
+      <div class="field" style="flex:3;min-width:260px;margin:0">
+        <label for="audit-q">খুঁজুন</label>
+        <input id="audit-q" name="q" value="" placeholder="অ্যাকশন বা ব্যবহারকারীর নাম দিয়ে খুঁজুন...">
+      </div>
+
+      <div class="btnrow" style="margin:0;gap:8px">
+        <button class="btn primary" type="submit">ফিল্টার</button>
+        
+      </div>
+
+      
+      <div class="right" style="margin-left:auto">
+        <a class="btn primary" href="/audit.csv" style="display:inline-flex;align-items:center;gap:6px">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></svg>
+
+          <span>অপরিবর্তনীয় সিএসভি ডাউনলোড</span>
+        </a>
+      </div>
+      
+    </form>
+  </div>
+</div>
+
+
+<div class="card">
+  <div class="card-h" style="justify-content:space-between">
+    <div style="font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px">
+      <span>অডিট লগ</span>
+      <span class="badge ghost" style="font-size:11px">50 টি ইভেন্ট সংরক্ষিত</span>
+    </div>
+    <div class="right">
+      <button type="button" class="btn sm ghost" id="toggleAuditDetails" style="display:inline-flex;align-items:center;gap:6px">
+        <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>সব পেলোড টগল করুন</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="tblwrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th style="width:170px">সময়</th>
+          <th style="width:160px">কর্তা</th>
+          <th style="width:180px">কার্যক্রম</th>
+          <th style="width:130px">সত্তা</th>
+          <th>অডিট পেলোড (আগে → পরে)</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            410
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:34:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#17</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            409
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:34:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#16</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            408
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:34:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#15</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            407
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:34:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#14</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            406
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:34:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#13</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            405
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:27:27Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#a1a1c983bb879db6ed84c49b1f269a4e</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            404
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:09Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            403
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:09Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#bece0eebd502f2d0a97cfa274ea8ec4a</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            402
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:09Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#a43eba5ee77d86aac7de0e54854eab44</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            401
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:09Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            400
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#2a76515f6db12e962bddf9d3fc632b62</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            399
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            398
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            397
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#aee772992b3f6bb6aaa1f2cca0670a59</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            396
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;inspector&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            395
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;inspector&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            394
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:26:08Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#111166333b424c98c9abe2101fc2c8d8</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            393
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:25:34Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#afc4bafebaef0c91681b750b748feaef</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            392
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:23:34Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">session.destroyed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#936542d52505148896c1aa71b9f2591a</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            391
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:23:26Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#12</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            389
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T12:19:23Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#936542d52505148896c1aa71b9f2591a</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            388
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:58:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#9ca320f0efe31583bdae03bbfda89c15</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            387
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:50:15Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">session.destroyed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#df5f106d852e81cb96972a86cf38fdc5</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            386
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:44:57Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>decision.computed</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">decision</span>
+            
+            <span class="dim mono">#11</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;outcome&#39;: &#39;HOLD&#39;, &#39;reasons&#39;: [&#39;HOLD_PLAN_MISSING&#39;], &#39;counts&#39;: {&#39;critical&#39;: 0, &#39;major&#39;: 0, &#39;minor&#39;: 0}}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            385
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:43:51Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>unit.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">lot</span>
+            
+            <span class="dim mono">#11</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;garment&#39;: &#39;G-01&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            384
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:43:36Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>lot.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">lot</span>
+            
+            <span class="dim mono">#11</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;lot_code&#39;: &#39;SDDG&#39;, &#39;lot_size&#39;: 239}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            383
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            382
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#25661a10f29b609f07309d496cc7a62f</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            381
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#74b096f00f28ed6ebdfabfd3f271cf8b</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            380
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            379
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#1a61e7d3c0cca44fc05924db9dacfd0c</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            378
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            377
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            376
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#49e50253914a9fd8465c42a594c8561a</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            375
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;inspector&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            374
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;inspector&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            373
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:29Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#bb9858d86d42a5d00a28636925dbd607</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            372
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:37:16Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>unit.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">lot</span>
+            
+            <span class="dim mono">#10</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;garment&#39;: &#39;G-01&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            371
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:36:23Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>lot.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">lot</span>
+            
+            <span class="dim mono">#10</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;lot_code&#39;: &#39;SDF&#39;, &#39;lot_size&#39;: 240}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            370
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:36:03Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">4</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#30039dbee15295cc7e0289688b3fb938</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            369
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:34:53Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">view.needs_retake</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">image</span>
+            
+            <span class="dim mono">#59</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            368
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:18Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            367
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:18Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#329f0b36c562829f0b9dc0ebdc829eb9</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            366
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#95d5664a3316404063707d9750a68224</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            365
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Nadia Rahman</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ghost" style="font-size:11px">audit.exported</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">audit_event</span>
+            
+            <span class="dim mono">#all</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            364
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">1</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#31fb523f21c7253efb78483d9a3d0ed2</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            363
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            362
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Farhan Chowdhury</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;supervisor&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            361
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">2</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge ACCEPT" style="font-size:11px"><span class="dot"></span>session.created</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">user_session</span>
+            
+            <span class="dim mono">#c18fb19e27a8b19d0992b2a26baee66e</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <span class="dim mono small">—</span>
+            
+          </td>
+        </tr>
+        
+        
+        <tr style="background:rgba(214,69,69,0.03)">
+          
+          <td class="dim mono font-mono" style="font-size:12px">
+            360
+          </td>
+
+          
+          <td class="small dim mono font-mono" style="white-space:nowrap;font-size:11.5px">
+            2026-11-18T11:31:17Z
+          </td>
+
+          
+          <td>
+            <div style="font-weight:600;font-size:13px">Rakib Hasan</div>
+            
+          </td>
+
+          
+          <td>
+            
+              <span class="badge REJECT" style="font-size:11px"><span class="dot"></span>request.denied</span>
+            
+          </td>
+
+          
+          <td class="small">
+            <span class="mono" style="font-weight:600">route</span>
+            
+            <span class="dim mono">#/lots/1</span>
+            
+          </td>
+
+          
+          <td style="max-width:440px">
+            
+            <details style="cursor:pointer">
+              <summary class="small" style="color:var(--text);font-weight:550;display:inline-flex;align-items:center;gap:4px">
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+                <span>
+                  
+                    পেলোড দেখুন
+                  
+                </span>
+              </summary>
+              <div style="margin-top:8px;padding:8px 12px;background:var(--subtle);border-radius:var(--radius-sm);border:1px solid var(--line);font-size:11.5px">
+                
+                
+                <div>
+                  <span class="small dim" style="font-weight:600;color:var(--success)">AFTER:</span>
+                  <pre class="mono font-mono" style="margin:4px 0;white-space:pre-wrap;color:var(--text);font-size:11px">{&#39;role&#39;: &#39;inspector&#39;}</pre>
+                </div>
+                
+              </div>
+            </details>
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+</div>
+
+    </main>
+    <footer class="foot">
+      <span>ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।</span>
+      <a href="/how">কীভাবে কাজ করে</a>
+    </footer>
+  </div>
+</div>
+
+
+<dialog class="dialog" id="configDialog" aria-labelledby="configDialog-title" style="max-width:640px">
+  <div class="dialog-head">
+    <h2 id="configDialog-title" style="display:flex;align-items:center;gap:8px">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+
+      <span>সিস্টেম কনফিগারেশন ও ক্যাটালগ</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <div class="note info" style="margin-bottom:14px">
+      <b>এন্টারপ্রাইজ সিঙ্ক (রিড-অনলি)</b>:
+      <div class="small dim" style="margin-top:2px">
+        পণ্য, ক্রেতা এবং ডিফেক্ট সিরিয়িটি ক্লজ সেন্ট্রাল ইআরপি থেকে সিঙ্ক হয়। ইন্সপেকশন টার্মিনালে এটি শুধু পড়া যায় (FR-CLS-001)।
+      </div>
+    </div>
+    <div class="grid cols-2" style="gap:14px">
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">নিবন্ধিত ক্রেতা</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Nordic Wear</b> (SE) · Level II AQL</li>
+          <li><b>EuroKnit Fashion</b> (DE) · Strict Zone 1</li>
+          <li><b>Pacific Apparel Co.</b> (US) · Retail Standard</li>
+        </ul>
+      </div>
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">সক্রিয় পোশাক</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Essential Crew Tee</b> (Single jersey)</li>
+          <li><b>Ribbed Polo Shirt</b> (Pique knit)</li>
+          <li><b>Fleece Pullover</b> (Brushed fleece)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="lbl" style="font-weight:700;margin-bottom:4px">ডিফেক্ট ক্লাসিফিকেশন মানদণ্ড</div>
+      <p class="small dim" style="line-height:1.4">
+        ডিফেক্ট টাইপ, পোশাকের জোন ও ক্রেতার ক্লজের ভিত্তিতে সার্ভার স্বয়ংক্রিয়ভাবে সিরিয়িটি নির্ধারণ করে।
+      </p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    
+    <a class="btn sm" href="/admin?tab=clauses">সম্পূর্ণ ক্লজ ম্যাট্রিক্স →</a>
+    
+    <button class="btn ghost sm" type="button" data-dialog-close>বন্ধ করুন</button>
+  </div>
+</dialog>
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

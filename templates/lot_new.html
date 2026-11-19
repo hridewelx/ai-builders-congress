@@ -51,7 +51,7 @@
           {# Lot Code #}
           <div class="field" style="margin:0">
             <label for="lot-code">{{ tr('newlot.code') }} <span class="req">*</span></label>
-            <input id="lot-code" name="lot_code" required placeholder="LT-2026-020" style="text-transform:uppercase;font-family:var(--mono);font-weight:600" autocomplete="off">
+            <input id="lot-code" name="lot_code" required placeholder="LT-2026-020" style="text-transform:uppercase;font-family:var(--mono);font-weight:600" autocomplete="off" autofocus pattern="[A-Za-z0-9_-]+">
             <div class="hint">{{ 'Unique identifier for the production lot' if lang=='en' else 'উৎপাদন লটের জন্য একক শনাক্তকারী কোড' }}</div>
           </div>
 

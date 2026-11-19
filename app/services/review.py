@@ -160,12 +160,31 @@ def compute_decision(lot_id: int, user_id: int, note: str = "", allow_decided: b
         raise PermissionError("lot_locked")
     ev = build_evidence(lot_id)
     res = engine.decide(ev)
-    seq_row = db.one("SELECT COALESCE(MAX(sequence),0) AS s FROM decision WHERE lot_id=?", (lot_id,))
-    seq = int(seq_row["s"]) + 1
-    prior = db.one("SELECT id FROM decision WHERE lot_id=? ORDER BY sequence DESC LIMIT 1", (lot_id,))
     eligible = [d for d in ev["defects"] if d["severity"] and d["current_image"] and d["view_reviewed"]]
     snap = engine.snapshot_hash(eligible)
     plan = ev["plan"]
+    plan_snapshot = json.dumps(plan, sort_keys=True) if plan else None
+    counts_json = json.dumps(res["counts"])
+    reasons_json = json.dumps(res["reasons"])
+
+    # Idempotent append-only history: identical inputs must not create a second
+    # decision row or a duplicate audit event.
+    latest = db.one("SELECT * FROM decision WHERE lot_id=? ORDER BY sequence DESC LIMIT 1", (lot_id,))
+    if latest and not allow_decided:
+        unchanged = (
+            latest["snapshot_hash"] == snap
+            and latest["outcome"] == res["outcome"]
+            and latest["primary_reason"] == res["primary_reason"]
+            and (latest["plan_snapshot"] or None) == plan_snapshot
+            and latest["counts"] == counts_json
+            and latest["reasons"] == reasons_json
+        )
+        if unchanged:
+            row = dict(latest)
+            row["unchanged"] = True
+            return row
+
+    seq = int((latest["sequence"] if latest else 0)) + 1
     class_limits = {c: {"ac": plan[c]["ac"], "re": plan[c]["re"]} for c in engine.CLASSES} if plan else {}
     manual = any(v["inference_status"] != "ok" and v["review_state"] in ("confirmed_defects", "reviewed_clean")
                  for u in units_with_views(lot_id) for v in u["views"])
@@ -173,13 +192,13 @@ def compute_decision(lot_id: int, user_id: int, note: str = "", allow_decided: b
         "INSERT INTO decision(lot_id,sequence,outcome,primary_reason,reasons,counts,class_limits,plan_snapshot,"
         "snapshot_hash,completeness,engine_version,manual_inspection,note,created_by,created_at,supersedes_id)"
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-        (lot_id, seq, res["outcome"], res["primary_reason"], json.dumps(res["reasons"]),
-         json.dumps(res["counts"]), json.dumps(class_limits),
-         json.dumps(plan, sort_keys=True) if plan else None, snap, json.dumps(res["completeness"]),
-         res["engine_version"], 1 if manual else 0, note, user_id, db.now(), prior["id"] if prior else None))
+        (lot_id, seq, res["outcome"], res["primary_reason"], reasons_json,
+         counts_json, json.dumps(class_limits), plan_snapshot, snap, json.dumps(res["completeness"]),
+         res["engine_version"], 1 if manual else 0, note, user_id, db.now(), latest["id"] if latest else None))
     if res["outcome"] in ("ACCEPT", "REJECT"):
         db.x("UPDATE lot SET status='decided', version=version+1 WHERE id=?", (lot_id,))
-    db.audit(user_id, str(user_id), "decision.computed", "decision", did,
+    actor = db.one("SELECT display_name FROM app_user WHERE id=?", (user_id,))
+    db.audit(user_id, actor["display_name"] if actor else str(user_id), "decision.computed", "decision", did,
              after={"outcome": res["outcome"], "reasons": res["reasons"], "counts": res["counts"]})
     row = db.one("SELECT * FROM decision WHERE id=?", (did,))
     return dict(row)
@@ -253,7 +272,22 @@ def timeline(lot_id: int) -> list[dict]:
         " OR (entity='prediction' AND entity_id IN"
         "     (SELECT p.id FROM prediction p JOIN image i ON i.id=p.image_id WHERE i.lot_id=?))"
         " ORDER BY id DESC LIMIT 60", (str(lot_id), lot_id, lot_id, lot_id))
-    return [dict(r) for r in rows]
+    out = [dict(r) for r in rows]
+    # Older rows stored the numeric actor id in actor_label. The append-only
+    # record stays untouched; the read model resolves a display name instead.
+    users = {u["id"]: u["display_name"] for u in db.q("SELECT id, display_name FROM app_user")}
+    for row in out:
+        label = row.get("actor_label")
+        if not label or str(label).strip().isdigit():
+            aid = row.get("actor_id")
+            try:
+                aid_int = int(aid) if aid is not None else None
+            except (ValueError, TypeError):
+                aid_int = None
+            name = users.get(aid_int) if aid_int is not None else None
+            if name:
+                row["actor_label"] = name
+    return out
 
 
 def counters() -> dict:

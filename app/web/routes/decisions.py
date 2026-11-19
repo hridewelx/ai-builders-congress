@@ -26,7 +26,9 @@ def compute_decision(request: Request, lot_id: int, csrf: str = Form(""), note: 
         raise Denied(403, "not_allowed")
     if L["status"] == "decided":
         return RedirectResponse(f"/lots/{lot_id}/decision?err=locked", status_code=303)
-    service.compute_decision(lot_id, s["user"]["id"], note.strip())
+    result = service.compute_decision(lot_id, s["user"]["id"], note.strip())
+    if result.get("unchanged"):
+        return RedirectResponse(f"/lots/{lot_id}/decision?ok=unchanged", status_code=303)
     return RedirectResponse(f"/lots/{lot_id}/decision?ok=saved", status_code=303)
 
 

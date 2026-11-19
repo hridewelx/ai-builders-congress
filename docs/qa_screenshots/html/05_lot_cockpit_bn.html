@@ -1,0 +1,846 @@
+
+
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>LT-2026-014 · Lotline</title>
+  <meta name="description" content="লটলাইন — যাচাইযোগ্য এআই-সহায়তাপ্রাপ্ত নিটওয়্যার লট গ্রহণ। এআই প্রস্তাব করে, মানুষ নিশ্চিত করে, নির্ধারক ইঞ্জিন সিদ্ধান্ত দেয়।">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">মূল বিষয়বস্তুতে যান</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="প্রধান নেভিগেশন">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="সাইডবার ছোট করুন" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="মেনু বন্ধ করুন">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="প্রধান">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">ড্যাশবোর্ড</span>
+        </a>
+        <a href="/lots" class="on" aria-current="page">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">লট</span>
+        </a>
+      </div>
+
+      
+
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>এআই কখনো লট অনুমোদন করে না।</b>
+      প্রতিটি গণনা, কারণ ও ওভাররাইড রেকর্ড হয়।
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">R</span>
+      <div class="who">
+        <b>Rakib Hasan</b>
+        <span>ইন্সপেক্টর</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="ব্রেডক্রাম্ব">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>লট</span>
+          
+        </nav>
+        <h1>LT-2026-014</h1>
+        <div class="sub">Nordika Retail · Essential Crew Tee · Navy · লট সাইজ 480</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>ডেমো ডেটা · স্টেজ করা ছবি
+</span></span>
+        <a class="lang-link" href="/lang/en?next=/lots/1" aria-label="Switch to English">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>English</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="অ্যাকাউন্ট মেনু">
+            <span class="avatar" aria-hidden="true">R</span>
+            <span class="user-name">Rakib Hasan</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Rakib Hasan</b>
+              <span>rakib@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+কীভাবে কাজ করে</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+সাইন আউট</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+<nav class="tabs" aria-label="লট বিভাগ" style="margin-bottom:20px">
+  <a href="/lots/1" class="on" aria-current="page">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span>লট সারসংক্ষেপ</span>
+  </a>
+  
+  <a href="/lots/1/plan" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>স্যাম্পলিং প্ল্যান</span>
+  </a>
+  <a href="/lots/1/capture" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>
+<span>ছবি তোলা</span>
+  </a>
+  <a href="/lots/1/review" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>
+<span>পর্যালোচনা</span>
+  </a>
+  
+  <a href="/lots/1/decision" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></svg>
+<span>সিদ্ধান্ত</span>
+  </a>
+  <a href="/lots/1#history">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></svg>
+<span>ইতিহাস</span>
+  </a>
+  
+  <a href="/lots/1/report" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg>
+<span>রিপোর্ট</span>
+  </a>
+  
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+
+
+
+  
+  
+
+
+
+
+<ol class="pipeline" aria-label="Inspection pipeline">
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">১. এআই শনাক্তকরণ</span><span class="pipeline-value">16 সফল · 0 ম্যানুয়াল</span></span>
+  </li>
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">২. মানুষ পর্যালোচনা</span><span class="pipeline-value">16 / 16 পর্যালোচিত</span></span>
+  </li>
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">৩. নির্ধারক ইঞ্জিন</span><span class="pipeline-value">বাতিল</span></span>
+  </li>
+</ol>
+
+
+<div class="card" style="margin-bottom:16px">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <span class="badge badge-success"><span class="dot" aria-hidden="true"></span>Decided
+</span>
+      <span class="badge badge-neutral">v2</span>
+      
+      
+      
+      <span class="demo-tag demo-tag-ai" title="দৃষ্টান্তমূলক, মডেলের আউটপুট নয়">
+  <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>
+দৃষ্টান্তমূলক, মডেলের আউটপুট নয়
+</span>
+    </div>
+
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      
+      <a class="btn sm" href="/lots/1/capture"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>
+<span>ছবি আপলোড</span></a>
+      <a class="btn sm primary" href="/lots/1/review"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>
+<span>পর্যালোচনা</span></a>
+      <form method="post" action="/lots/1/decisions" style="margin:0">
+        <input type="hidden" name="csrf" value="">
+        <button class="btn sm subtle" type="submit"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>সিদ্ধান্ত গণনা</span></button>
+      </form>
+      
+      
+      <a class="btn sm ghost" href="/lots/1/plan"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>স্যাম্পলিং প্ল্যান</span></a>
+      <a class="btn sm ghost" href="/lots/1/report"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg>
+<span>রিপোর্ট</span></a>
+      
+    </div>
+  </div>
+</div>
+
+
+<div class="grid cols-4 kpi-grid" style="margin-bottom:20px">
+  <div class="kpi ">
+    <div class="kpi-head">
+      <div class="lbl">অবস্থা</div>
+      
+        <span class="kpi-badge">v2</span>
+      
+    </div>
+    <div class="row" style="margin:8px 0 4px">
+      <span class="badge badge-success"><span class="dot" aria-hidden="true"></span>Decided
+</span>
+    </div>
+    <div class="meta"><span class="kpi-hint">লট সাইজ: <b>480</b> pcs</span></div>
+  </div>
+
+  <div class="kpi is-info">
+    <div class="kpi-head">
+      <div class="lbl">গার্মেন্টস নিবন্ধিত</div>
+      <span class="kpi-badge">100%</span>
+    </div>
+    <div class="n">8<small> / 8</small></div>
+    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
+      <i style="display:block;height:100%;width:100%;background:linear-gradient(90deg, #3b82f6, #6366f1);border-radius:999px"></i>
+    </div>
+  </div>
+
+  <div class="kpi is-success">
+    <div class="kpi-head">
+      <div class="lbl">ভিউ পর্যালোচিত</div>
+      <span class="kpi-badge">100%</span>
+    </div>
+    <div class="n">16<small> / 16</small></div>
+    <div class="bar" style="height:5px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px">
+      <i style="display:block;height:100%;width:100%;background:linear-gradient(90deg, #65a30d, #84cc16);border-radius:999px"></i>
+    </div>
+  </div>
+
+  <div class="kpi ">
+    <div class="kpi-head">
+      <div class="lbl">ফলাফল</div>
+      
+        <span class="kpi-badge">বাতিল</span>
+      
+    </div>
+    
+    <div style="margin-top:6px;font-size:12px;line-height:1.4">
+      <div class="row" style="gap:6px;align-items:center">
+        <span class="dim" style="font-size:11px">সিস্টেম সুপারিশ:</span>
+        <span class="badge decision-badge decision-reject"><span class="dot" aria-hidden="true"></span>বাতিল</span>
+      </div>
+      <div class="row" style="gap:6px;align-items:center;margin-top:4px">
+        <span class="dim" style="font-size:11px;font-weight:600">চূড়ান্ত সিদ্ধান্ত:</span>
+        <span class="badge decision-badge decision-reject"><span class="dot" aria-hidden="true"></span>বাতিল</span>
+      </div>
+      
+    </div>
+    
+  </div>
+</div>
+
+<div class="split">
+  <div class="stack">
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>গার্মেন্টস</h2>
+        <div class="right">
+          
+          <a class="btn sm" href="/lots/1/capture">+ ছবি আপলোড</a>
+          <a class="btn sm primary" href="/lots/1/review">পর্যালোচনা</a>
+          
+        </div>
+      </div>
+      <div class="pad-sm">
+        
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-01</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/1"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/2"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-02</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/3"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ● 1
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/4"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-03</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/5"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/6"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-04</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/7"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/8"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-05</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/9"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/10"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ● 1
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-06</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/11"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/12"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-07</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/13"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ● 1
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/14"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+          <div class="unit" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)">
+            <div class="t between" style="margin-bottom:8px">
+              <b>G-08</b>
+              <span class="small dim">2 ভিউ</span>
+            </div>
+            <div class="views" style="display:flex;gap:6px;flex-wrap:wrap">
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/15"
+                     title="ছবি পর্যালোচনা">
+                    সামনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+                
+                  
+                  
+                  <a class="vchip done"
+                     href="/review/16"
+                     title="ছবি পর্যালোচনা">
+                    পিছনে
+                    
+                      ✓
+                    
+                  </a>
+                
+              
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="pad-sm"><div class="note info">সিদ্ধান্ত হওয়া লট লক থাকে। সুপারভাইজার কারণ লিখে পুনরায় খুলতে পারেন।</div></div>
+      
+    </div>
+
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>সিদ্ধান্ত</h2>
+        <div class="right">
+          
+          <a class="btn sm ghost" href="/lots/1/decision">খুলুন →</a>
+          
+        </div>
+      </div>
+      <div class="pad-sm">
+        
+        <div class="row" style="gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <div class="small dim" style="margin-bottom:2px">সুপারিশ</div>
+            <span class="badge decision-badge decision-reject"><span class="dot" aria-hidden="true"></span>বাতিল</span>
+          </div>
+          <div>
+            <div class="small dim" style="margin-bottom:2px">চূড়ান্ত</div>
+            <span class="badge decision-badge decision-reject"><span class="dot" aria-hidden="true"></span>বাতিল</span>
+          </div>
+          <span class="small dim" style="margin-left:auto">#1 · 2026-11-18T03:41:34Z</span>
+          
+        </div>
+
+        <div class="reason-grid" style="margin-top:11px">
+          
+          <div class="reason-row">
+            <div class="reason-row-head">
+              <span class="mono">REJECT_LIMIT_REACHED</span>
+              <b>রিজেকশন সীমায় পৌঁছেছে</b>
+            </div>
+            <p>নমুনা সম্পূর্ণ, পর্যালোচিত ও যাচাইকৃত, এবং অন্তত একটি শ্রেণির গণনা তার Re-তে বা তার উপরে।</p>
+            <div class="reason-row-next"><span>পরের ধাপ:</span> কোনো কর্মপ্রবাহ নেই। এই নমুনায় প্ল্যান প্রয়োগ হয়েছে।</div>
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>স্যাম্পলিং প্ল্যান</h2>
+        <div class="right">
+          
+        </div>
+      </div>
+      <div class="pad-sm">
+        
+        <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span class="chip">n = 8</span>
+          <span class="chip">highest_class_only</span>
+          <span class="badge badge-warning">TEST CONFIGURATION</span>
+        </div>
+        <table class="table" style="font-size:12.5px">
+          <thead><tr><th>শ্রেণি</th><th class="num">Ac</th><th class="num">Re</th></tr></thead>
+          <tbody>
+            
+            <tr>
+              <td><span class="badge critical">ক্রিটিক্যাল</span></td>
+              <td class="num">0</td>
+              <td class="num">1</td>
+            </tr>
+            
+            <tr>
+              <td><span class="badge major">মেজর</span></td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+            </tr>
+            
+            <tr>
+              <td><span class="badge minor">মাইনর</span></td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+            </tr>
+            
+          </tbody>
+        </table>
+        <div class="note warn" style="margin-top:10px">
+          <b>অনুমান:</b> ডিফল্ট প্ল্যান একটি অনুমান, স্ট্যান্ডার্ড মান নয়।
+          <div class="small dim" style="margin-top:3px">Normal inspection · Single sampling · General Level II (ISO 2859-1 / ANSI ASQ Z1.4)</div>
+        </div>
+        
+      </div>
+    </div>
+
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>ক্রিটিক্যাল নন-ভিজ্যুয়াল চেক</h2>
+        <div class="right">
+          <span class="badge ACCEPT">
+            <span class="dot"></span>done
+          </span>
+        </div>
+      </div>
+      <div class="pad-sm">
+        <div class="small dim" style="margin-bottom:9px">ভাঙা সুই, ধাতু, আইনি লেবেল। ছবি এগুলো প্রমাণ করতে পারে না।</div>
+        
+        <div class="note" style="margin-top:9px">
+          <b>নথিভুক্ত চেকের অবস্থা:</b> done
+        </div>
+        
+      </div>
+    </div>
+
+    
+    <div class="card" id="history">
+      <div class="card-h">
+        <h2>ইতিহাস</h2>
+        <div class="right"><span class="small dim">50 ইভেন্ট</span></div>
+      </div>
+      <div class="pad-sm">
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <ul class="timeline">
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">decision.computed</div><div class="m">2 · 2026-11-18T03:41:34Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">view.reviewed_clean</div><div class="m">Rakib Hasan · 2026-11-18T03:40:03Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">defect.rejected</div><div class="m">Rakib Hasan · 2026-11-18T03:40:03Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">defect.rejected</div><div class="m">Rakib Hasan · 2026-11-18T03:40:03Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">image.uploaded</div><div class="m">Rakib Hasan · 2026-11-18T03:40:03Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">view.reviewed_clean</div><div class="m">Rakib Hasan · 2026-11-18T03:40:02Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">defect.rejected</div><div class="m">Rakib Hasan · 2026-11-18T03:40:02Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">image.uploaded</div><div class="m">Rakib Hasan · 2026-11-18T03:40:02Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">view.reviewed_clean</div><div class="m">Rakib Hasan · 2026-11-18T03:40:00Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">defect.rejected</div><div class="m">Rakib Hasan · 2026-11-18T03:40:00Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">image.uploaded</div><div class="m">Rakib Hasan · 2026-11-18T03:40:00Z</div></div>
+  </li>
+  <li class="timeline-item ">
+    <span class="timeline-dot" aria-hidden="true"></span>
+    <div class="timeline-body">
+      <div class="a">view.confirmed_defects</div><div class="m">Rakib Hasan · 2026-11-18T03:39:59Z</div></div>
+  </li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </main>
+    <footer class="foot">
+      <span>ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।</span>
+      <a href="/how">কীভাবে কাজ করে</a>
+    </footer>
+  </div>
+</div>
+
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

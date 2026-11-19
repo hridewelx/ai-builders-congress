@@ -52,11 +52,13 @@
 </div>
 {% endif %}
 
+{% set target_units = progress.required_units if progress.required_units else lot.lot_size %}
+
 {# --- Progress KPI & Mobile Guidance --- #}
 <div class="grid cols-3" style="margin-bottom:16px">
   <div class="kpi">
     <div class="lbl">{{ 'Sample Units' if lang=='en' else 'স্যাম্পল ইউনিট' }}</div>
-    <div class="n">{{ progress.units }}<small> / {{ progress.required_units or '—' }}</small></div>
+    <div class="n">{{ progress.units }}<small> / {{ progress.required_units if progress.required_units else ('Max ' ~ lot.lot_size) }}</small></div>
     <div class="bar" style="margin-top:8px"><i style="width:{{ progress.pct_units }}%"></i></div>
   </div>
   <div class="kpi">
@@ -96,25 +98,37 @@
 
 {# --- Add Unit Section --- #}
 {% if can_write %}
+{% set target_units = progress.required_units if progress.required_units else lot.lot_size %}
 <div class="card" style="margin-bottom:16px">
   <div class="card-h">
     <h2>{{ 'Register Garment' if lang=='en' else 'গার্মেন্ট নিবন্ধন' }}</h2>
-    <div class="right"><span class="chip">{{ progress.units }} / {{ progress.required_units }}</span></div>
+    <div class="right"><span class="chip">{{ progress.units }} / {{ progress.required_units if progress.required_units else ('Max ' ~ lot.lot_size) }}</span></div>
   </div>
   <div class="pad-sm">
-    {% if progress.units < progress.required_units %}
+    {% if progress.units < target_units %}
     <form method="post" action="/lots/{{ lot.id }}/units" class="inline" id="addUnitForm">
       <input type="hidden" name="csrf" value="{{ csrf }}">
       <div class="field" style="flex:1;min-width:200px">
         <label for="garment_code">{{ 'Garment code (unique in lot)' if lang=='en' else 'গার্মেন্ট কোড (লটে অনন্য)' }}</label>
-        <input id="garment_code" name="garment_code" placeholder="G-{{ '%02d' % (progress.units + 1) }}" pattern="[A-Za-z0-9_-]+" title="Letters, numbers, dash and underscore only">
+        <input id="garment_code" name="garment_code" value="G-{{ '%02d' % (progress.units + 1) }}" pattern="[A-Za-z0-9_-]+" title="Letters, numbers, dash and underscore only">
       </div>
-      <button class="btn primary" type="submit">{{ icons.icon('plus', 16) }}<span>{{ 'Register garment' if lang=='en' else 'গার্মেন্ট যোগ করুন' }}</span></button>
+      <button class="btn primary" type="submit">{{ icons.icon('plus', 16) }}<span>{{ 'Register garment & open photo upload' if lang=='en' else 'গার্মেন্ট যোগ করুন ও ছবি আপলোড শুরু করুন' }}</span></button>
     </form>
+    {% if not progress.required_units %}
+    <div class="small dim" style="margin-top:8px">
+      {{ 'Note: Sampling plan n not set yet. You can register garments up to lot size (' ~ lot.lot_size ~ ' pcs).' if lang=='en' else 'নোট: স্যাম্পলিং প্ল্যান এখনও সেট করা হয়নি। আপনি লট সাইজ (' ~ lot.lot_size ~ ' টি) পর্যন্ত স্যাম্পল গার্মেন্ট যোগ করতে পারেন।' }}
+    </div>
+    {% endif %}
     {% else %}
     <div class="note info">
       {{ icons.icon('check', 15) }}
-      <span>{{ 'The required sample size (n=' ~ progress.required_units ~ ') is complete. All garment slots are registered.' if lang=='en' else 'প্রয়োজনীয় স্যাম্পল সাইজ (n=' ~ progress.required_units ~ ') সম্পূর্ণ।' }}</span>
+      <span>
+        {% if progress.required_units %}
+          {{ ('The required sample size (n=' ~ progress.required_units ~ ') is complete. All garment slots are registered.') if lang == 'en' else ('প্রয়োজনীয় স্যাম্পল সাইজ (n=' ~ progress.required_units ~ ') সম্পূর্ণ।') }}
+        {% else %}
+          {{ ('All garment slots up to lot size (' ~ lot.lot_size ~ ') are registered.') if lang == 'en' else ('লটের সর্বোচ্চ সাইজ (' ~ lot.lot_size ~ ' টি) পর্যন্ত সকল গার্মেন্ট নিবন্ধিত হয়েছে।') }}
+        {% endif %}
+      </span>
     </div>
     {% endif %}
   </div>
@@ -239,8 +253,26 @@
     </div>
   </div>
   {% else %}
-  <div class="card" style="grid-column:1/-1">
-    {{ ui.empty_state(tr('lot.no_units'), tr('cap.guidance'), action_label=tr('common.save'), action_href='#addUnitForm', icon_name='camera') }}
+  <div class="card" style="grid-column:1/-1;padding:36px 24px;text-align:center">
+    <span class="empty-icon" style="display:inline-flex;padding:14px;background:var(--subtle);border-radius:50%;margin-bottom:12px;color:var(--navy)">
+      {{ icons.icon('camera', 30) }}
+    </span>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:6px">
+      {{ 'Step 1: Register Sample Garments' if lang=='en' else 'ধাপ ১: স্যাম্পল গার্মেন্ট নিবন্ধন করুন' }}
+    </h3>
+    <p class="small dim" style="max-width:540px;margin:0 auto 18px;line-height:1.5">
+      {{ 'Photos are attached per garment (Front and Back views). Click the button below to register your first garment (G-01). The photo capture & upload controls will immediately appear.' if lang=='en' else 'ছবি প্রতিটি গার্মেন্টের ফ্রন্ট ও ব্যাক ভিউ অনুযায়ী আপলোড হয়। প্রথমে নিচের বাটনে ক্লিক করে প্রথম গার্মেন্ট (G-01) যোগ করুন, সাথে সাথে ছবি আপলোড করার ফ্রন্ট ও ব্যাক বক্স চলে আসবে।' }}
+    </p>
+    {% if can_write and progress.units < target_units %}
+    <form method="post" action="/lots/{{ lot.id }}/units" style="display:inline-block">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="garment_code" value="G-01">
+      <button class="btn primary" type="submit" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('plus-circle', 16) }}
+        <span>{{ 'Register G-01 & Enable Photo Upload' if lang=='en' else 'G-01 যোগ করে ছবি আপলোড শুরু করুন' }}</span>
+      </button>
+    </form>
+    {% endif %}
   </div>
   {% endfor %}
 </div>

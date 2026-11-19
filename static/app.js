@@ -36,7 +36,15 @@
   }
   if (drawerToggle) {
     drawerToggle.addEventListener("click", function () {
-      setDrawer(!document.body.classList.contains("drawer-open"));
+      if (window.innerWidth <= 900) {
+        setDrawer(!document.body.classList.contains("drawer-open"));
+      } else {
+        var collapsed = document.body.classList.toggle("rail-collapsed");
+        if (railToggle) {
+          railToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+          railToggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+        }
+      }
     });
   }
   drawerClose.forEach(function (el) {
@@ -61,34 +69,71 @@
   });
 
   /* ----------------------------------------------------------------
-     Dialogs
+     Dialogs (HTML5 <dialog> with focus trap and trigger return)
   ---------------------------------------------------------------- */
-  function openDialog(id) {
+  var lastFocusedTrigger = null;
+
+  function openDialog(id, trigger) {
     var dialog = document.getElementById(id);
     if (!dialog) return;
+    lastFocusedTrigger = trigger || document.activeElement;
     if (typeof dialog.showModal === "function") dialog.showModal();
     else dialog.setAttribute("open", "");
-    var focusable = dialog.querySelector("input, select, textarea, button");
-    if (focusable) focusable.focus();
+    var focusable = dialog.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if (focusable.length) focusable[0].focus();
   }
+
   function closeDialog(dialog) {
     if (!dialog) return;
     if (typeof dialog.close === "function" && dialog.open) dialog.close();
     else dialog.removeAttribute("open");
+    if (lastFocusedTrigger && typeof lastFocusedTrigger.focus === "function") {
+      lastFocusedTrigger.focus();
+      lastFocusedTrigger = null;
+    }
   }
+
   $$("[data-dialog-open]").forEach(function (trigger) {
-    trigger.addEventListener("click", function () { openDialog(trigger.getAttribute("data-dialog-open")); });
+    trigger.addEventListener("click", function () {
+      openDialog(trigger.getAttribute("data-dialog-open"), trigger);
+    });
   });
+
   $$("[data-dialog-close]").forEach(function (trigger) {
-    trigger.addEventListener("click", function () { closeDialog(trigger.closest("dialog")); });
+    trigger.addEventListener("click", function () {
+      closeDialog(trigger.closest("dialog"));
+    });
   });
+
   $$("dialog").forEach(function (dialog) {
     dialog.addEventListener("click", function (event) {
       if (event.target === dialog) closeDialog(dialog);
     });
+
+    dialog.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDialog(dialog);
+      } else if (event.key === "Tab") {
+        var focusable = dialog.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
     dialog.addEventListener("close", function () {
-      var opener = document.querySelector('[data-dialog-open="' + dialog.id + '"]');
-      if (opener) opener.focus();
+      if (lastFocusedTrigger && typeof lastFocusedTrigger.focus === "function") {
+        lastFocusedTrigger.focus();
+        lastFocusedTrigger = null;
+      }
     });
   });
   $$("[data-dialog-confirm]").forEach(function (button) {
@@ -355,6 +400,13 @@
       pending.style.display = "block";
       pending.style.left = (x * 100) + "%";
       pending.style.top = (y * 100) + "%";
+
+      var manualCard = document.getElementById("manualAddCard");
+      if (manualCard) {
+        manualCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        var addType = document.getElementById("add-type");
+        if (addType) addType.focus();
+      }
     });
   }
 
@@ -386,7 +438,7 @@
   });
 
   /* ----------------------------------------------------------------
-     Upload validation: JPEG/PNG + 15 MB, HEIC hint, busy state
+     Upload validation: JPEG/PNG + 15 MB, Drag & Drop + Live Preview
   ---------------------------------------------------------------- */
   $$(".upload-form").forEach(function (form) {
     var input = form.querySelector(".upload-input");
@@ -397,8 +449,7 @@
       result.textContent = text;
       result.className = "upload-result" + (cls ? " is-" + cls : "");
     }
-    input.addEventListener("change", function () {
-      var file = input.files && input.files[0];
+    function handleFile(file) {
       if (!file) { result.textContent = ""; result.className = "upload-result"; return; }
       var name = (file.name || "").toLowerCase();
       var type = (file.type || "").toLowerCase();
@@ -408,8 +459,43 @@
       if (isHeic) { setMsg("HEIC is not accepted. Export as JPEG or PNG.", "error"); input.value = ""; return; }
       if (!isJpeg && !isPng) { setMsg("Only JPEG and PNG photos are accepted.", "error"); input.value = ""; return; }
       if (file.size > maxBytes) { setMsg("File is larger than 15 MB.", "error"); input.value = ""; return; }
-      setMsg((file.size / (1024 * 1024)).toFixed(1) + " MB · ready to upload", "ok");
+
+      result.innerHTML = "";
+      result.className = "upload-result is-ok";
+      var wrap = document.createElement("div");
+      wrap.style.cssText = "display:flex;align-items:center;gap:8px;margin-top:6px";
+      var img = document.createElement("img");
+      try { img.src = URL.createObjectURL(file); } catch (e) {}
+      img.style.cssText = "width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--line)";
+      var txt = document.createElement("span");
+      txt.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB · ready to upload";
+      wrap.appendChild(img);
+      wrap.appendChild(txt);
+      result.appendChild(wrap);
+    }
+
+    input.addEventListener("change", function () {
+      var file = input.files && input.files[0];
+      handleFile(file);
     });
+
+    form.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      form.classList.add("is-dragover");
+    });
+    form.addEventListener("dragleave", function () {
+      form.classList.remove("is-dragover");
+    });
+    form.addEventListener("drop", function (e) {
+      e.preventDefault();
+      form.classList.remove("is-dragover");
+      var dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length) {
+        input.files = dt.files;
+        handleFile(dt.files[0]);
+      }
+    });
+
     form.addEventListener("submit", function () {
       var file = input.files && input.files[0];
       if (!file) return;
@@ -419,7 +505,6 @@
       setMsg("Uploading…", "busy");
       var btn = form.querySelector("button[type=submit]");
       if (btn) { btn.disabled = true; btn.textContent = "…"; }
-      // if the server rejects, the redirect reloads the page and the chip is lost; this is honest progress only
     });
   });
 
@@ -480,41 +565,176 @@
   });
 
   /* ----------------------------------------------------------------
-     Decision & Plan: Character counter & Re = Ac + 1 helper
+     Password Visibility Toggle (Login screen)
   ---------------------------------------------------------------- */
-  var reasonInput = document.getElementById("override-reason");
-  var charCounter = document.getElementById("charCounter");
-  if (reasonInput && charCounter) {
-    reasonInput.addEventListener("input", function () {
-      var len = reasonInput.value.length;
-      charCounter.textContent = len + " / 20 minimum";
-      charCounter.style.color = len >= 20 ? "var(--green)" : "var(--muted)";
+  var passToggle = document.getElementById("passToggle");
+  var passInput = document.getElementById("password");
+  if (passToggle && passInput) {
+    passToggle.addEventListener("click", function () {
+      var isPass = passInput.type === "password";
+      passInput.type = isPass ? "text" : "password";
+      passToggle.setAttribute("aria-label", isPass ? "Hide password" : "Show password");
+      passToggle.setAttribute("title", isPass ? "Hide password" : "Show password");
+      passToggle.innerHTML = isPass
+        ? '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        : '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      passInput.focus();
     });
   }
 
-  $$(".ac-input").forEach(function (acInput) {
-    acInput.addEventListener("input", function () {
-      var c = acInput.getAttribute("data-class");
-      var reInput = document.getElementById(c + "_re");
-      var acVal = parseInt(acInput.value, 10);
-      if (!isNaN(acVal) && reInput) {
-        reInput.value = acVal + 1;
+  /* ----------------------------------------------------------------
+     Copy to Clipboard (Admin temp passwords)
+  ---------------------------------------------------------------- */
+  $$("[data-copy-target]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var targetId = btn.getAttribute("data-copy-target");
+      var targetEl = document.getElementById(targetId);
+      if (!targetEl) return;
+      var text = targetEl.textContent.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
       }
+      var origHTML = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied</span>';
+      window.setTimeout(function () { btn.innerHTML = origHTML; }, 2200);
+    });
+  });
+
+  /* Copy hash button */
+  $$("[data-copy-hash]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy-hash");
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      var origHTML = btn.innerHTML;
+      btn.innerHTML = '<span style="color:var(--success);font-weight:700">✓</span>';
+      window.setTimeout(function () { btn.innerHTML = origHTML; }, 2000);
     });
   });
 
   /* ----------------------------------------------------------------
-     Dashboard: Instant Lot Filter & Search
+     Lot Code auto-uppercase (Create Lot)
+  ---------------------------------------------------------------- */
+  var lotCodeInput = document.getElementById("lot-code");
+  if (lotCodeInput) {
+    lotCodeInput.addEventListener("input", function () {
+      var pos = lotCodeInput.selectionStart;
+      lotCodeInput.value = lotCodeInput.value.toUpperCase();
+      try { lotCodeInput.setSelectionRange(pos, pos); } catch (e) {}
+    });
+  }
+
+  /* ----------------------------------------------------------------
+     Audit Log payload toggle
+  ---------------------------------------------------------------- */
+  var toggleAuditBtn = document.getElementById("toggleAuditDetails");
+  if (toggleAuditBtn) {
+    var allExpanded = false;
+    toggleAuditBtn.addEventListener("click", function () {
+      allExpanded = !allExpanded;
+      $$("table details").forEach(function (d) { d.open = allExpanded; });
+      var span = toggleAuditBtn.querySelector("span");
+      if (span) span.textContent = allExpanded ? "Collapse All Payloads" : "Expand All Payloads";
+    });
+  }
+
+  /* ----------------------------------------------------------------
+     Decision Override: Reason counter, Gated submit & Dynamic risk notice
+  ---------------------------------------------------------------- */
+  var reasonInput = document.getElementById("override-reason");
+  var charCounter = document.getElementById("charCounter");
+  var submitOverrideBtn = document.getElementById("submitOverrideBtn");
+  var overrideDisp = document.getElementById("override-disposition");
+  var highRiskNotice = document.getElementById("highRiskNotice");
+  var immediateNotice = document.getElementById("immediateNotice");
+
+  function updateOverrideState() {
+    if (reasonInput && charCounter) {
+      var len = reasonInput.value.trim().length;
+      charCounter.textContent = len + " / 20 minimum";
+      charCounter.style.color = len >= 20 ? "var(--green)" : "var(--muted)";
+      if (submitOverrideBtn) {
+        submitOverrideBtn.disabled = len < 20;
+      }
+    }
+    if (overrideDisp) {
+      var val = overrideDisp.value;
+      if (highRiskNotice && immediateNotice) {
+        if (val === "OVERRIDE_ACCEPT") {
+          highRiskNotice.style.display = "";
+          immediateNotice.style.display = "none";
+        } else if (val === "OVERRIDE_REJECT") {
+          highRiskNotice.style.display = "none";
+          immediateNotice.style.display = "";
+        }
+      }
+    }
+  }
+
+  if (reasonInput) reasonInput.addEventListener("input", updateOverrideState);
+  if (overrideDisp) overrideDisp.addEventListener("change", updateOverrideState);
+  if (reasonInput || overrideDisp) updateOverrideState();
+
+  /* ----------------------------------------------------------------
+     Sampling Plan: Single-sampling Re = Ac + 1 Invariant Validator
+  ---------------------------------------------------------------- */
+  $$(".ac-input").forEach(function (acInput) {
+    var c = acInput.getAttribute("data-class");
+    var reInput = document.getElementById(c + "_re");
+    function validateAcRe() {
+      var acVal = parseInt(acInput.value, 10);
+      var reVal = reInput ? parseInt(reInput.value, 10) : NaN;
+      if (!isNaN(acVal) && reInput) {
+        if (isNaN(reVal) || reVal <= acVal) {
+          reInput.setCustomValidity("Re must be greater than Ac (single sampling rule: Re = Ac + 1)");
+        } else {
+          reInput.setCustomValidity("");
+        }
+      }
+    }
+    acInput.addEventListener("input", function () {
+      var acVal = parseInt(acInput.value, 10);
+      if (!isNaN(acVal) && reInput) {
+        reInput.value = acVal + 1;
+      }
+      validateAcRe();
+    });
+    if (reInput) reInput.addEventListener("input", validateAcRe);
+  });
+
+  /* ----------------------------------------------------------------
+     Dashboard: Instant Lot Filter & Search with Directory Deep-Link
   ---------------------------------------------------------------- */
   var lotSearchInput = document.getElementById("lotSearchInput");
   var filterTabs = $$(".filter-pills .pill-btn");
   var lotCards = $$("[data-lot-card]");
   var lotEmptyMatch = document.getElementById("lotEmptyMatch");
+  var lotSearchDirLink = document.getElementById("lotSearchDirLink");
 
   function filterDashboardLots() {
     var q = lotSearchInput ? lotSearchInput.value.trim().toLowerCase() : "";
     var activeTab = document.querySelector(".filter-pills .pill-btn.on");
     var tabFilter = activeTab ? activeTab.getAttribute("data-filter-tab") : "all";
+
+    if (lotSearchDirLink) {
+      lotSearchDirLink.href = "/lots?q=" + encodeURIComponent(q);
+    }
 
     var visibleCount = 0;
     lotCards.forEach(function (card) {
@@ -535,6 +755,21 @@
     if (lotEmptyMatch) {
       lotEmptyMatch.style.display = (visibleCount === 0 && (q !== "" || tabFilter !== "all")) ? "block" : "none";
     }
+
+    var announcer = document.getElementById("lotSearchResultsLive");
+    if (announcer) {
+      if (q !== "" || tabFilter !== "all") {
+        var isBn = document.documentElement.lang === "bn";
+        if (visibleCount === 0) {
+          announcer.textContent = isBn ? "কোনো লট পাওয়া যায়নি" : "No matching lots found";
+        } else {
+          var numStr = isBn ? (visibleCount + "").replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[d]; }) : visibleCount;
+          announcer.textContent = isBn ? numStr + "টি লট প্রদর্শিত হচ্ছে" : visibleCount + " lots found";
+        }
+      } else {
+        announcer.textContent = "";
+      }
+    }
   }
 
   if (lotSearchInput) {
@@ -543,11 +778,421 @@
   if (filterTabs.length) {
     filterTabs.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        filterTabs.forEach(function (b) { b.classList.remove("on"); });
+        filterTabs.forEach(function (b) {
+          b.classList.remove("on");
+          b.setAttribute("aria-pressed", "false");
+        });
         btn.classList.add("on");
+        btn.setAttribute("aria-pressed", "true");
         filterDashboardLots();
       });
     });
+  }
+
+  /* ----------------------------------------------------------------
+     Lot tabs: History hash & scroll sync
+  ---------------------------------------------------------------- */
+  function syncHistoryTab() {
+    var historySection = $("#history");
+    var historyTab = $('nav.tabs a[href*="#history"]');
+    if (!historySection || !historyTab) return;
+    var navTabs = historyTab.closest("nav.tabs");
+    if (!navTabs) return;
+    var allTabs = $$("a", navTabs);
+    var firstTab = allTabs[0];
+
+    if (window.location.hash === "#history") {
+      allTabs.forEach(function (tab) {
+        tab.classList.remove("on");
+        tab.removeAttribute("aria-current");
+      });
+      historyTab.classList.add("on");
+      historyTab.setAttribute("aria-current", "location");
+    } else if (window.location.hash === "" || window.location.hash === "#") {
+      if (historyTab.classList.contains("on")) {
+        historyTab.classList.remove("on");
+        historyTab.removeAttribute("aria-current");
+        if (firstTab) {
+          firstTab.classList.add("on");
+          firstTab.setAttribute("aria-current", "page");
+        }
+      }
+    }
+  }
+
+  window.addEventListener("hashchange", syncHistoryTab);
+  if (window.location.hash === "#history") {
+    syncHistoryTab();
+  }
+  var historyTabBtn = $('nav.tabs a[href*="#history"]');
+  if (historyTabBtn) {
+    historyTabBtn.addEventListener("click", function () {
+      setTimeout(syncHistoryTab, 10);
+    });
+  }
+
+  /* --- Numeral formatting helper --- */
+  function formatNum(num, lang) {
+    if (num === null || num === undefined || isNaN(num)) return "--";
+    var s = String(num);
+    if (lang === "bn") {
+      var bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+      return s.replace(/[0-9]/g, function (d) {
+        return bnDigits[parseInt(d, 10)];
+      });
+    }
+    return s;
+  }
+
+  /* --- Sampling Plan Interactive Controller --- */
+  function initPlanPage() {
+    var form = $("#planForm");
+    if (!form) return;
+    var previewCard = $("#planPreviewCard");
+
+    var errorSummary = $("#errorSummary");
+    if (errorSummary) {
+      errorSummary.focus();
+    }
+
+    var lotSize = parseInt(previewCard ? previewCard.getAttribute("data-lotsize") : 0, 10) || 0;
+    var unitsPresent = parseInt(previewCard ? previewCard.getAttribute("data-units-present") : 0, 10) || 0;
+    var nonvisualStatus = previewCard ? previewCard.getAttribute("data-nonvisual-status") : "pending";
+    var critDefects = parseInt(previewCard ? previewCard.getAttribute("data-crit-defects") : 0, 10) || 0;
+    var majDefects = parseInt(previewCard ? previewCard.getAttribute("data-maj-defects") : 0, 10) || 0;
+    var minDefects = parseInt(previewCard ? previewCard.getAttribute("data-min-defects") : 0, 10) || 0;
+    var lang = (previewCard ? previewCard.getAttribute("data-lang") : "bn") || "bn";
+
+    var nInput = $("#plan-n");
+    var modeSelect = $("#plan-mode");
+    var sourceEditionInput = $("#source_edition");
+    var sourceRefInput = $("#source_reference");
+    var unreferencedNotice = $("#unreferencedNotice");
+    var isDemoInput = $("#is_demo");
+    var confirmedCheck = $("#confirmed");
+    var btnDemoPreset = $("#btnDemoPreset");
+
+    function updateModeDescription() {
+      if (!modeSelect) return;
+      var val = modeSelect.value;
+      var descHighest = $("#desc-highest_class_only");
+      var descEvery = $("#desc-every_class");
+      if (descHighest) descHighest.style.display = val === "highest_class_only" ? "block" : "none";
+      if (descEvery) descEvery.style.display = val === "every_class" ? "block" : "none";
+    }
+    if (modeSelect) {
+      modeSelect.addEventListener("change", function () {
+        updateModeDescription();
+        updatePreview();
+      });
+    }
+
+    function updateSourceNotice() {
+      if (!unreferencedNotice) return;
+      var edition = sourceEditionInput ? sourceEditionInput.value.trim() : "";
+      var ref = sourceRefInput ? sourceRefInput.value.trim() : "";
+      if (!edition && !ref) {
+        unreferencedNotice.style.display = "flex";
+      } else {
+        unreferencedNotice.style.display = "none";
+      }
+    }
+    if (sourceEditionInput) {
+      sourceEditionInput.addEventListener("input", function () {
+        if (isDemoInput && isDemoInput.value === "1") {
+          isDemoInput.value = "0";
+        }
+        updateSourceNotice();
+        updatePreview();
+      });
+    }
+    if (sourceRefInput) {
+      sourceRefInput.addEventListener("input", function () {
+        updateSourceNotice();
+        updatePreview();
+      });
+    }
+
+    ["critical", "major", "minor"].forEach(function (c) {
+      var acInput = $("#" + c + "_ac");
+      var reInput = $("#" + c + "_re");
+
+      if (acInput && reInput) {
+        acInput.addEventListener("input", function () {
+          var acVal = parseInt(acInput.value, 10);
+          if (!isNaN(acVal) && acVal >= 0) {
+            reInput.value = acVal + 1;
+          }
+          checkReInvariant(c);
+          updatePreview();
+        });
+
+        reInput.addEventListener("input", function () {
+          checkReInvariant(c);
+          updatePreview();
+        });
+      }
+    });
+
+    function checkReInvariant(c) {
+      var acInput = $("#" + c + "_ac");
+      var reInput = $("#" + c + "_re");
+      var warnBox = $("#" + c + "_warning");
+      if (!acInput || !reInput || !warnBox) return true;
+
+      var acVal = parseInt(acInput.value, 10);
+      var reVal = parseInt(reInput.value, 10);
+
+      if (!isNaN(acVal) && !isNaN(reVal)) {
+        if (reVal !== acVal + 1) {
+          warnBox.textContent = lang === "bn"
+            ? "সতর্কতা: সিঙ্গেল স্যাম্পলিংয়ে Re = Ac + 1 হতে হবে (প্রত্যাশিত Re=" + formatNum(acVal + 1, lang) + ")"
+            : "Warning: Single sampling requires Re = Ac + 1 (expected Re=" + (acVal + 1) + ")";
+          warnBox.style.display = "block";
+          reInput.classList.add("is-invalid");
+          return false;
+        } else {
+          warnBox.style.display = "none";
+          warnBox.textContent = "";
+          reInput.classList.remove("is-invalid");
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (btnDemoPreset) {
+      btnDemoPreset.addEventListener("click", function () {
+        var presetN = Math.min(8, lotSize || 8);
+        if (nInput) nInput.value = presetN;
+        if (modeSelect) modeSelect.value = "highest_class_only";
+
+        var critAql = $("#critical_aql");
+        var critAc = $("#critical_ac");
+        var critRe = $("#critical_re");
+        if (critAql) critAql.value = "0.0";
+        if (critAc) critAc.value = "0";
+        if (critRe) critRe.value = "1";
+
+        var majAql = $("#major_aql");
+        var majAc = $("#major_ac");
+        var majRe = $("#major_re");
+        if (majAql) majAql.value = "2.5";
+        if (majAc) majAc.value = "1";
+        if (majRe) majRe.value = "2";
+
+        var minAql = $("#minor_aql");
+        var minAc = $("#minor_ac");
+        var minRe = $("#minor_re");
+        if (minAql) minAql.value = "4.0";
+        if (minAc) minAc.value = "2";
+        if (minRe) minRe.value = "3";
+
+        if (sourceEditionInput) {
+          sourceEditionInput.value = lang === "bn" ? "অননুমোদিত ডেমো অনুমান" : "Unauthorized demo assumption";
+        }
+        if (sourceRefInput) {
+          sourceRefInput.value = lang === "bn"
+            ? "ডেমো টেস্টিং প্রিসেট — কোনো স্ট্যান্ডার্ড থেকে নেওয়া নয়"
+            : "Demo testing preset — not from a standard";
+        }
+        if (isDemoInput) isDemoInput.value = "1";
+        if (confirmedCheck) confirmedCheck.checked = true;
+
+        ["critical", "major", "minor"].forEach(checkReInvariant);
+        updateModeDescription();
+        updateSourceNotice();
+        updatePreview();
+
+        if (window.LotlineUI && window.LotlineUI.toast) {
+          window.LotlineUI.toast(
+            lang === "bn"
+              ? "ডেমো প্রিসেট লোড হয়েছে (অননুমোদিত ডেমো অনুমান)"
+              : "Demo preset loaded (unauthorized demo assumption)",
+            "info"
+          );
+        }
+      });
+    }
+
+    function updatePreview() {
+      if (!previewCard) return;
+
+      var nVal = nInput ? parseInt(nInput.value, 10) : 0;
+      var coverageEl = $("#previewCoverage");
+      var coverageBar = $("#previewCoverageBar");
+      var coverageHint = $("#previewCoverageHint");
+      var validationBadge = $("#previewValidationBadge");
+
+      var critAc = $("#critical_ac") ? parseInt($("#critical_ac").value, 10) : NaN;
+      var critRe = $("#critical_re") ? parseInt($("#critical_re").value, 10) : NaN;
+      var majAc = $("#major_ac") ? parseInt($("#major_ac").value, 10) : NaN;
+      var majRe = $("#major_re") ? parseInt($("#major_re").value, 10) : NaN;
+      var minAc = $("#minor_ac") ? parseInt($("#minor_ac").value, 10) : NaN;
+      var minRe = $("#minor_re") ? parseInt($("#minor_re").value, 10) : NaN;
+
+      var previewCrit = $("#previewCrit");
+      var previewMaj = $("#previewMaj");
+      var previewMin = $("#previewMin");
+      var previewMode = $("#previewMode");
+      var previewSourceLabel = $("#previewSourceLabel");
+
+      var forecastBox = $("#previewForecastBox");
+      var forecastTitle = $("#previewForecastTitle");
+      var forecastDesc = $("#previewForecastDesc");
+
+      if (!isNaN(nVal) && nVal > 0 && lotSize > 0) {
+        var pct = Math.min(100, Math.round((nVal / lotSize) * 100));
+        if (coverageEl) {
+          coverageEl.textContent = formatNum(nVal, lang) + " / " + formatNum(lotSize, lang) + " (" + formatNum(pct, lang) + "%)";
+        }
+        if (coverageBar) {
+          coverageBar.style.width = pct + "%";
+          if (nVal >= lotSize) {
+            coverageBar.classList.add("is-100");
+          } else {
+            coverageBar.classList.remove("is-100");
+          }
+        }
+        if (coverageHint) {
+          if (nVal >= lotSize) {
+            coverageHint.textContent = lang === "bn"
+              ? "সতর্কতা: ১০০% সম্পূর্ণ পরিদর্শন নির্বাচন করা হয়েছে"
+              : "Warning: 100% full inspection selected";
+            coverageHint.className = "small text-warning mt-1 bold";
+          } else {
+            coverageHint.textContent = lang === "bn"
+              ? "লটের আকার " + formatNum(lotSize, lang) + " ইউনিটের মধ্যে " + formatNum(nVal, lang) + " ইউনিটের নমুনা"
+              : "Sample of " + nVal + " garments from lot size " + lotSize;
+            coverageHint.className = "small dim mt-1";
+          }
+        }
+      } else {
+        if (coverageEl) coverageEl.textContent = "--";
+        if (coverageBar) coverageBar.style.width = "0%";
+      }
+
+      if (previewCrit) {
+        previewCrit.textContent = (!isNaN(critAc) && !isNaN(critRe))
+          ? "Ac: " + formatNum(critAc, lang) + " / Re: " + formatNum(critRe, lang)
+          : "--";
+      }
+      if (previewMaj) {
+        previewMaj.textContent = (!isNaN(majAc) && !isNaN(majRe))
+          ? "Ac: " + formatNum(majAc, lang) + " / Re: " + formatNum(majRe, lang)
+          : "--";
+      }
+      if (previewMin) {
+        previewMin.textContent = (!isNaN(minAc) && !isNaN(minRe))
+          ? "Ac: " + formatNum(minAc, lang) + " / Re: " + formatNum(minRe, lang)
+          : "--";
+      }
+
+      if (previewMode && modeSelect) {
+        previewMode.textContent = modeSelect.value === "highest_class_only"
+          ? (lang === "bn" ? "সর্বোচ্চ শ্রেণি গণনা" : "Highest class only")
+          : (lang === "bn" ? "প্রতিটি শ্রেণি গণনা" : "Every class");
+      }
+
+      if (previewSourceLabel) {
+        var isDemo = isDemoInput && isDemoInput.value === "1";
+        var edition = sourceEditionInput ? sourceEditionInput.value.trim() : "";
+        var ref = sourceRefInput ? sourceRefInput.value.trim() : "";
+        if (isDemo) {
+          previewSourceLabel.textContent = lang === "bn" ? "অননুমোদিত ডেমো অনুমান" : "Unauthorized demo assumption";
+          previewSourceLabel.className = "badge badge-warning ms-1";
+        } else if (edition || ref) {
+          previewSourceLabel.textContent = edition || ref;
+          previewSourceLabel.className = "badge badge-neutral ms-1";
+        } else {
+          previewSourceLabel.textContent = lang === "bn" ? "অননুমোদিত অনুমান" : "Unauthorized assumption";
+          previewSourceLabel.className = "badge badge-neutral ms-1";
+        }
+      }
+
+      var isValid = (
+        !isNaN(nVal) && nVal >= 1 && nVal <= lotSize &&
+        !isNaN(critAc) && critAc >= 0 && !isNaN(critRe) && critRe === critAc + 1 &&
+        !isNaN(majAc) && majAc >= 0 && !isNaN(majRe) && majRe === majAc + 1 &&
+        !isNaN(minAc) && minAc >= 0 && !isNaN(minRe) && minRe === minAc + 1
+      );
+
+      if (validationBadge) {
+        if (isValid) {
+          validationBadge.className = "badge badge-success";
+          validationBadge.textContent = lang === "bn" ? "বৈধ সিঙ্গেল-স্যাম্পলিং" : "Valid single sampling";
+        } else {
+          validationBadge.className = "badge badge-danger";
+          validationBadge.textContent = lang === "bn" ? "অবৈধ / অসম্পূর্ণ" : "Invalid / incomplete";
+        }
+      }
+
+      if (forecastBox && forecastTitle && forecastDesc) {
+        forecastBox.className = "preview-forecast-box p-3 rounded";
+        if (!isValid) {
+          forecastBox.classList.add("forecast-hold");
+          forecastTitle.textContent = lang === "bn" ? "HOLD পূর্বাভাস (প্ল্যান অসম্পূর্ণ)" : "HOLD Forecast (Invalid Plan)";
+          forecastDesc.textContent = lang === "bn"
+            ? "প্ল্যানের মান অসম্পূর্ণ বা সিঙ্গেল স্যাম্পলিং নিয়মের বাইরে থাকলে সিদ্ধান্ত গণনা HOLD_PLAN_INVALID রিটার্ন করবে।"
+            : "Missing or invalid plan values will cause the decision engine to return HOLD_PLAN_INVALID.";
+        } else if (unitsPresent === 0) {
+          forecastBox.classList.add("forecast-hold");
+          forecastTitle.textContent = lang === "bn" ? "HOLD পূর্বাভাস (প্রমাণ নেই)" : "HOLD Forecast (No Evidence)";
+          forecastDesc.textContent = lang === "bn"
+            ? "০ গার্মেন্ট নিবন্ধিত — সংরক্ষণের পরও HOLD থাকবে: প্রমাণ নেই (HOLD_UNITS_MISSING)।"
+            : "0 garments registered — will remain HOLD after saving: no evidence (HOLD_UNITS_MISSING).";
+        } else if (unitsPresent < nVal) {
+          forecastBox.classList.add("forecast-hold");
+          forecastTitle.textContent = lang === "bn" ? "HOLD পূর্বাভাস (নমুনা অপূর্ণ)" : "HOLD Forecast (Incomplete Sample)";
+          forecastDesc.textContent = lang === "bn"
+            ? "নমুনা সম্পূর্ণ নয় (" + formatNum(unitsPresent, lang) + "/" + formatNum(nVal, lang) + " গার্মেন্ট) — সিদ্ধান্ত HOLD_UNITS_MISSING থাকবে।"
+            : "Sample incomplete (" + unitsPresent + "/" + nVal + " garments) — decision will remain HOLD_UNITS_MISSING.";
+        } else if (nonvisualStatus === "failed") {
+          forecastBox.classList.add("forecast-reject");
+          forecastTitle.textContent = lang === "bn" ? "REJECT পূর্বাভাস (নন-ভিজুয়াল ব্যর্থ)" : "REJECT Forecast (Non-visual Failed)";
+          forecastDesc.textContent = lang === "bn"
+            ? "ক্রিটিক্যাল নন-ভিজুয়াল চেক ব্যর্থ হিসেবে রেকর্ড করা আছে — সিদ্ধান্ত REJECT হবে।"
+            : "Critical non-visual check recorded as failed — decision will be REJECT.";
+        } else if (nonvisualStatus === "pending") {
+          forecastBox.classList.add("forecast-hold");
+          forecastTitle.textContent = lang === "bn" ? "HOLD পূর্বাভাস (নন-ভিজুয়াল বাকি)" : "HOLD Forecast (Non-visual Pending)";
+          forecastDesc.textContent = lang === "bn"
+            ? "ক্রিটিক্যাল নন-ভিজুয়াল চেক এখনো সম্পন্ন হয়নি — সিদ্ধান্ত HOLD থাকবে।"
+            : "Critical non-visual check is pending — decision will remain HOLD.";
+        } else if (
+          (!isNaN(critRe) && critDefects >= critRe) ||
+          (!isNaN(majRe) && majDefects >= majRe) ||
+          (!isNaN(minRe) && minDefects >= minRe)
+        ) {
+          forecastBox.classList.add("forecast-reject");
+          forecastTitle.textContent = lang === "bn" ? "REJECT পূর্বাভাস (ত্রুটি সীমা অতিক্রম)" : "REJECT Forecast (Limit Exceeded)";
+          forecastDesc.textContent = lang === "bn"
+            ? "নিশ্চিত ত্রুটির সংখ্যা প্রত্যাখ্যান সীমা (Re) ছুঁয়েছে বা অতিক্রম করেছে — সিদ্ধান্ত REJECT হবে।"
+            : "Confirmed defect counts reached or exceeded rejection limit (Re) — decision will be REJECT.";
+        } else {
+          forecastBox.classList.add("forecast-accept");
+          forecastTitle.textContent = lang === "bn" ? "ACCEPT পূর্বাভাস (শর্ত পূরণ)" : "ACCEPT Forecast (Criteria Met)";
+          forecastDesc.textContent = lang === "bn"
+            ? "বর্তমান প্রমাণের ভিত্তিতে সমস্ত শ্রেণি গ্রহণযোগ্য সীমার (Ac) মধ্যে রয়েছে — সিদ্ধান্ত ACCEPT হওয়ার উপযুক্ত।"
+            : "Based on current evidence, all classes are within acceptance limit (Ac) — eligible for ACCEPT.";
+        }
+      }
+    }
+
+    if (nInput) {
+      nInput.addEventListener("input", updatePreview);
+    }
+
+    updateModeDescription();
+    updateSourceNotice();
+    ["critical", "major", "minor"].forEach(checkReInvariant);
+    updatePreview();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPlanPage);
+  } else {
+    initPlanPage();
   }
 
   window.LotlineUI = { toast: showToast, openDialog: openDialog };

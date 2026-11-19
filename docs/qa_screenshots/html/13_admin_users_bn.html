@@ -1,0 +1,576 @@
+
+
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>অ্যাডমিন প্যানেল · Lotline</title>
+  <meta name="description" content="লটলাইন — যাচাইযোগ্য এআই-সহায়তাপ্রাপ্ত নিটওয়্যার লট গ্রহণ। এআই প্রস্তাব করে, মানুষ নিশ্চিত করে, নির্ধারক ইঞ্জিন সিদ্ধান্ত দেয়।">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/noto-sans-bengali-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">মূল বিষয়বস্তুতে যান</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="প্রধান নেভিগেশন">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="সাইডবার ছোট করুন" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="মেনু বন্ধ করুন">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="প্রধান">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">ড্যাশবোর্ড</span>
+        </a>
+        <a href="/lots" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">লট</span>
+        </a>
+      </div>
+
+      
+      <div class="nav-group">
+        <div class="nav-label">ওয়ার্কস্পেস</div>
+        <button class="nav-item" type="button" data-dialog-open="configDialog" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+<span class="lbl">কনফিগারেশন</span>
+          <span class="nav-soon" style="background:var(--subtle);color:var(--text);font-weight:600">ভিউ</span>
+        </button>
+      </div>
+      
+
+      
+      <div class="nav-group">
+        <div class="nav-label">তদারকি</div>
+        
+        <a href="/audit" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></svg>
+<span class="lbl">অডিট লগ</span>
+        </a>
+        
+        
+        <a href="/admin?tab=users" class="on" aria-current="page">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></svg>
+<span class="lbl">ব্যবহারকারী ব্যবস্থাপনা</span>
+        </a>
+        
+      </div>
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>এআই কখনো লট অনুমোদন করে না।</b>
+      প্রতিটি গণনা, কারণ ও ওভাররাইড রেকর্ড হয়।
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">N</span>
+      <div class="who">
+        <b>Nusrat Jahan</b>
+        <span>অ্যাডমিন</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="ব্রেডক্রাম্ব">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>অ্যাডমিন</span>
+          
+        </nav>
+        <h1>অ্যাডমিন প্যানেল</h1>
+        <div class="sub">অ্যাকাউন্ট, মডেল সক্রিয়করণ, অডিট ও সিস্টেম স্বাস্থ্য।</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>ডেমো ডেটা · স্টেজ করা ছবি
+</span></span>
+        <a class="lang-link" href="/lang/en?next=/admin" aria-label="Switch to English">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>English</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="অ্যাকাউন্ট মেনু">
+            <span class="avatar" aria-hidden="true">N</span>
+            <span class="user-name">Nusrat Jahan</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Nusrat Jahan</b>
+              <span>nusrat@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+কীভাবে কাজ করে</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+সাইন আউট</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    
+    <div class="admin-alert" role="status">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg>
+
+      <div>
+        <b>এই বিল্ডে সিস্টেম অ্যালার্ট ফিড নেই।</b>
+        ইনফারেন্স, ডিস্ক ও ব্যাকআপ অ্যালার্ট বর্তমান ব্যাকএন্ডে নেই। অ্যাডমিন স্বাস্থ্য তথ্য অ্যাডমিন প্যানেলে আছে।
+      </div>
+    </div>
+    
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+
+<div class="tabs" style="margin-bottom:18px">
+  <a href="/admin?tab=users" class="on">ব্যবহারকারী</a>
+  <a href="/admin?tab=models" class="">মডেল সংস্করণ</a>
+  <a href="/admin?tab=health" class="">সিস্টেম স্বাস্থ্য</a>
+  <a href="/admin?tab=clauses" class="">ক্রেতার ক্লজ</a>
+  <a href="/audit">অডিট ↗</a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+  
+
+  
+
+  
+
+  
+
+
+<div class="split">
+  
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></svg>
+
+        <span>ব্যবহারকারী</span>
+      </h3>
+      <div class="right"><span class="chip">4 অ্যাকাউন্ট</span></div>
+    </div>
+    <div class="tblwrap">
+      <table class="table" id="users">
+        <thead>
+          <tr>
+            <th>ব্যবহারকারী</th>
+            <th>ভূমিকা</th>
+            <th>অবস্থা</th>
+            <th class="right">কার্যক্রম</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          
+          
+          <tr>
+            
+            <td>
+              <div style="font-weight:650;color:var(--text)">Nadia Rahman</div>
+              <div class="small dim mono font-mono" style="font-size:11px">admin@lotline.demo</div>
+            </td>
+
+            
+            <td>
+              <span class="badge ghost">অ্যাডমিন</span>
+            </td>
+
+            
+            <td>
+              <span class="badge ACCEPT">
+                <span class="dot"></span>active
+              </span>
+            </td>
+
+            
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                
+                
+                <button class="btn sm ghost" disabled title="একমাত্র সক্রিয় অ্যাডমিন নিষ্ক্রিয় করা যাবে না">
+                  <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+ নিষ্ক্রিয়
+                </button>
+                
+
+                
+                
+                <span class="small dim mono" style="font-size:11px" title="নিজের ভূমিকা পরিবর্তন নিষিদ্ধ">
+                  <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+ নিজের অ্যাকাউন্ট
+                </span>
+                
+
+                
+                <form method="post" action="/admin/users/1" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="reset" title="অস্থায়ী পাসওয়ার্ড দিন">
+                    রিসেট
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          
+          
+          
+          <tr>
+            
+            <td>
+              <div style="font-weight:650;color:var(--text)">Farhan Chowdhury</div>
+              <div class="small dim mono font-mono" style="font-size:11px">supervisor@lotline.demo</div>
+            </td>
+
+            
+            <td>
+              <span class="badge ghost">সুপারভাইজার</span>
+            </td>
+
+            
+            <td>
+              <span class="badge ACCEPT">
+                <span class="dot"></span>active
+              </span>
+            </td>
+
+            
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                
+                
+                <form method="post" action="/admin/users/2" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="disable">
+                    নিষ্ক্রিয়
+                  </button>
+                </form>
+                
+
+                
+                
+                <form method="post" action="/admin/users/2" class="inline" style="gap:4px;margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px;margin:0">
+                    
+                    <option value="inspector" >ইন্সপেক্টর</option>
+                    
+                    <option value="supervisor" selected>সুপারভাইজার</option>
+                    
+                    <option value="admin" >অ্যাডমিন</option>
+                    
+                  </select>
+                  <button class="btn sm" name="action" value="role">সংরক্ষণ</button>
+                </form>
+                
+
+                
+                <form method="post" action="/admin/users/2" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="reset" title="অস্থায়ী পাসওয়ার্ড দিন">
+                    রিসেট
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          
+          
+          
+          <tr>
+            
+            <td>
+              <div style="font-weight:650;color:var(--text)">Ayesha Karim</div>
+              <div class="small dim mono font-mono" style="font-size:11px">lead@lotline.demo</div>
+            </td>
+
+            
+            <td>
+              <span class="badge ghost">সুপারভাইজার</span>
+            </td>
+
+            
+            <td>
+              <span class="badge ACCEPT">
+                <span class="dot"></span>active
+              </span>
+            </td>
+
+            
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                
+                
+                <form method="post" action="/admin/users/3" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="disable">
+                    নিষ্ক্রিয়
+                  </button>
+                </form>
+                
+
+                
+                
+                <form method="post" action="/admin/users/3" class="inline" style="gap:4px;margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px;margin:0">
+                    
+                    <option value="inspector" >ইন্সপেক্টর</option>
+                    
+                    <option value="supervisor" selected>সুপারভাইজার</option>
+                    
+                    <option value="admin" >অ্যাডমিন</option>
+                    
+                  </select>
+                  <button class="btn sm" name="action" value="role">সংরক্ষণ</button>
+                </form>
+                
+
+                
+                <form method="post" action="/admin/users/3" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="reset" title="অস্থায়ী পাসওয়ার্ড দিন">
+                    রিসেট
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          
+          
+          
+          <tr>
+            
+            <td>
+              <div style="font-weight:650;color:var(--text)">Rakib Hasan</div>
+              <div class="small dim mono font-mono" style="font-size:11px">inspector@lotline.demo</div>
+            </td>
+
+            
+            <td>
+              <span class="badge ghost">ইন্সপেক্টর</span>
+            </td>
+
+            
+            <td>
+              <span class="badge ACCEPT">
+                <span class="dot"></span>active
+              </span>
+            </td>
+
+            
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                
+                
+                <form method="post" action="/admin/users/4" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="disable">
+                    নিষ্ক্রিয়
+                  </button>
+                </form>
+                
+
+                
+                
+                <form method="post" action="/admin/users/4" class="inline" style="gap:4px;margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px;margin:0">
+                    
+                    <option value="inspector" selected>ইন্সপেক্টর</option>
+                    
+                    <option value="supervisor" >সুপারভাইজার</option>
+                    
+                    <option value="admin" >অ্যাডমিন</option>
+                    
+                  </select>
+                  <button class="btn sm" name="action" value="role">সংরক্ষণ</button>
+                </form>
+                
+
+                
+                <form method="post" action="/admin/users/4" style="margin:0">
+                  <input type="hidden" name="csrf" value="">
+                  <button class="btn sm ghost" name="action" value="reset" title="অস্থায়ী পাসওয়ার্ড দিন">
+                    রিসেট
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+        <span>নতুন ব্যবহারকারী</span>
+      </h3>
+    </div>
+    <div class="pad">
+      <form method="post" action="/admin/users" id="createUserForm">
+        <input type="hidden" name="csrf" value="">
+
+        <div class="field">
+          <label for="u-email">ইমেইল <span class="req">*</span></label>
+          <input id="u-email" name="email" type="email" required placeholder="user@lotline.demo" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="u-name">প্রদর্শিত নাম <span class="req">*</span></label>
+          <input id="u-name" name="display_name" required placeholder="Full Name" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="u-role">ভূমিকা <span class="req">*</span></label>
+          <select id="u-role" name="role" required>
+            
+            <option value="inspector">ইন্সপেক্টর</option>
+            
+            <option value="supervisor">সুপারভাইজার</option>
+            
+            <option value="admin">অ্যাডমিন</option>
+            
+          </select>
+          <div class="hint">ইন্সপেক্টর: ক্যাপচার/রিভিউ; সুপারভাইজার: প্ল্যান/ওভাররাইড; অ্যাডমিন: ইউজার/সিস্টেম</div>
+        </div>
+
+        <div class="field">
+          <label for="u-pass">পাসওয়ার্ড <span class="req">*</span></label>
+          <input id="u-pass" name="password" type="text" required minlength="15" placeholder="Minimum 15 characters...">
+        </div>
+
+        <div class="note info" style="margin-bottom:14px;font-size:11.5px;line-height:1.4">
+          ১৫+ অক্ষর, কম্পোজিশন নিয়ম নেই, সাধারণ শব্দ যাচাই হয়। অস্থায়ী পাসওয়ার্ডে প্রথম লগইনে পরিবর্তন বাধ্যতামূলক।
+        </div>
+
+        <button class="btn primary" type="submit">সংরক্ষণ</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+    </main>
+    <footer class="foot">
+      <span>ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।</span>
+      <a href="/how">কীভাবে কাজ করে</a>
+    </footer>
+  </div>
+</div>
+
+
+<dialog class="dialog" id="configDialog" aria-labelledby="configDialog-title" style="max-width:640px">
+  <div class="dialog-head">
+    <h2 id="configDialog-title" style="display:flex;align-items:center;gap:8px">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+
+      <span>সিস্টেম কনফিগারেশন ও ক্যাটালগ</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <div class="note info" style="margin-bottom:14px">
+      <b>এন্টারপ্রাইজ সিঙ্ক (রিড-অনলি)</b>:
+      <div class="small dim" style="margin-top:2px">
+        পণ্য, ক্রেতা এবং ডিফেক্ট সিরিয়িটি ক্লজ সেন্ট্রাল ইআরপি থেকে সিঙ্ক হয়। ইন্সপেকশন টার্মিনালে এটি শুধু পড়া যায় (FR-CLS-001)।
+      </div>
+    </div>
+    <div class="grid cols-2" style="gap:14px">
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">নিবন্ধিত ক্রেতা</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Nordic Wear</b> (SE) · Level II AQL</li>
+          <li><b>EuroKnit Fashion</b> (DE) · Strict Zone 1</li>
+          <li><b>Pacific Apparel Co.</b> (US) · Retail Standard</li>
+        </ul>
+      </div>
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">সক্রিয় পোশাক</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Essential Crew Tee</b> (Single jersey)</li>
+          <li><b>Ribbed Polo Shirt</b> (Pique knit)</li>
+          <li><b>Fleece Pullover</b> (Brushed fleece)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="lbl" style="font-weight:700;margin-bottom:4px">ডিফেক্ট ক্লাসিফিকেশন মানদণ্ড</div>
+      <p class="small dim" style="line-height:1.4">
+        ডিফেক্ট টাইপ, পোশাকের জোন ও ক্রেতার ক্লজের ভিত্তিতে সার্ভার স্বয়ংক্রিয়ভাবে সিরিয়িটি নির্ধারণ করে।
+      </p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    
+    <a class="btn sm" href="/admin?tab=clauses">সম্পূর্ণ ক্লজ ম্যাট্রিক্স →</a>
+    
+    <button class="btn ghost sm" type="button" data-dialog-close>বন্ধ করুন</button>
+  </div>
+</dialog>
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

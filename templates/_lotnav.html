@@ -1,5 +1,5 @@
 {% import "components/icons.html" as icons with context %}
-<nav class="tabs" aria-label="{{ 'Lot sections' if lang=='en' else 'লট বিভাগ' }}" style="margin-bottom:20px">
+<nav class="tabs" aria-label="{{ 'Lot sections' if lang=='en' else 'লট বিভাগ' }}">
   <a href="/lots/{{ lot.id }}" class="{{ 'on' if request.url.path == '/lots/' ~ lot.id }}"{% if request.url.path == '/lots/' ~ lot.id %} aria-current="page"{% endif %}>
     {{ icons.icon('layers', 14) }}<span>{{ tr('lot.overview') }}</span>
   </a>
@@ -17,7 +17,7 @@
   <a href="/lots/{{ lot.id }}/decision" class="{{ 'on' if request.url.path.endswith('/decision') }}"{% if request.url.path.endswith('/decision') %} aria-current="page"{% endif %}>
     {{ icons.icon('clipboard-check', 14) }}<span>{{ tr('lot.decision') }}</span>
   </a>
-  <a href="/lots/{{ lot.id }}#history">
+  <a href="/lots/{{ lot.id }}#history" id="tabHistory">
     {{ icons.icon('clock', 14) }}<span>{{ 'History' if lang=='en' else 'ইতিহাস' }}</span>
   </a>
   {% if user.role != 'admin' %}

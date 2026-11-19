@@ -24,10 +24,12 @@ def demo_stats() -> dict:
     predictions = db.one("SELECT COUNT(*) AS n FROM prediction")["n"]
     confirmed = db.one("SELECT COUNT(*) AS n FROM prediction WHERE review_state='confirmed'")["n"]
     rejected = db.one("SELECT COUNT(*) AS n FROM prediction WHERE review_state='rejected'")["n"]
+    proposed = db.one("SELECT COUNT(*) AS n FROM prediction WHERE review_state='proposed'")["n"]
     decisions = db.q("SELECT outcome, COUNT(*) AS n FROM decision GROUP BY outcome")
     return {
         "images": images,
         "proposals": predictions,
+        "proposed": proposed,
         "confirmed": confirmed,
         "rejected": rejected,
         "decisions": {row["outcome"]: row["n"] for row in decisions},

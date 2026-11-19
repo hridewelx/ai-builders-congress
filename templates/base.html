@@ -8,10 +8,14 @@
   <meta name="theme-color" content="#101E2B">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
   <title>{% block title %}Lotline{% endblock %} · Lotline</title>
-  <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <meta name="description" content="{{ tr('meta.description') }}">
   <link rel="icon" href="/static/brand/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  {% if lang == 'bn' %}
+  <link rel="preload" href="/static/fonts/noto-sans-bengali-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/noto-sans-bengali-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  {% endif %}
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -22,9 +26,9 @@
 <div class="shell">
   <aside class="rail" id="sidebar" aria-label="{{ 'Primary navigation' if lang=='en' else 'প্রধান নেভিগেশন' }}">
     <div class="rail-head">
-      <a class="brand" href="/" aria-label="Lotline home">
-        <img class="brand-full" src="/static/brand/logo-full-light.svg" alt="Lotline">
-        <img class="brand-icon" src="/static/brand/logo-icon.svg" alt="Lotline">
+      <a class="brand" href="/" aria-label="{{ 'Lotline home' if lang=='en' else 'লটলাইন হোম' }}">
+        <img class="brand-full" src="/static/brand/logo-full-light.svg" alt="{{ tr('app.name') }}">
+        <img class="brand-icon" src="/static/brand/logo-icon.svg" alt="{{ tr('app.name') }}">
       </a>
       <button class="rail-toggle" type="button" data-rail-toggle aria-label="{{ 'Collapse sidebar' if lang=='en' else 'সাইডবার ছোট করুন' }}" aria-expanded="true" aria-controls="sidebar">
         {{ icons.icon('panel-left-close', 17) }}
@@ -47,9 +51,9 @@
       {% if user.role in ('admin','supervisor') %}
       <div class="nav-group">
         <div class="nav-label">{{ 'Workspace' if lang=='en' else 'ওয়ার্কস্পেস' }}</div>
-        <button class="nav-item" type="button" data-dialog-open="configDialog" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit">
+        <button class="nav-item is-btn" type="button" data-dialog-open="configDialog">
           {{ icons.icon('settings') }}<span class="lbl">{{ 'Configuration' if lang=='en' else 'কনফিগারেশন' }}</span>
-          <span class="nav-soon" style="background:var(--subtle);color:var(--text);font-weight:600">{{ 'View' if lang=='en' else 'ভিউ' }}</span>
+          <span class="nav-badge">{{ tr('nav.view_only') }}</span>
         </button>
       </div>
       {% endif %}
@@ -75,7 +79,6 @@
     <div class="railcard">
       <b>{{ tr('dash.principle') }}</b>
       {{ 'Every count, reason and override is recorded.' if lang=='en' else 'প্রতিটি গণনা, কারণ ও ওভাররাইড রেকর্ড হয়।' }}
-      <div>{{ ui.demo_tag(tr('lot.demo_data'), 'demo', 'Demo build with staged synthetic garment photos.') }}</div>
     </div>
     <div class="rail-user">
       <span class="avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
@@ -83,10 +86,6 @@
         <b>{{ user.display_name }}</b>
         <span>{{ tr('common.' ~ user.role) }}</span>
       </div>
-      <form method="post" action="/logout">
-        <input type="hidden" name="csrf" value="{{ csrf }}">
-        <button class="btn sm ghost" type="submit" title="{{ tr('nav.logout') }}" aria-label="{{ tr('nav.logout') }}">{{ icons.icon('log-out', 16) }}</button>
-      </form>
     </div>
   </aside>
 
@@ -114,7 +113,6 @@
         <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
           {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
         </a>
-        <span class="role-pill">{{ tr('common.' ~ user.role) }}</span>
         <details class="user-menu">
           <summary aria-label="{{ 'Account menu' if lang=='en' else 'অ্যাকাউন্ট মেনু' }}">
             <span class="avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
@@ -127,9 +125,6 @@
               <span>{{ user.email }}</span>
             </div>
             <a href="/how">{{ icons.icon('help-circle', 16) }}{{ tr('nav.how') }}</a>
-            <a href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}">
-              {{ icons.icon('languages', 16) }}{{ 'বাংলা দেখুন' if lang=='en' else 'View in English' }}
-            </a>
             <form method="post" action="/logout">
               <input type="hidden" name="csrf" value="{{ csrf }}">
               <button type="submit">{{ icons.icon('log-out', 16) }}{{ tr('nav.logout') }}</button>
@@ -139,67 +134,61 @@
       </div>
     </header>
 
-    {% if user.role == 'admin' and active in ('dashboard','admin') %}
-    <div class="admin-alert" role="status">
-      {{ icons.icon('triangle-alert', 16) }}
-      <div>
-        <b>{{ 'System alert feed unavailable in this build.' if lang=='en' else 'এই বিল্ডে সিস্টেম অ্যালার্ট ফিড নেই।' }}</b>
-        {{ 'Inference, disk and backup alerts are not exposed by the current backend. Admin health data remains on the Admin panel.' if lang=='en' else 'ইনফারেন্স, ডিস্ক ও ব্যাকআপ অ্যালার্ট বর্তমান ব্যাকএন্ডে নেই। অ্যাডমিন স্বাস্থ্য তথ্য অ্যাডমিন প্যানেলে আছে।' }}
-      </div>
-    </div>
-    {% endif %}
-
     <main class="content" id="main-content">
-      {% if ok %}<div class="note ok" style="margin-bottom:14px" role="status">{{ tr('flash.' ~ ok) }}</div>{% endif %}
-      {% if err %}<div class="note bad" style="margin-bottom:14px" role="alert">{{ tr('err.' ~ err) }}</div>{% endif %}
+      {% if ok and not suppress_default_flash %}<div class="note ok" style="margin-bottom:14px" role="status">{{ tr('flash.' ~ ok) }}</div>{% endif %}
+      {% if err and not suppress_default_flash %}<div class="note bad" style="margin-bottom:14px" role="alert">{{ tr('err.' ~ err) }}</div>{% endif %}
       {% block content %}{% endblock %}
     </main>
     <footer class="foot">
-      <span>{{ 'Demo build · staged synthetic photos · no real buyer or personal data.' if lang=='en' else 'ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।' }}</span>
-      <span class="demo-tag demo-tag-ai">{{ icons.icon('info', 12) }}{{ 'Illustrative, not model output' if lang=='en' else 'দৃষ্টান্তমূলক, মডেলের আউটপুট নয়' }}</span>
+      <span>{{ tr('foot.demo_note') }}</span>
       <a href="/how">{{ tr('nav.how') }}</a>
     </footer>
   </div>
 </div>
 
 {% if user and user.role in ('admin', 'supervisor') %}
-<dialog class="dialog" id="configDialog" aria-labelledby="configDialog-title" style="max-width:640px">
+<dialog class="dialog config-dialog" id="configDialog" aria-labelledby="configDialog-title">
   <div class="dialog-head">
-    <h2 id="configDialog-title" style="display:flex;align-items:center;gap:8px">
+    <h2 id="configDialog-title" class="dialog-title-h2">
       {{ icons.icon('settings', 18) }}
       <span>{{ 'System Configuration & Catalog' if lang=='en' else 'সিস্টেম কনফিগারেশন ও ক্যাটালগ' }}</span>
     </h2>
-    <button class="icon-btn" type="button" data-dialog-close aria-label="Close">{{ icons.icon('x', 18) }}</button>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="{{ 'Close dialog' if lang=='en' else 'ডায়ালগ বন্ধ করুন' }}">{{ icons.icon('x', 18) }}</button>
   </div>
   <div class="dialog-body">
-    <div class="note info" style="margin-bottom:14px">
-      <b>{{ 'Enterprise Synchronization (Read-Only)' if lang=='en' else 'এন্টারপ্রাইজ সিঙ্ক (রিড-অনলি)' }}</b>:
-      <div class="small dim" style="margin-top:2px">
-        {{ 'Products, buyers, and defect severity clauses are synchronized from the enterprise ERP. In Version 1, specifications are strictly read-only on inspection terminals to preserve compliance integrity (FR-CLS-001).' if lang=='en' else 'পণ্য, ক্রেতা এবং ডিফেক্ট সিরিয়িটি ক্লজ সেন্ট্রাল ইআরপি থেকে সিঙ্ক হয়। ইন্সপেকশন টার্মিনালে এটি শুধু পড়া যায় (FR-CLS-001)।' }}
+    <div class="note info config-note">
+      <b>{{ 'Catalog & Buyer Clauses' if lang=='en' else 'ক্যাটালগ ও ক্রেতার ক্লজ' }}</b>:
+      <div class="small dim mt-2">
+        {{ 'Products, buyers, and defect severity clauses are seeded demo data, read-only for admin.' if lang=='en' else 'পণ্য ক্যাটালগ ও ক্রেতার ডিফেক্ট ক্লজ ডেমো ডেটা হিসেবে সংরক্ষিত এবং অ্যাডমিনের জন্য কেবল পাঠযোগ্য।' }}
       </div>
     </div>
-    <div class="grid cols-2" style="gap:14px">
-      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
-        <div class="lbl" style="font-weight:700;margin-bottom:6px">{{ 'Registered Buyers' if lang=='en' else 'নিবন্ধিত ক্রেতা' }}</div>
-        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
-          <li><b>Nordic Wear</b> (SE) · Level II AQL</li>
-          <li><b>EuroKnit Fashion</b> (DE) · Strict Zone 1</li>
-          <li><b>Pacific Apparel Co.</b> (US) · Retail Standard</li>
+    <div class="grid cols-2 config-grid">
+      <div class="config-box">
+        <div class="lbl config-box-lbl">{{ 'Registered Buyers' if lang=='en' else 'নিবন্ধিত ক্রেতা' }}</div>
+        <ul class="small dim catalog-list">
+          {% for b in catalog_buyers %}
+          <li><b>{{ b.name }}</b> ({{ b.country }})</li>
+          {% else %}
+          <li><b>Nordika Retail</b> (SE)</li>
+          <li><b>Sakura Apparel</b> (JP)</li>
+          {% endfor %}
         </ul>
       </div>
-      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
-        <div class="lbl" style="font-weight:700;margin-bottom:6px">{{ 'Active Knit Garments' if lang=='en' else 'সক্রিয় পোশাক' }}</div>
-        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
-          <li><b>Essential Crew Tee</b> (Single jersey)</li>
-          <li><b>Ribbed Polo Shirt</b> (Pique knit)</li>
-          <li><b>Fleece Pullover</b> (Brushed fleece)</li>
+      <div class="config-box">
+        <div class="lbl config-box-lbl">{{ 'Active Knit Garments' if lang=='en' else 'সক্রিয় পোশাক' }}</div>
+        <ul class="small dim catalog-list">
+          {% for p in catalog_products %}
+          <li><b>{{ p.name }}</b> ({{ p.family }})</li>
+          {% else %}
+          <li><b>Essential Crew Tee</b> (knit — single jersey tee)</li>
+          {% endfor %}
         </ul>
       </div>
     </div>
-    <div style="margin-top:14px">
-      <div class="lbl" style="font-weight:700;margin-bottom:4px">{{ 'Defect Classification Standard' if lang=='en' else 'ডিফেক্ট ক্লাসিফিকেশন মানদণ্ড' }}</div>
-      <p class="small dim" style="line-height:1.4">
-        {{ 'Severity is server-assigned based on defect type, garment zone (1: chest/front, 2: sleeves/back, 3: hem/collar), and buyer clauses. The 7 defect types are fixed per PRD FR-REV-002.' if lang=='en' else 'ডিফেক্ট টাইপ, পোশাকের জোন ও ক্রেতার ক্লজের ভিত্তিতে সার্ভার স্বয়ংক্রিয়ভাবে সিরিয়িটি নির্ধারণ করে।' }}
+    <div class="config-clause-desc">
+      <div class="lbl config-box-lbl">{{ 'Defect Classification Standard' if lang=='en' else 'ডিফেক্ট ক্লাসিফিকেশন মানদণ্ড' }}</div>
+      <p class="small dim">
+        {{ 'Severity is server-assigned based on defect type, garment zone (1: chest/front, 2: sleeves/back, 3: hem/collar), and buyer clauses.' if lang=='en' else 'ডিফেক্ট টাইপ, পোশাকের জোন ও ক্রেতার ক্লজের ভিত্তিতে সার্ভার স্বয়ংক্রিয়ভাবে সিরিয়িটি নির্ধারণ করে।' }}
       </p>
     </div>
   </div>

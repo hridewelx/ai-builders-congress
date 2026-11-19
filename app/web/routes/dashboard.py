@@ -44,7 +44,7 @@ def dashboard(request: Request):
     cards = lot_cards(request)
     c = service.counters()
     card = load_model_card()
-    return page(request, "dashboard.html", active="dashboard", cards=cards[:6], counters=c,
+    return page(request, "dashboard.html", active="dashboard", cards=cards[:4], counters=c,
                 model=vision.MODEL_NAME, model_ok=card.get("self_test", {}).get("passed", False),
                 stats=demo_stats())
 

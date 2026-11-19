@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "components/ui.html" as ui with context %}
 {% import "components/icons.html" as icons with context %}
-{% block title %}{{ tr('nav.dashboard') }}{% endblock %}
+{% block title %}ড্যাশবোর্ড{% endblock %}
 {% block heading %}{{ tr('dash.title') }}{% endblock %}
 {% block subheading %}{{ tr('dash.subtitle') }}{% endblock %}
 {% block content %}
@@ -15,54 +15,58 @@
 {% endfor %}
 
 {# --- Top KPI Metric Cards (Compact Linear / Stripe Stat Grid) --- #}
-<div class="grid cols-4 kpi-grid" style="margin-bottom:22px">
+<div class="grid cols-4 kpi-grid kpi-grid-dashboard">
   {{ ui.metric_card(
     tr('dash.open_lots'),
-    stats.lots,
-    hint=stats.images ~ ' ' ~ tr('common.images')|lower,
-    badge_text=('Strict QC' if lang=='en' else 'কঠোর QC'),
+    stats.lots|num,
+    hint=stats.images|num ~ ' ' ~ tr('common.images')|lower,
+    badge_text='',
     tone='accent',
-    icon_name='layers'
+    icon_name='layers',
+    href='/lots'
   ) }}
 
   {{ ui.metric_card(
     tr('dash.hold'),
-    counters.HOLD,
+    counters.HOLD|num,
     hint=('Awaiting evidence review' if lang=='en' else 'প্রমাণের অপেক্ষায়'),
-    badge_text=tr('out.HOLD'),
+    badge_text='',
     tone='warning',
-    icon_name='pause'
+    icon_name='pause',
+    href='/lots?outcome=HOLD'
   ) }}
 
   {{ ui.metric_card(
     tr('dash.escalate'),
-    counters.ESCALATE,
+    counters.ESCALATE|num,
     hint=('Supervisor decision needed' if lang=='en' else 'সুপারভাইজার সিদ্ধান্ত জরুরি'),
-    badge_text=tr('out.ESCALATE'),
+    badge_text='',
     tone='info',
-    icon_name='arrow-up-right'
+    icon_name='arrow-up-right',
+    href='/lots?outcome=ESCALATE'
   ) }}
 
   {{ ui.metric_card(
     tr('dash.decided'),
-    counters.decided,
-    hint=stats.audit ~ (' audit events' if lang=='en' else 'টি অডিট ইভেন্ট'),
+    counters.decided|num,
+    hint=stats.audit|num ~ (' audit events' if lang=='en' else 'টি অডিট ইভেন্ট'),
     badge_text=('Locked' if lang=='en' else 'লকড'),
     tone='success',
-    icon_name='badge-check'
+    icon_name='badge-check',
+    href='/lots?state=decided'
   ) }}
 </div>
 
 {# --- Supervisor & Admin: Awaiting Second Supervisor Approval Banner --- #}
 {% if user.role in ('supervisor','admin') and pending_overrides %}
-<div class="card" style="margin-bottom:20px;border-color:var(--amber-line);background:linear-gradient(to right, rgba(245,158,11,0.04), transparent)">
+<div class="card pending-override-card">
   <div class="card-h">
-    <h2 style="display:flex;align-items:center;gap:8px;font-size:15px;color:var(--amber-ink)">
+    <h2 class="override-banner-title">
       {{ icons.icon('git-pull-request', 18) }}
       <span>{{ 'High-Risk Overrides Awaiting Second Supervisor' if lang=='en' else 'দ্বিতীয় সুপারভাইজারের অনুমোদনের অপেক্ষায় হাই-রিস্ক ওভাররাইড' }}</span>
     </h2>
     <div class="right">
-      <span class="badge HOLD">{{ pending_overrides|length }} {{ 'pending approval' if lang=='en' else 'অনুমোদন বাকি' }}</span>
+      <span class="badge HOLD">{{ pending_overrides|length|num }} {{ 'pending approval' if lang=='en' else 'অনুমোদন বাকি' }}</span>
     </div>
   </div>
   <div class="tblwrap">
@@ -80,8 +84,12 @@
         {% for c in pending_overrides %}
         <tr>
           <td>
-            <a href="/lots/{{ c.id }}" style="font-weight:650">{{ c.lot_code }}</a>
-            <div class="small dim">{{ c.buyer_name }} · {{ c.product_name }}</div>
+            <a href="/lots/{{ c.id }}" class="font-bold">{{ c.lot_code }}</a>
+            <div class="small dim">
+              <span>{{ c.buyer_name }}</span>
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span>{{ c.product_name }}</span>
+            </div>
           </td>
           <td>
             <span class="small font-medium">{{ c.override.supervisor or ('Supervisor' if lang=='en' else 'সুপারভাইজার') }}</span>
@@ -89,11 +97,11 @@
           </td>
           <td>
             <span class="badge ACCEPT">
-              <span class="dot"></span>
+              <span class="dot" aria-hidden="true"></span>
               {{ c.override.final_disposition.replace('OVERRIDE_','') }}
             </span>
           </td>
-          <td class="small muted" style="max-width:320px">
+          <td class="small muted tbl-reason">
             {{ c.override.reason[:100] }}{% if c.override.reason|length > 100 %}…{% endif %}
           </td>
           <td class="right">
@@ -109,45 +117,58 @@
 </div>
 {% endif %}
 
-{# --- Admin System Operational Integrity & Alert Status --- #}
+{# --- Admin System Operational Integrity & Status --- #}
 {% if user.role == 'admin' %}
-<div class="card" style="margin-bottom:20px;border-color:var(--line)">
+<div class="card admin-health-card">
   <div class="card-h">
-    <h2 style="display:flex;align-items:center;gap:8px;font-size:15px">
-      <span style="color:var(--navy)">{{ icons.icon('activity', 18) }}</span>
-      <span>{{ 'System Operational Integrity & Alert Status' if lang=='en' else 'সিস্টেম অপারেশনাল ইন্টিগ্রিটি ও অ্যালার্ট স্ট্যাটাস' }}</span>
+    <h2 class="card-title-h3">
+      <span class="navy-ink">{{ icons.icon('activity', 18) }}</span>
+      <span>{{ tr('health.system_status') }}</span>
     </h2>
     <div class="right">
       <a class="btn sm ghost" href="/admin?tab=health">{{ 'Full Health' if lang=='en' else 'সম্পূর্ণ স্বাস্থ্য' }} →</a>
     </div>
   </div>
   <div class="pad-sm">
-    <div class="grid cols-3" style="gap:12px">
-      <div style="background:var(--surface-subtle);padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+    <div class="grid cols-3 admin-health-grid">
+      <div class="admin-stat-box">
         <div class="between">
           <span class="small dim">{{ 'Inference Engine' if lang=='en' else 'ইনফারেন্স ইঞ্জিন' }}</span>
-          <span class="badge {{ 'ACCEPT' if model_ok else 'HOLD' }}"><span class="dot"></span>{{ 'OK' if model_ok else 'Check' }}</span>
+          {% if last_selftest and last_selftest.passed %}
+            <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ tr('status.ok') }}</span>
+          {% elif model_ok %}
+            <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ tr('status.ok') }}</span>
+          {% else %}
+            <span class="badge HOLD"><span class="dot" aria-hidden="true"></span>{{ 'Check' if lang=='en' else 'পরীক্ষা করুন' }}</span>
+          {% endif %}
         </div>
-        <div class="mono small" style="margin-top:6px;font-weight:600">{{ model }}</div>
-        <div class="small dim" style="margin-top:2px">{{ 'Autoencoder · CPU · in-process' if lang=='en' else 'অটোএনকোডার · সিপিইউ · প্রসেসের ভেতরে' }}</div>
+        <div class="mono small font-bold mt-6">{{ model }}</div>
+        <div class="small dim">
+          {{ 'Server-side autoencoder · CPU in-process' if lang=='en' else 'সার্ভার-সাইড অটোএনকোডার · সিপিইউ (ইন-প্রসেস)' }}
+        </div>
+        {% if last_selftest and last_selftest.created_at %}
+        <div class="small dim" style="margin-top:3px">
+          {{ tr('health.tested') }}: {{ last_selftest.created_at|dt_local }}
+        </div>
+        {% endif %}
       </div>
 
-      <div style="background:var(--surface-subtle);padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+      <div class="admin-stat-box">
         <div class="between">
           <span class="small dim">{{ 'Audit Log Integrity' if lang=='en' else 'অডিট লগ ইন্টিগ্রিটি' }}</span>
-          <span class="badge ACCEPT"><span class="dot"></span>{{ 'Active' if lang=='en' else 'সক্রিয়' }}</span>
+          <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ 'Active' if lang=='en' else 'সক্রিয়' }}</span>
         </div>
-        <div class="small" style="margin-top:6px;font-weight:600">{{ stats.audit }} {{ 'recorded events' if lang=='en' else 'ইভেন্ট সংরক্ষিত' }}</div>
-        <div class="small dim" style="margin-top:2px">{{ 'Append-only SQLite · 0 gaps' if lang=='en' else 'অ্যাপেন্ড-অনলি · কোনো গ্যাপ নেই' }}</div>
+        <div class="small font-bold mt-6">{{ stats.audit|num }} {{ 'recorded events' if lang=='en' else 'টি ইভেন্ট সংরক্ষিত' }}</div>
+        <div class="small dim">{{ tr('health.append_only') }}</div>
       </div>
 
-      <div style="background:var(--surface-subtle);padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+      <div class="admin-stat-box">
         <div class="between">
-          <span class="small dim">{{ 'Security Boundary' if lang=='en' else 'নিরাপত্তা বাউন্ডারি' }}</span>
-          <span class="badge ghost">{{ 'Enforced' if lang=='en' else 'বলবৎ' }}</span>
+          <span class="small dim">{{ tr('health.policy_title') }}</span>
+          <span class="badge ghost">{{ tr('health.policy_badge') }}</span>
         </div>
-        <div class="small" style="margin-top:6px;font-weight:600">{{ 'Admin QC Blocked' if lang=='en' else 'অ্যাডমিন QC নিষিদ্ধ' }}</div>
-        <div class="small dim" style="margin-top:2px">{{ 'No capture / review / override rights' if lang=='en' else 'ক্যাপচার/রিভিউ/ওভাররাইড অধিকার নেই' }}</div>
+        <div class="small font-bold mt-6">{{ 'Admin QC Blocked' if lang=='en' else 'অ্যাডমিন QC নিষিদ্ধ' }}</div>
+        <div class="small dim">{{ tr('health.policy_desc') }}</div>
       </div>
     </div>
   </div>
@@ -158,18 +179,18 @@
 <div class="split">
   <div>
     {# Workspace Toolbar #}
-    <div class="workspace-head" style="margin-bottom:16px">
-      <div class="between" style="align-items:center;flex-wrap:wrap;gap:12px">
+    <div class="workspace-head">
+      <div class="workspace-head-inner">
         <div>
-          <h2 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px">
+          <h2 class="workspace-title">
             <span>{{ tr('dash.recent') }}</span>
-            <span class="badge ghost" style="font-size:11px;font-weight:600">{{ cards|length }} {{ 'lots' if lang=='en' else 'লট' }}</span>
+            <span class="badge ghost badge-count">{{ tr('dash.recent_lots_count').format(recent=cards|length|num, total=stats.lots|num) }}</span>
           </h2>
-          <div class="small dim" style="margin-top:2px">
-            {{ 'Active inspection lots with two-line disposition comparison' if lang=='en' else 'টু-লাইন ডিসপোজিশন সমন্বিত সক্রিয় ইন্সপেকশন লট' }}
+          <div class="workspace-subtitle">
+            {{ tr('dash.active_lots_subtitle') }}
           </div>
         </div>
-        <div class="btnrow" style="gap:8px">
+        <div class="btnrow btnrow-gap">
           {% if user.role in ('inspector', 'supervisor') %}
           <a class="btn sm primary" href="/lots/new">
             {{ icons.icon('plus', 14) }}
@@ -184,51 +205,63 @@
       </div>
 
       {# Instant Search and Filter Bar #}
-      <div class="lot-toolbar" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div class="search-wrap" style="position:relative;flex:1;min-width:220px;max-width:380px">
-          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex">
+      <div class="lot-toolbar">
+        <div class="search-wrap">
+          <label for="lotSearchInput" class="sr-only">{{ tr('common.search') }}</label>
+          <span class="search-icon" aria-hidden="true">
             {{ icons.icon('search', 14) }}
           </span>
-          <input type="search" id="lotSearchInput" class="input sm" style="padding-left:32px;width:100%" placeholder="{{ 'Search lot, buyer, style...' if lang=='en' else 'লট, ক্রেতা, পোশাক খুঁজুন...' }}">
+          <input type="search" id="lotSearchInput" class="input sm search-input"
+                 aria-controls="lotGrid"
+                 placeholder="{{ 'Search lot, buyer, style...' if lang=='en' else 'লট, ক্রেতা, পোশাক খুঁজুন...' }}">
         </div>
+        <div id="lotSearchResultsLive" class="sr-only" aria-live="polite"></div>
 
-        <div class="filter-pills" role="tablist">
-          <button type="button" class="pill-btn on" data-filter-tab="all">{{ 'All' if lang=='en' else 'সব' }}</button>
-          <button type="button" class="pill-btn" data-filter-tab="open">{{ 'Open' if lang=='en' else 'ওপেন' }}</button>
-          <button type="button" class="pill-btn" data-filter-tab="decided">{{ 'Decided' if lang=='en' else 'নিষ্পন্ন' }}</button>
+        <div class="filter-pills" role="group" aria-label="{{ 'Filter lots' if lang=='en' else 'লট ফিল্টার' }}">
+          <button type="button" class="pill-btn on" data-filter-tab="all" aria-pressed="true">{{ tr('common.all') }}</button>
+          <button type="button" class="pill-btn" data-filter-tab="open" aria-pressed="false">{{ tr('status.in_progress') }}</button>
+          <button type="button" class="pill-btn" data-filter-tab="decided" aria-pressed="false">{{ tr('dash.decided') }}</button>
         </div>
       </div>
     </div>
 
     {# Lots Grid #}
     {% if cards %}
-    <div class="grid cols-2 lot-cards-grid" id="lotGrid" style="gap:14px">
+    <div class="grid cols-2 lot-cards-grid" id="lotGrid">
       {% for c in cards %}
       <div class="card lot-card" data-lot-card data-lot-status="{{ c.status }}" data-lot-search="{{ c.lot_code }} {{ c.buyer_name }} {{ c.product_name }} {{ c.color }}">
         <div class="lot-card-head">
-          <div style="min-width:0;flex:1">
-            <div style="display:flex;align-items:center;gap:8px">
+          <div class="grow">
+            <div class="disp-row">
               <a href="/lots/{{ c.id }}" class="lot-code-link">
                 {{ c.lot_code }}
               </a>
               {% if c.status == 'decided' %}
-                <span class="badge decided"><span class="dot"></span>{{ tr('dash.decided') }}</span>
+                <span class="badge decided"><span class="dot" aria-hidden="true"></span>{{ tr('dash.decided') }}</span>
               {% else %}
-                <span class="badge open"><span class="dot"></span>{{ tr('common.open') }}</span>
+                <span class="badge open"><span class="dot" aria-hidden="true"></span>{{ tr('status.in_progress') }}</span>
               {% endif %}
             </div>
             <div class="lot-meta-sub">
               <span class="buyer-pill">{{ c.buyer_name }}</span>
-              <span class="meta-sep">·</span>
+              <span class="meta-sep" aria-hidden="true">·</span>
               <span>{{ c.product_name }}</span>
-              <span class="meta-sep">·</span>
+              {% if c.color %}
+              <span class="meta-sep" aria-hidden="true">·</span>
               <span>{{ c.color }}</span>
+              {% endif %}
             </div>
           </div>
         </div>
 
-        {# Two-Line Disposition Box #}
+        {# Disposition Box (Single row when recommendation matches final, two rows when they differ) #}
         <div class="disp-cockpit">
+          {% if c.decision and c.final and c.decision.outcome == c.final %}
+          <div class="disp-row">
+            <span class="disp-lbl bold">{{ tr('dash.single_decision') }}</span>
+            {{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
+          </div>
+          {% else %}
           <div class="disp-row">
             <span class="disp-lbl">{{ 'System Recommendation:' if lang=='en' else 'সিস্টেম সুপারিশ:' }}</span>
             {% if c.decision %}
@@ -238,30 +271,41 @@
             {% endif %}
           </div>
           <div class="disp-row">
-            <span class="disp-lbl bold">{{ 'Final Disposition:' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত:' }}</span>
+            {% if c.status == 'decided' %}
+              <span class="disp-lbl bold">{{ tr('dash.final_disposition') }}</span>
+            {% else %}
+              <span class="disp-lbl bold">{{ tr('dash.current_decision') }}</span>
+            {% endif %}
             {% if c.final %}
               {{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
             {% else %}
               <span class="small dim mono">—</span>
             {% endif %}
           </div>
+          {% endif %}
         </div>
 
         {# Progress Bar #}
         <div class="lot-progress-wrap">
-          <div class="bar" style="height:5px"><i style="width:{{ c.progress.pct_views }}%"></i></div>
-          <div class="between small dim" style="margin-top:5px;font-size:11.5px">
-            <span>{{ c.progress.units }}/{{ c.progress.required_units or '?' }} {{ tr('common.units')|lower }}</span>
-            <span>{{ c.progress.reviewed }}/{{ c.progress.views }} {{ tr('lot.views_reviewed') }} ({{ c.progress.pct_views }}%)</span>
+          <div class="bar lot-bar"><i style="width:{{ c.progress.pct_views }}%"></i></div>
+          <div class="lot-progress-meta">
+            {% if c.progress.required_units %}
+              <span>{{ c.progress.units|num }}/{{ c.progress.required_units|num }} {{ tr('common.units')|lower }}</span>
+            {% elif c.progress.units %}
+              <span>{{ c.progress.units|num }} {{ tr('common.unit' if c.progress.units == 1 else 'common.units')|lower }}</span>
+            {% else %}
+              <span>{{ tr('dash.no_garments') }}</span>
+            {% endif %}
+            <span>{{ c.progress.reviewed|num }}/{{ c.progress.views|num }} {{ tr('lot.views_reviewed') }} ({{ c.progress.pct_views|num }}%)</span>
           </div>
         </div>
 
         {# Footer Actions #}
         <div class="lot-card-foot">
           <div class="small dim">
-            {{ 'Size' if lang=='en' else 'সাইজ' }}: <b>{{ c.lot_size }}</b>
+            {{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ c.lot_size|num_grouped }}</b>
             {% if c.override %}
-              <span style="margin-left:6px">
+              <span>
                 {% if c.override.effective %}
                   {{ ui.badge(tr('dec.overridden'), 'pending', dot=False) }}
                 {% else %}
@@ -271,60 +315,63 @@
             {% endif %}
           </div>
           <a class="btn sm secondary" href="/lots/{{ c.id }}">
-            <span>{{ tr('common.open') }}</span>
+            <span>{{ tr('common.view') if user.role == 'admin' else tr('common.open') }}</span>
             {{ icons.icon('arrow-right', 13) }}
           </a>
         </div>
       </div>
       {% endfor %}
     </div>
-    <div id="lotEmptyMatch" style="display:none;padding:32px 16px;text-align:center" class="card">
-      <div class="dim small">{{ 'No matching lots found.' if lang=='en' else 'কোনো মিল পাওয়া যায়নি।' }}</div>
+    <div id="lotEmptyMatch" class="card lot-empty-match">
+      <div class="dim small">{{ 'No matching lots found in recent view.' if lang=='en' else 'সাম্প্রতিক তালিকায় কোনো মিল পাওয়া যায়নি।' }}</div>
+      <div class="lot-empty-match-btn">
+        <a class="btn sm secondary" id="lotSearchDirLink" href="/lots">{{ 'Search all lots in Directory' if lang=='en' else 'সব লটের ডিরেক্টরিতে খুঁজুন' }} →</a>
+      </div>
     </div>
     {% else %}
     <div class="card">{{ ui.empty_state(tr('dash.none'), tr('newlot.subtitle'), icon_name='layers') }}</div>
     {% endif %}
   </div>
 
-  {# Right Column: 4-Step Vertical Connected Workflow & Detector Panel #}
-  <div class="stack" style="gap:18px">
-    {# Workflow Guide #}
+  {# Right Column: 4-Step Vertical Explainer & Detector Panel #}
+  <div class="stack dashboard-sidebar-stack">
+    {# Workflow Guide (Static Explainer) #}
     <div class="card workflow-card">
       <div class="card-h">
-        <h3 style="font-size:14px;font-weight:650;display:flex;align-items:center;gap:7px">
+        <h3 class="card-title-h3">
           {{ icons.icon('git-commit', 15) }}
           <span>{{ tr('how.pipeline') }}</span>
         </h3>
-        <span class="badge ghost" style="font-size:10.5px;font-weight:600">4 Steps</span>
+        <span class="badge ghost badge-count">{{ tr('dash.four_steps') }}</span>
       </div>
-      <div class="card-b" style="padding:16px">
-        <ol class="pipeline is-vertical" aria-label="Inspection pipeline">
-          <li class="pipeline-step is-done">
-            <span class="pipeline-dot">{{ icons.icon('check', 12, 2.5) }}</span>
+      <div class="card-b card-pad">
+        <ol class="pipeline is-vertical is-explainer" aria-label="{{ tr('dash.pipeline_aria') }}">
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 1|num }}</span>
             <div class="pipeline-copy">
-              <span class="pipeline-label">{{ 'Photo Capture' if lang=='en' else 'ছবি ধারণ' }}</span>
-              <span class="pipeline-desc">{{ 'Phone camera, metadata stripped, SHA-256 hash locked.' if lang=='en' else 'ফোনে ছবি, মেটাডেটা মুছে ফেলা, SHA-256 হ্যাশ সংরক্ষিত।' }}</span>
+              <span class="pipeline-label">{{ tr('dash.step1_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step1_desc') }}</span>
             </div>
           </li>
-          <li class="pipeline-step is-active" aria-current="step">
-            <span class="pipeline-dot">2</span>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 2|num }}</span>
             <div class="pipeline-copy">
-              <span class="pipeline-label">{{ 'AI Proposes' if lang=='en' else 'এআই প্রস্তাব' }}</span>
-              <span class="pipeline-desc">{{ 'On-device autoencoder flags candidate boxes; never approves/rejects.' if lang=='en' else 'অন-ডিভাইস মডেল সম্ভাব্য ডিফেক্ট বক্স দেখায়। কখনো রায় দেয় না।' }}</span>
+              <span class="pipeline-label">{{ tr('dash.step2_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step2_desc') }}</span>
             </div>
           </li>
-          <li class="pipeline-step is-pending">
-            <span class="pipeline-dot">3</span>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 3|num }}</span>
             <div class="pipeline-copy">
-              <span class="pipeline-label">{{ 'Human Confirms' if lang=='en' else 'মানুষ নিশ্চিত করে' }}</span>
-              <span class="pipeline-desc">{{ 'Inspector verifies boxes; severity looked up from buyer clause.' if lang=='en' else 'ইন্সপেক্টর নিশ্চিত বা বাতিল করেন; ক্রেতার ক্লজ থেকে সিরিয়িটি আসে।' }}</span>
+              <span class="pipeline-label">{{ tr('dash.step3_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step3_desc') }}</span>
             </div>
           </li>
-          <li class="pipeline-step is-pending">
-            <span class="pipeline-dot">4</span>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 4|num }}</span>
             <div class="pipeline-copy">
-              <span class="pipeline-label">{{ 'Deterministic Engine' if lang=='en' else 'ইঞ্জিনের সিদ্ধান্ত' }}</span>
-              <span class="pipeline-desc">{{ 'Pure rule engine compares confirmed counts against AQL Ac/Re limits.' if lang=='en' else 'বিশুদ্ধ ফাংশন গণনা ও Ac/Re তুলনা করে সিদ্ধান্ত দেয়।' }}</span>
+              <span class="pipeline-label">{{ tr('dash.step4_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step4_desc') }}</span>
             </div>
           </li>
         </ol>
@@ -334,44 +381,46 @@
     {# Detector Card #}
     <div class="card detector-card">
       <div class="card-h">
-        <h3 style="font-size:14px;font-weight:650;display:flex;align-items:center;gap:7px">
+        <h3 class="card-title-h3">
           {{ icons.icon('cpu', 15) }}
           <span>{{ tr('dash.model') }}</span>
         </h3>
         <span class="badge {{ 'ACCEPT' if model_ok else 'HOLD' }}">
-          <span class="dot"></span>
-          {{ 'self-test passed' if model_ok else 'check model' }}
+          <span class="dot" aria-hidden="true"></span>
+          {{ tr('dash.self_test_passed') if model_ok else tr('dash.check_model') }}
         </span>
       </div>
-      <div class="card-b" style="padding:16px">
-        <div class="mono" style="color:var(--text);font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">
-          <span class="dot" style="background:var(--lime)"></span>
+      <div class="card-b card-pad">
+        <div class="detector-model-name">
+          <span class="dot bg-lime" aria-hidden="true"></span>
           <span>{{ model }}</span>
         </div>
-        <div class="small dim" style="margin-top:4px;line-height:1.45">
-          {{ 'Unsupervised autoencoder · CPU · in-process · 0 cloud calls' if lang=='en' else 'আনসুপারভাইজড অটোএনকোডার · সিপিইউ · প্রসেসের ভেতরে · কোনো ক্লাউড কল নেই' }}
+        <div class="detector-model-desc">
+          {{ tr('dash.detector_desc') }}
+        </div>
+        <div class="small dim" style="margin-top:4px">
+          {{ tr('dash.baseline_notice') }}
         </div>
 
-        <div class="grid cols-3" style="gap:8px;margin-top:14px">
-          <div class="kpi mini" style="padding:10px 8px">
+        <div class="small bold" style="margin-top:14px;color:var(--text)">
+          {{ tr('dash.baseline_proposals') }}
+        </div>
+        <div class="grid cols-3 detector-stats-grid" style="margin-top:6px">
+          <div class="kpi mini">
             <div class="lbl">{{ 'photos' if lang=='en' else 'ছবি' }}</div>
-            <div class="n" style="font-size:17px;margin:4px 0 0">{{ stats.images }}</div>
+            <div class="n detector-stat-num">{{ stats.images|num }}</div>
           </div>
-          <div class="kpi mini" style="padding:10px 8px">
+          <div class="kpi mini">
             <div class="lbl">{{ 'proposals' if lang=='en' else 'প্রস্তাব' }}</div>
-            <div class="n" style="font-size:17px;margin:4px 0 0">{{ stats.proposals }}</div>
+            <div class="n detector-stat-num">{{ stats.proposals|num }}</div>
           </div>
-          <div class="kpi mini" style="padding:10px 8px">
+          <div class="kpi mini">
             <div class="lbl">{{ 'confirmed' if lang=='en' else 'নিশ্চিত' }}</div>
-            <div class="n" style="font-size:17px;margin:4px 0 0">{{ stats.confirmed }}</div>
+            <div class="n detector-stat-num">{{ stats.confirmed|num }}</div>
           </div>
         </div>
 
-        <div style="margin-top:14px">
-          {{ ui.ai_illustrative() }}
-        </div>
-
-        <a class="btn sm secondary" style="margin-top:12px;width:100%;justify-content:center" href="/how">
+        <a class="btn sm secondary btn-model-card" href="/how">
           <span>{{ tr('how.model_card') }}</span>
           {{ icons.icon('arrow-right', 13) }}
         </a>

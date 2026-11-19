@@ -36,6 +36,17 @@
 
 {# --- Audit Events Table --- #}
 <div class="card">
+  <div class="card-h" style="justify-content:space-between">
+    <div style="font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px">
+      <span>{{ tr('audit.title') }}</span>
+      <span class="badge ghost" style="font-size:11px">{{ rows|length }} {{ 'events recorded' if lang=='en' else 'টি ইভেন্ট সংরক্ষিত' }}</span>
+    </div>
+    <div class="right">
+      <button type="button" class="btn sm ghost" id="toggleAuditDetails" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('code', 13) }}<span>{{ 'Toggle All Payloads' if lang=='en' else 'সব পেলোড টগল করুন' }}</span>
+      </button>
+    </div>
+  </div>
   {% if rows %}
   <div class="tblwrap">
     <table class="table">

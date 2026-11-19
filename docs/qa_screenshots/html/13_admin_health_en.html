@@ -1,0 +1,319 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>Admin panel · Lotline</title>
+  <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="Primary navigation">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="Close menu">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">Dashboard</span>
+        </a>
+        <a href="/lots" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">Lots</span>
+        </a>
+      </div>
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item" type="button" data-dialog-open="configDialog" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+<span class="lbl">Configuration</span>
+          <span class="nav-soon" style="background:var(--subtle);color:var(--text);font-weight:600">View</span>
+        </button>
+      </div>
+      
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Oversight</div>
+        
+        <a href="/audit" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></svg>
+<span class="lbl">Audit log</span>
+        </a>
+        
+        
+        <a href="/admin?tab=users" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></svg>
+<span class="lbl">User management</span>
+        </a>
+        
+      </div>
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>The AI never approves a lot.</b>
+      Every count, reason and override is recorded.
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">N</span>
+      <div class="who">
+        <b>Nusrat Jahan</b>
+        <span>Admin</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>Admin</span>
+          
+        </nav>
+        <h1>Admin panel</h1>
+        <div class="sub">Accounts, model activation, audit and system health.</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>Demo data · staged images
+</span></span>
+        <a class="lang-link" href="/lang/bn?next=/admin" aria-label="Switch to Bangla">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>বাংলা</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="Account menu">
+            <span class="avatar" aria-hidden="true">N</span>
+            <span class="user-name">Nusrat Jahan</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Nusrat Jahan</b>
+              <span>nusrat@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+How it works</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+Sign out</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    
+    <div class="admin-alert" role="status">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg>
+
+      <div>
+        <b>System alert feed unavailable in this build.</b>
+        Inference, disk and backup alerts are not exposed by the current backend. Admin health data remains on the Admin panel.
+      </div>
+    </div>
+    
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+
+<div class="tabs" style="margin-bottom:18px">
+  <a href="/admin?tab=users" class="">Users</a>
+  <a href="/admin?tab=models" class="">Model versions</a>
+  <a href="/admin?tab=health" class="on">System health</a>
+  <a href="/admin?tab=clauses" class="">Buyer clauses</a>
+  <a href="/audit">Audit ↗</a>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="grid cols-4" style="margin-bottom:18px">
+  <div class="kpi accent">
+    <div class="lbl">Detector</div>
+    <div class="n" style="font-size:20px">online</div>
+    <div class="small dim mono" style="margin-top:4px">ae-knit-v1</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Database</div>
+    <div class="n" style="font-size:20px">1024 KB</div>
+    <div class="small dim">3 sessions</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Disk free</div>
+    <div class="n" style="font-size:20px">46.6 GB</div>
+    <div class="small dim">of 93.1 GB</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Inference jobs</div>
+    <div class="n" style="font-size:20px">10<small> ok / 2 failed</small></div>
+    <div class="small dim">12 photos</div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>
+
+        <span>Checks</span>
+      </h3>
+    </div>
+    <div class="pad-sm">
+      <div class="list">
+        <li>
+          <span class="badge ACCEPT">ok</span>
+          <div class="grow">
+            <b>Audit chain</b>
+            <div class="small dim">45 append-only rows</div>
+          </div>
+        </li>
+        <li>
+          <span class="badge ACCEPT">ok</span>
+          <div class="grow">
+            <b>Evidence integrity</b>
+            <div class="small dim">SHA-256 checked at every decision and report</div>
+          </div>
+        </li>
+        <li>
+          <span class="badge HOLD">manual</span>
+          <div class="grow">
+            <b>Backup</b>
+            <div class="small dim">Operator action: nightly copy + restore drill. Not automated in this demo.</div>
+          </div>
+        </li>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg>
+
+        <span>Model artifact</span>
+      </h3>
+    </div>
+    <div class="pad-sm small">
+      <div class="mono dim font-mono" style="word-break:break-all;font-size:11px">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
+      <div class="note info" style="margin-top:12px;font-size:11.5px;line-height:1.4">
+        The Vision service has no database access and the API has no route to it. The detector runs here in-process for the single-container demo; the production topology separates them.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+    </main>
+    <footer class="foot">
+      <span>Demo build · staged synthetic photos · no real buyer or personal data.</span>
+      <a href="/how">How it works</a>
+    </footer>
+  </div>
+</div>
+
+
+<dialog class="dialog" id="configDialog" aria-labelledby="configDialog-title" style="max-width:640px">
+  <div class="dialog-head">
+    <h2 id="configDialog-title" style="display:flex;align-items:center;gap:8px">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+
+      <span>System Configuration &amp; Catalog</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <div class="note info" style="margin-bottom:14px">
+      <b>Enterprise Synchronization (Read-Only)</b>:
+      <div class="small dim" style="margin-top:2px">
+        Products, buyers, and defect severity clauses are synchronized from the enterprise ERP. In Version 1, specifications are strictly read-only on inspection terminals to preserve compliance integrity (FR-CLS-001).
+      </div>
+    </div>
+    <div class="grid cols-2" style="gap:14px">
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">Registered Buyers</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Nordic Wear</b> (SE) · Level II AQL</li>
+          <li><b>EuroKnit Fashion</b> (DE) · Strict Zone 1</li>
+          <li><b>Pacific Apparel Co.</b> (US) · Retail Standard</li>
+        </ul>
+      </div>
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">Active Knit Garments</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Essential Crew Tee</b> (Single jersey)</li>
+          <li><b>Ribbed Polo Shirt</b> (Pique knit)</li>
+          <li><b>Fleece Pullover</b> (Brushed fleece)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="lbl" style="font-weight:700;margin-bottom:4px">Defect Classification Standard</div>
+      <p class="small dim" style="line-height:1.4">
+        Severity is server-assigned based on defect type, garment zone (1: chest/front, 2: sleeves/back, 3: hem/collar), and buyer clauses. The 7 defect types are fixed per PRD FR-REV-002.
+      </p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    
+    <a class="btn sm" href="/admin?tab=clauses">View Full Clause Matrix →</a>
+    
+    <button class="btn ghost sm" type="button" data-dialog-close>Close</button>
+  </div>
+</dialog>
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

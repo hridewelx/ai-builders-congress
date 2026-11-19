@@ -1,0 +1,694 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>Image review · G-01 Front · Lotline</title>
+  <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="Primary navigation">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="Close menu">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">Dashboard</span>
+        </a>
+        <a href="/lots" class="on" aria-current="page">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">Lots</span>
+        </a>
+      </div>
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item" type="button" data-dialog-open="configDialog" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+<span class="lbl">Configuration</span>
+          <span class="nav-soon" style="background:var(--subtle);color:var(--text);font-weight:600">View</span>
+        </button>
+      </div>
+      
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Oversight</div>
+        
+        <a href="/audit" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></svg>
+<span class="lbl">Audit log</span>
+        </a>
+        
+        
+      </div>
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>The AI never approves a lot.</b>
+      Every count, reason and override is recorded.
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">F</span>
+      <div class="who">
+        <b>Farhan Chowdhury</b>
+        <span>Supervisor</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>Lots</span>
+          
+        </nav>
+        <h1>Image review</h1>
+        <div class="sub">LT-2026-014 · G-01 · Front · Nordika Retail</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>Demo data · staged images
+</span></span>
+        <a class="lang-link" href="/lang/bn?next=/review/1" aria-label="Switch to Bangla">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>বাংলা</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="Account menu">
+            <span class="avatar" aria-hidden="true">F</span>
+            <span class="user-name">Farhan Chowdhury</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Farhan Chowdhury</b>
+              <span>farhan@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+How it works</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+Sign out</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+<nav class="tabs" aria-label="Lot sections" style="margin-bottom:20px">
+  <a href="/lots/1" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span>Lot overview</span>
+  </a>
+  
+  <a href="/lots/1/plan" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Sampling plan</span>
+  </a>
+  <a href="/lots/1/capture" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>
+<span>Capture</span>
+  </a>
+  <a href="/lots/1/review" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>
+<span>Review</span>
+  </a>
+  
+  <a href="/lots/1/decision" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></svg>
+<span>Decision</span>
+  </a>
+  <a href="/lots/1#history">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></svg>
+<span>History</span>
+  </a>
+  
+  <a href="/lots/1/report" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg>
+<span>Report</span>
+  </a>
+  
+</nav>
+
+
+
+  
+  
+
+
+
+  
+  
+
+
+
+
+<ol class="pipeline" aria-label="Inspection pipeline">
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">1. AI Detection</span><span class="pipeline-value">Inferred (2 proposals)</span></span>
+  </li>
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">2. Human Review</span><span class="pipeline-value">Reviewed clean</span></span>
+  </li>
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">3. Decision Engine</span><span class="pipeline-value">Status: decided</span></span>
+  </li>
+</ol>
+
+
+<div class="card" style="margin-bottom:14px">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div class="row" style="gap:10px;align-items:center">
+      <span class="badge badge-neutral bold" style="font-size:13px">G-01</span>
+      <span class="badge badge-lime">Front</span>
+      
+        
+        <span class="badge badge-success"><span class="dot"></span>Reviewed clean</span>
+        
+      
+    </div>
+
+    <div class="row" style="gap:8px;align-items:center">
+      <button class="btn sm ghost" type="button" data-dialog-open="shortcutsDialog" title="Keyboard shortcuts">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Shortcuts</span>
+      </button>
+      <a class="btn sm ghost" href="/lots/1/review"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Review queue</span></a>
+      
+    </div>
+  </div>
+</div>
+
+
+<div class="grid cols-4" style="margin-bottom:14px">
+  <div class="kpi">
+    <div class="lbl">Detector</div>
+    <div style="margin-top:8px">
+      
+      <span class="badge badge-success"><span class="dot"></span>Inferred</span>
+      
+    </div>
+    <div class="meta" style="margin-top:4px">ae-knit-v1</div>
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">Proposals</div>
+    <div class="n">2</div>
+    <div class="meta" style="margin-top:4px">
+      0 confirmed ·
+      2 rejected
+    </div>
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">Review state</div>
+    <div style="margin-top:8px">
+      
+        
+        <span class="badge badge-success"><span class="dot"></span>Clean (no defects)</span>
+        
+      
+    </div>
+    <div class="meta" style="margin-top:4px">Rakib Hasan</div>
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">Evidence (working copy)</div>
+    <div class="small mono dim" style="margin-top:9px">1ff14d36c867d783f6…</div>
+    <div class="meta" style="margin-top:4px">560×720 px · 65 KB</div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<div class="workspace">
+  
+  <div class="stack">
+    <div class="card">
+      <div class="card-h">
+        <h2>Working copy inspection</h2>
+        <div class="right">
+          <button class="btn sm ghost" id="heatToggle" type="button"
+                  data-show-heat="Attention map"
+                  data-show-photo="Show photo">
+            Attention map
+          </button>
+          <span class="tooltip-wrap" data-tooltip="Zoom: + / - / 0. Pan: drag. Box placement: click on the photo." tabindex="0">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+
+          </span>
+        </div>
+      </div>
+      <div class="pad-sm">
+        <div class="viewer" id="viewer">
+          <div class="viewer-scroll" id="viewerScroll">
+            <img id="mainImage" src="/images/1" data-heat="/images/1/heat" alt="G-01 front" draggable="false">
+            <div class="boxlayer" id="boxLayer">
+              
+              <div class="box   rejected"
+                   data-pid="1"
+                   style="left:73.571%;top:79.583%;width:14.643%;height:9.028%">
+                <span class="tag">
+                  
+                    dropped stitch
+                  
+                </span>
+              </div>
+              
+              <div class="box   rejected"
+                   data-pid="2"
+                   style="left:79.464%;top:59.167%;width:11.607%;height:9.027%">
+                <span class="tag">
+                  
+                    dropped stitch
+                  
+                </span>
+              </div>
+              
+              <div class="box" id="pendingBox" style="display:none;left:42%;top:42%;width:16%;height:16%;border-style:dashed">
+                <span class="tag">+ Add a missed defect</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="viewer-tools">
+          <button class="icon-btn" type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out (-)"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8" /> <line x1="21" x2="16.65" y1="21" y2="16.65" /> <line x1="8" x2="14" y1="11" y2="11" /></svg>
+</button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+          <button class="icon-btn" type="button" data-zoom="in" aria-label="Zoom in" title="Zoom in (+)"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8" /> <line x1="21" x2="16.65" y1="21" y2="16.65" /> <line x1="11" x2="11" y1="8" y2="14" /> <line x1="8" x2="14" y1="11" y2="11" /></svg>
+</button>
+          <button class="btn sm ghost" type="button" data-zoom="reset">Reset</button>
+          <span class="viewer-hint">Drag to pan · Click image to place manual defect box</span>
+        </div>
+
+        
+        <div class="legend" style="margin-top:10px">
+          <span><i class="sw" style="background:var(--lime)"></i>AI proposal (dashed)</span>
+          <span><i class="sw" style="background:var(--green)"></i>Human-confirmed (solid)</span>
+          <span><i class="sw" style="background:var(--red)"></i>Critical routing</span>
+          <span><i class="sw" style="background:var(--dim)"></i>Rejected</span>
+          <span class="dim">Uncalibrated research model. Scores are not probabilities of a defect.</span>
+        </div>
+
+        
+        <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+          <a class="btn sm ghost" href="/images/1" target="_blank" rel="noopener"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg>
+<span>Full resolution</span></a>
+          <a class="btn sm ghost" href="/images/1/heat" target="_blank" rel="noopener"><svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg>
+<span>Attention map</span></a>
+          <span class="demo-tag demo-tag-ai" title="Illustrative, not model output">
+  <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>
+Illustrative, not model output
+</span>
+        </div>
+      </div>
+    </div>
+
+    
+    
+    <div class="card" id="manualAddCard">
+      <div class="card-h">
+        <h2>Add a missed defect</h2>
+        <div class="right"><span class="small dim">Click photo to position box</span></div>
+      </div>
+      <div class="pad-sm">
+        <form method="post" action="/review/1/add" id="addForm">
+          <input type="hidden" name="csrf" value="">
+          <input type="hidden" name="cx" id="cx" value="0.5">
+          <input type="hidden" name="cy" id="cy" value="0.5">
+
+          <div class="grid cols-3" style="gap:10px;margin-bottom:10px">
+            <div class="field" style="margin:0">
+              <label for="add-type">Defect type</label>
+              <select id="add-type" name="defect_type" required>
+                
+                <option value="hole">hole</option>
+                
+                <option value="dropped_stitch">dropped stitch</option>
+                
+                <option value="skipped_stitch">skipped stitch</option>
+                
+                <option value="needle_line">needle line</option>
+                
+                <option value="oil_stain">oil stain</option>
+                
+                <option value="shade_band">shade band</option>
+                
+                <option value="other">other</option>
+                
+              </select>
+            </div>
+
+            <div class="field" style="margin:0">
+              <label for="add-zone">Zone</label>
+              <select id="add-zone" name="zone" required>
+                
+                <option value="I">Zone I</option>
+                
+                <option value="II">Zone II</option>
+                
+                <option value="III">Zone III</option>
+                
+              </select>
+            </div>
+
+            <div class="field" style="margin:0">
+              <label for="add-band">Size band <span class="dim">(optional)</span></label>
+              <input id="add-band" name="size_band" placeholder="e.g. XL">
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:10px">
+            <label class="check" style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+              <input type="checkbox" name="second_opinion" value="1" style="width:auto;margin:0">
+              <span>Possible critical — request second opinion from Supervisor</span>
+            </label>
+          </div>
+
+          <div class="field" style="margin-bottom:10px">
+            <label for="add-note">Notes <span class="dim">(optional)</span></label>
+            <input id="add-note" name="note" placeholder="e.g. Discovered during visual pass near collar">
+          </div>
+
+          <div class="note info" style="margin-bottom:12px">
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+            <span>Severity comes from the buyer&#39;s clause list, not the model.</span>
+          </div>
+
+          <button class="btn primary sm" type="submit"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14" /> <path d="M12 5v14" /></svg>
+<span>Save</span></button>
+        </form>
+      </div>
+    </div>
+    
+  </div>
+
+  
+  <div class="stack">
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>Detector proposals</h2>
+        <div class="right"><span class="chip">2</span></div>
+      </div>
+      <div class="pad-sm">
+        
+        <div class="prop sel is-rejected"
+             data-pid="1" id="prop-1">
+          <div class="top">
+            <div class="row" style="gap:7px;align-items:center;flex-wrap:wrap">
+              <b style="font-size:13.5px">dropped stitch</b>
+              
+              
+
+              
+                <span class="badge badge-neutral">Reject proposal
+</span>
+              
+            </div>
+
+            <div class="score-label" title="Uncalibrated research model. Scores are not probabilities of a defect.">
+              <span class="small dim">Score (uncalibrated):</span>
+              <span class="mono bold">0.812</span>
+            </div>
+          </div>
+
+          <div class="small dim" style="margin-top:6px">
+            Box coordinates: 73.6%, 79.6% → 88.2%, 88.6%
+            
+            
+            
+            
+            
+             · <span class="dim">by Rakib Hasan</span>
+          </div>
+
+          
+          
+
+          
+          
+        </div>
+        
+        <div class="prop  is-rejected"
+             data-pid="2" id="prop-2">
+          <div class="top">
+            <div class="row" style="gap:7px;align-items:center;flex-wrap:wrap">
+              <b style="font-size:13.5px">dropped stitch</b>
+              
+              
+
+              
+                <span class="badge badge-neutral">Reject proposal
+</span>
+              
+            </div>
+
+            <div class="score-label" title="Uncalibrated research model. Scores are not probabilities of a defect.">
+              <span class="small dim">Score (uncalibrated):</span>
+              <span class="mono bold">0.519</span>
+            </div>
+          </div>
+
+          <div class="small dim" style="margin-top:6px">
+            Box coordinates: 79.5%, 59.2% → 91.1%, 68.2%
+            
+            
+            
+            
+            
+             · <span class="dim">by Rakib Hasan</span>
+          </div>
+
+          
+          
+
+          
+          
+        </div>
+        
+      </div>
+    </div>
+
+    
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>Finish image review</h2>
+      </div>
+      <div class="pad-sm">
+        
+        
+
+        
+
+        
+
+        <form method="post" action="/review/1/state" class="stack" style="gap:10px">
+          <input type="hidden" name="csrf" value="">
+
+          <div class="field">
+            <label for="close-note">Notes <span class="dim">(optional)</span></label>
+            <input id="close-note" name="note" value="None" placeholder="e.g. Inspected under standard light">
+          </div>
+
+          <div class="btnrow" style="gap:8px;flex-wrap:wrap">
+            <button class="btn primary" name="state" value="confirmed_defects" type="submit"
+                    disabled
+                    title="No defects confirmed">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+              <span>Defects confirmed (0)</span>
+            </button>
+
+            <button class="btn subtle" name="state" value="reviewed_clean" type="submit"
+                    
+                    title="">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+
+              <span>Reviewed — no defects</span>
+            </button>
+
+            <button class="btn danger" name="state" value="needs_retake" type="submit">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>
+
+              <span>Needs retake</span>
+            </button>
+          </div>
+        </form>
+
+        <div class="small dim" style="margin-top:10px">
+          Severity comes from the buyer&#39;s clause list, not the model.
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div class="card">
+      <div class="card-h"><h2>Navigation</h2></div>
+      <div class="pad-sm btnrow" style="gap:8px;flex-wrap:wrap">
+        <a class="btn sm ghost" href="/lots/1/review"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Review queue</span></a>
+        
+        <a class="btn sm ghost" href="/lots/1"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Lot overview</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<dialog class="dialog dialog-sm" id="shortcutsDialog" aria-labelledby="shortcutsDialog-title">
+  <div class="dialog-head">
+    <h2 id="shortcutsDialog-title">Review Keyboard Shortcuts</h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <table class="table" style="font-size:12.5px;margin:0">
+      <thead>
+        <tr><th>Key</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><kbd>+</kbd> / <kbd>=</kbd></td><td>Zoom in</td></tr>
+        <tr><td><kbd>-</kbd> / <kbd>_</kbd></td><td>Zoom out</td></tr>
+        <tr><td><kbd>0</kbd></td><td>Reset zoom &amp; pan</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Open confirm form for selected proposal</td></tr>
+        <tr><td><kbd>X</kbd> / <kbd>R</kbd></td><td>Reject selected proposal</td></tr>
+        <tr><td><kbd>]</kbd> / <kbd>N</kbd></td><td>Next view in queue</td></tr>
+        <tr><td><kbd>[</kbd></td><td>Return to review queue</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="dialog-actions">
+    <button class="btn sm primary" type="button" data-dialog-close>Got it</button>
+  </div>
+</dialog>
+
+    </main>
+    <footer class="foot">
+      <span>Demo build · staged synthetic photos · no real buyer or personal data.</span>
+      <a href="/how">How it works</a>
+    </footer>
+  </div>
+</div>
+
+
+<dialog class="dialog" id="configDialog" aria-labelledby="configDialog-title" style="max-width:640px">
+  <div class="dialog-head">
+    <h2 id="configDialog-title" style="display:flex;align-items:center;gap:8px">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+
+      <span>System Configuration &amp; Catalog</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <div class="note info" style="margin-bottom:14px">
+      <b>Enterprise Synchronization (Read-Only)</b>:
+      <div class="small dim" style="margin-top:2px">
+        Products, buyers, and defect severity clauses are synchronized from the enterprise ERP. In Version 1, specifications are strictly read-only on inspection terminals to preserve compliance integrity (FR-CLS-001).
+      </div>
+    </div>
+    <div class="grid cols-2" style="gap:14px">
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">Registered Buyers</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Nordic Wear</b> (SE) · Level II AQL</li>
+          <li><b>EuroKnit Fashion</b> (DE) · Strict Zone 1</li>
+          <li><b>Pacific Apparel Co.</b> (US) · Retail Standard</li>
+        </ul>
+      </div>
+      <div style="background:var(--subtle);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--line)">
+        <div class="lbl" style="font-weight:700;margin-bottom:6px">Active Knit Garments</div>
+        <ul class="small dim" style="margin:0;padding-left:16px;line-height:1.5">
+          <li><b>Essential Crew Tee</b> (Single jersey)</li>
+          <li><b>Ribbed Polo Shirt</b> (Pique knit)</li>
+          <li><b>Fleece Pullover</b> (Brushed fleece)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="lbl" style="font-weight:700;margin-bottom:4px">Defect Classification Standard</div>
+      <p class="small dim" style="line-height:1.4">
+        Severity is server-assigned based on defect type, garment zone (1: chest/front, 2: sleeves/back, 3: hem/collar), and buyer clauses. The 7 defect types are fixed per PRD FR-REV-002.
+      </p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    
+    <button class="btn ghost sm" type="button" data-dialog-close>Close</button>
+  </div>
+</dialog>
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

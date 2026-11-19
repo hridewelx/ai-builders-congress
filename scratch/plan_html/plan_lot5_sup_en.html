@@ -1,0 +1,674 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101E2B">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <title>Sampling plan · LT-2026-018 · Lotline</title>
+  <meta name="description" content="Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.">
+  <link rel="icon" href="file:///D:/ai-builders-congress/static/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="file:///D:/ai-builders-congress/static/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <link rel="stylesheet" href="file:///D:/ai-builders-congress/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="mobile-scrim" data-drawer-close aria-hidden="true"></div>
+
+<div class="shell">
+  <aside class="rail" id="sidebar" aria-label="Primary navigation">
+    <div class="rail-head">
+      <a class="brand" href="/" aria-label="Lotline home">
+        <img class="brand-full" src="file:///D:/ai-builders-congress/static/brand/logo-full-light.svg" alt="Lotline">
+        <img class="brand-icon" src="file:///D:/ai-builders-congress/static/brand/logo-icon.svg" alt="Lotline">
+      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sidebar">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" /> <path d="M9 3v18" /> <path d="m16 15-3-3 3-3" /></svg>
+
+      </button>
+      <button class="rail-toggle rail-close" type="button" data-drawer-close aria-label="Close menu">
+        <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-group">
+        <a href="/" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1" /> <rect width="7" height="5" x="14" y="3" rx="1" /> <rect width="7" height="9" x="14" y="12" rx="1" /> <rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+<span class="lbl">Dashboard</span>
+        </a>
+        <a href="/lots" class="on" aria-current="page">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span class="lbl">Lots</span>
+        </a>
+      </div>
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item is-btn" type="button" data-dialog-open="configDialog">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+<span class="lbl">Configuration</span>
+          <span class="nav-badge">View only</span>
+        </button>
+      </div>
+      
+
+      
+      <div class="nav-group">
+        <div class="nav-label">Oversight</div>
+        
+        <a href="/audit" class="">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></svg>
+<span class="lbl">Audit log</span>
+        </a>
+        
+        
+      </div>
+      
+    </nav>
+
+    <div class="spacer"></div>
+    <div class="railcard">
+      <b>The AI never approves a lot.</b>
+      Every count, reason and override is recorded.
+    </div>
+    <div class="rail-user">
+      <span class="avatar" aria-hidden="true">F</span>
+      <div class="who">
+        <b>Farhan Chowdhury</b>
+        <span>Supervisor</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" type="button" data-drawer-toggle aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></svg>
+
+      </button>
+      <div class="title-wrap">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <a href="/">Lotline</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span>Lots</span>
+          
+        </nav>
+        <h1>Sampling plan</h1>
+        <div class="sub">LT-2026-018 · Nordika Retail · Lot size 600</div>
+      </div>
+      <div class="top-actions">
+        <span class="top-demo"><span class="demo-tag demo-tag-demo">
+  <span class="demo-dot" aria-hidden="true"></span>Demo data · staged images
+</span></span>
+        <a class="lang-link" href="/lang/bn?next=/lots/5/plan" aria-label="Switch to Bangla">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /></svg>
+<span>বাংলা</span>
+        </a>
+        <details class="user-menu">
+          <summary aria-label="Account menu">
+            <span class="avatar" aria-hidden="true">F</span>
+            <span class="user-name">Farhan Chowdhury</span>
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" /></svg>
+
+          </summary>
+          <div class="menu-panel">
+            <div class="menu-head">
+              <b>Farhan Chowdhury</b>
+              <span>farhan@lotline.demo</span>
+            </div>
+            <a href="/how"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></svg>
+How it works</a>
+            <form method="post" action="/logout">
+              <input type="hidden" name="csrf" value="">
+              <button type="submit"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>
+Sign out</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <main class="content" id="main-content">
+      
+      
+      
+
+<nav class="tabs" aria-label="Lot sections">
+  <a href="/lots/5" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>
+<span>Lot overview</span>
+  </a>
+  
+  <a href="/lots/5/plan" class="on" aria-current="page">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+<span>Sampling plan</span>
+  </a>
+  <a href="/lots/5/capture" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></svg>
+<span>Capture</span>
+  </a>
+  <a href="/lots/5/review" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /></svg>
+<span>Review</span>
+  </a>
+  
+  <a href="/lots/5/decision" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="m9 14 2 2 4-4" /></svg>
+<span>Decision</span>
+  </a>
+  <a href="/lots/5#history" id="tabHistory">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></svg>
+<span>History</span>
+  </a>
+  
+  <a href="/lots/5/report" class="">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></svg>
+<span>Report</span>
+  </a>
+  
+</nav>
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
+
+  
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+    
+    
+    
+  
+
+
+
+
+<ol class="pipeline" aria-label="Inspection pipeline">
+  <li class="pipeline-step is-done">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">Gate: Sampling Plan</span><span class="pipeline-value">v3 · n=8</span></span>
+  </li>
+  <li class="pipeline-step is-not-started">
+    <span class="pipeline-dot" aria-hidden="true"><span>2</span></span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">1. Photo Capture</span><span class="pipeline-value">0 / 16 photos</span></span>
+  </li>
+  <li class="pipeline-step is-not-started">
+    <span class="pipeline-dot" aria-hidden="true"><span>3</span></span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">2. AI Proposals</span><span class="pipeline-value">Awaiting photos</span></span>
+  </li>
+  <li class="pipeline-step is-not-started">
+    <span class="pipeline-dot" aria-hidden="true"><span>4</span></span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">3. Human Review</span><span class="pipeline-value">Awaiting photos</span></span>
+  </li>
+  <li class="pipeline-step is-blocked">
+    <span class="pipeline-dot" aria-hidden="true"><svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+</span>
+    <span class="pipeline-copy">
+      <span class="pipeline-label">4. Decision Engine</span><span class="pipeline-value" title="HOLD_PLAN_MISSING">No sampling plan is configured.</span></span>
+  </li>
+</ol>
+
+
+
+
+<div class="split">
+  
+  <div class="card">
+    <div class="card-h">
+      <h2>Sampling plan</h2>
+      <div class="right d-flex gap-2 align-items-center">
+        
+        <span class="badge badge-neutral">v3</span>
+        
+        
+        
+        <button type="button" class="btn secondary sm btn-demo-preset" id="btnDemoPreset">
+          <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+          <span>Use demo preset</span>
+        </button>
+        
+      </div>
+    </div>
+
+    <div class="pad">
+      <p class="small dim mb-3">Enter the parameters from a licensed standard or the buyer&#39;s order. Lotline never looks them up.</p>
+
+      
+      <div class="note warn mb-3">
+        <div class="row align-items-flex-start gap-2">
+          <span style="color:var(--amber-ink);margin-top:2px"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>
+</span>
+          <div>
+            <b>Default plan is an assumption, not a standard value.</b>
+            <div class="small dim mt-1">
+              Single sampling, normal inspection, General Inspection Level II (ISO 2859-1 / ANSI ASQ Z1.4). Default parameters are an assumption, not a standard lookup. Lotline never reconstructs tables or looks up plans automatically.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
+      
+      
+      
+      
+      
+
+      
+      
+      
+
+      
+      
+      
+
+      
+      
+      
+
+      <form method="post" action="/lots/5/plan" id="planForm">
+        <input type="hidden" name="csrf" value="">
+        <input type="hidden" name="is_demo" id="is_demo" value="0">
+
+        <div class="grid cols-2 mb-3">
+          <div class="field">
+            <label for="plan-n">Sample size n <span class="req">*</span></label>
+            <input id="plan-n" name="n" type="number" min="1" max="600" value="8" inputmode="numeric" class="" required>
+            
+            <div class="hint">Lot size: 600</div>
+          </div>
+
+          <div class="field">
+            <label for="plan-mode">Counting mode <span class="req">*</span></label>
+            <select id="plan-mode" name="counting_mode" class="" required>
+              <option value="highest_class_only" selected>
+                Highest class only — one garment counts once
+              </option>
+              <option value="every_class" >
+                Every class — one garment counts in each class
+              </option>
+            </select>
+            
+            <div class="mode-explanations mt-2 small dim">
+              <div id="desc-highest_class_only" class="mode-desc-text" >
+                <strong>Highest class only (default):</strong>
+                Each defective garment counts once toward its highest severity defect class only. Example: 1 critical + 1 minor defect on the same garment increments Critical by 1, and Minor remains unchanged.
+              </div>
+              <div id="desc-every_class" class="mode-desc-text" style="display:none">
+                <strong>Every class:</strong>
+                A garment with multiple defect classes counts once toward every affected class. Example: 1 critical + 1 minor defect on the same garment increments both Critical and Minor classes.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="mb-3">
+          <div class="table-header-lbl">
+            <span class="small bold">Acceptance &amp; Rejection Limits per Class (Single Sampling)</span>
+            <span class="req-legend small dim"><span class="req">*</span> Mandatory fields</span>
+          </div>
+          <div class="tblwrap">
+            <table class="table plan-form-table" id="limitsTable">
+              <caption class="sr-only">Acceptance &amp; Rejection Limits per Defect Severity Class</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Class</th>
+                  <th scope="col">AQL label (informational) <span class="dim small fw-normal">(Not used by decision engine)</span></th>
+                  <th scope="col" class="num">Ac (accept) <span class="req">*</span></th>
+                  <th scope="col" class="num">Re (reject) <span class="req">*</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                
+                
+                
+                
+                
+                
+                <tr data-row-class="critical">
+                  <th scope="row" class="plan-class-cell">
+                    <span class="badge critical">Critical</span>
+                  </th>
+                  <td>
+                    <input class="plan-input-aql" id="critical_aql" name="critical_aql" value="0.0" placeholder="e.g. 1.0" aria-label="Critical — AQL label (informational) (optional)">
+                  </td>
+                  <td class="num">
+                    <input class="ac-input plan-input-num " data-class="critical" id="critical_ac" name="critical_ac" type="number" min="0" value="0" inputmode="numeric" required aria-label="Critical — Acceptance number Ac">
+                    
+                  </td>
+                  <td class="num">
+                    <input class="re-input plan-input-num " data-class="critical" id="critical_re" name="critical_re" type="number" min="1" value="1" inputmode="numeric" required aria-label="Critical — Rejection number Re">
+                    
+                    <div class="row-warning text-danger small mt-1" id="critical_warning" style="display:none"></div>
+                  </td>
+                </tr>
+                
+                
+                
+                
+                
+                
+                
+                <tr data-row-class="major">
+                  <th scope="row" class="plan-class-cell">
+                    <span class="badge major">Major</span>
+                  </th>
+                  <td>
+                    <input class="plan-input-aql" id="major_aql" name="major_aql" value="2.5" placeholder="e.g. 1.0" aria-label="Major — AQL label (informational) (optional)">
+                  </td>
+                  <td class="num">
+                    <input class="ac-input plan-input-num " data-class="major" id="major_ac" name="major_ac" type="number" min="0" value="1" inputmode="numeric" required aria-label="Major — Acceptance number Ac">
+                    
+                  </td>
+                  <td class="num">
+                    <input class="re-input plan-input-num " data-class="major" id="major_re" name="major_re" type="number" min="1" value="2" inputmode="numeric" required aria-label="Major — Rejection number Re">
+                    
+                    <div class="row-warning text-danger small mt-1" id="major_warning" style="display:none"></div>
+                  </td>
+                </tr>
+                
+                
+                
+                
+                
+                
+                
+                <tr data-row-class="minor">
+                  <th scope="row" class="plan-class-cell">
+                    <span class="badge minor">Minor</span>
+                  </th>
+                  <td>
+                    <input class="plan-input-aql" id="minor_aql" name="minor_aql" value="4.0" placeholder="e.g. 1.0" aria-label="Minor — AQL label (informational) (optional)">
+                  </td>
+                  <td class="num">
+                    <input class="ac-input plan-input-num " data-class="minor" id="minor_ac" name="minor_ac" type="number" min="0" value="2" inputmode="numeric" required aria-label="Minor — Acceptance number Ac">
+                    
+                  </td>
+                  <td class="num">
+                    <input class="re-input plan-input-num " data-class="minor" id="minor_re" name="minor_re" type="number" min="1" value="3" inputmode="numeric" required aria-label="Minor — Rejection number Re">
+                    
+                    <div class="row-warning text-danger small mt-1" id="minor_warning" style="display:none"></div>
+                  </td>
+                </tr>
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid cols-2 mb-3">
+          <div class="field">
+            <label for="source_edition">Source edition</label>
+            <input id="source_edition" name="source_edition" value="অননুমোদিত অনুমান" placeholder="Standard name &amp; edition year" aria-describedby="unreferencedNotice">
+          </div>
+          <div class="field">
+            <label for="source_reference">Source reference</label>
+            <input id="source_reference" name="source_reference" value="" placeholder="Buyer PO number" aria-describedby="unreferencedNotice">
+          </div>
+        </div>
+
+        
+        <div class="note warn unreferenced-notice mb-3" id="unreferencedNotice" style="display:none">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+          <span>Unreferenced plan — decisions and reports will be permanently labeled &#34;Unauthorized assumption&#34;.</span>
+        </div>
+
+        
+        <div class="note info mb-3">
+          <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+
+          <span>Single-sampling invariant: Re must equal Ac + 1 for each class. Any mismatch is invalid and causes decisions to result in HOLD_PLAN_INVALID.</span>
+        </div>
+
+        
+        <div class="plan-confirm-card mb-3 ">
+          <label class="check-label d-flex gap-2 align-items-flex-start cursor-pointer">
+            <input type="checkbox" name="confirmed" id="confirmed" value="1" required class="mt-1" >
+            <div class="check-body">
+              <div class="bold">I have verified the values against the source standard / buyer specification. <span class="req">*</span></div>
+              <div class="small dim mt-1">Audit log will record your identity, timestamp, and plan confirmation. The decision engine will not treat unconfirmed plans as valid.</div>
+            </div>
+          </label>
+          
+        </div>
+
+        <button class="btn primary" type="submit" id="btnSubmitPlan"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+<span>Save</span></button>
+      </form>
+      
+    </div>
+  </div>
+
+  
+  <div class="stack">
+    <div class="card plan-preview-card" id="planPreviewCard"
+         data-lotsize="600"
+         data-units-present="8"
+         data-required-units="8"
+         data-nonvisual-status="pending"
+         data-crit-defects="0"
+         data-maj-defects="0"
+         data-min-defects="0"
+         data-lang="en">
+      <div class="card-h">
+        <h2>Live Plan &amp; Evidence Preview</h2>
+        <div class="right">
+          
+          <span class="badge badge-success" id="previewValidationBadge">Valid single sampling</span>
+          
+        </div>
+      </div>
+      <div class="pad-sm">
+        
+        
+        <div class="plan-preview-metric mb-3">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <span class="dim small">Sample Coverage</span>
+            <span class="metric-val mono bold" id="previewCoverage">
+              8 / 600 (1%)
+            </span>
+          </div>
+          <div class="progress-bar-track mt-1"><div class="progress-bar-fill " id="previewCoverageBar" style="width:1%"></div></div>
+          <div class="small dim mt-1" id="previewCoverageHint">
+            
+              Sample of 8 garments from lot size 600
+            
+          </div>
+        </div>
+
+        
+        <div class="preview-limits-box mb-3">
+          <div class="dim small bold mb-1">Configured Class Limits</div>
+          <table class="table sm m-0" id="previewLimitsTable">
+            <tbody>
+              <tr>
+                <td class="dim">Critical</td>
+                <td class="right mono bold" id="previewCrit">
+                  Ac: 0 / Re: 1
+                </td>
+              </tr>
+              <tr>
+                <td class="dim">Major</td>
+                <td class="right mono bold" id="previewMaj">
+                  Ac: 1 / Re: 2
+                </td>
+              </tr>
+              <tr>
+                <td class="dim">Minor</td>
+                <td class="right mono bold" id="previewMin">
+                  Ac: 2 / Re: 3
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        
+        <div class="preview-info-list small mb-3">
+          <div class="preview-info-item">
+            <span class="dim">Counting mode:</span>
+            <span class="bold ms-1" id="previewMode">
+              
+                Highest class only — one garment counts once
+              
+            </span>
+          </div>
+          <div class="preview-info-item mt-1">
+            <span class="dim">Decision label:</span>
+            
+            <span class="badge badge-neutral ms-1" id="previewSourceLabel">অননুমোদিত অনুমান</span>
+            
+          </div>
+        </div>
+
+        
+        
+        <div class="preview-forecast-box p-3 rounded forecast-hold" id="previewForecastBox">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span id="previewForecastIcon"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/></svg>
+</span>
+            <strong id="previewForecastTitle">
+              
+                Predicted Decision: HOLD
+              
+            </strong>
+          </div>
+          <p class="small mb-0" id="previewForecastDesc">
+            
+              No sampling plan is configured.
+            
+          </p>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="card">
+      <div class="card-h">
+        <h2>Audit &amp; Report Compliance</h2>
+      </div>
+      <div class="pad-sm small dim">
+        <ul class="plan-compliance-list">
+          <li>Plans are entered explicitly by a Supervisor; Lotline never suggests or guesses a plan.</li>
+          <li>Sampling plan assumption label is embedded permanently in the decision snapshot and PDF certificate.</li>
+          <li>Counting mode strictly determines how multi-defect garments count toward limits.</li>
+          <li>Once a decision is computed, the lot plan is locked to preserve evidence integrity.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </main>
+    <footer class="foot">
+      <span>Demo build · staged synthetic photos · no real buyer or personal data.</span>
+      <a href="/how">How it works</a>
+    </footer>
+  </div>
+</div>
+
+
+<dialog class="dialog config-dialog" id="configDialog" aria-labelledby="configDialog-title">
+  <div class="dialog-head">
+    <h2 id="configDialog-title" class="dialog-title-h2">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></svg>
+
+      <span>System Configuration &amp; Catalog</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close dialog"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></svg>
+</button>
+  </div>
+  <div class="dialog-body">
+    <div class="note info config-note">
+      <b>Catalog &amp; Buyer Clauses</b>:
+      <div class="small dim mt-2">
+        Products, buyers, and defect severity clauses are seeded demo data, read-only for admin.
+      </div>
+    </div>
+    <div class="grid cols-2 config-grid">
+      <div class="config-box">
+        <div class="lbl config-box-lbl">Registered Buyers</div>
+        <ul class="small dim catalog-list">
+          
+          <li><b>Nordika Retail</b> (Sweden)</li>
+          
+          <li><b>Sakura Apparel</b> (Japan)</li>
+          
+        </ul>
+      </div>
+      <div class="config-box">
+        <div class="lbl config-box-lbl">Active Knit Garments</div>
+        <ul class="small dim catalog-list">
+          
+          <li><b>Essential Crew Tee</b> (knit — single jersey tee)</li>
+          
+        </ul>
+      </div>
+    </div>
+    <div class="config-clause-desc">
+      <div class="lbl config-box-lbl">Defect Classification Standard</div>
+      <p class="small dim">
+        Severity is server-assigned based on defect type, garment zone (1: chest/front, 2: sleeves/back, 3: hem/collar), and buyer clauses.
+      </p>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    
+    <button class="btn ghost sm" type="button" data-dialog-close>Close</button>
+  </div>
+</dialog>
+
+
+<script src="file:///D:/ai-builders-congress/static/app.js"></script>
+</body>
+</html>

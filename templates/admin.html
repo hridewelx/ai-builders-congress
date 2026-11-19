@@ -26,8 +26,11 @@
     <span style="color:var(--success);margin-top:2px">{{ icons.icon('check-circle', 16) }}</span>
     <div>
       <b>{{ 'Temporary Password Generated' if lang=='en' else 'অস্থায়ী পাসওয়ার্ড তৈরি হয়েছে' }}</b>
-      <div style="margin-top:4px;display:flex;align-items:center;gap:10px">
-        <span class="mono font-mono" style="font-size:16px;font-weight:750;background:var(--subtle);padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--line)">{{ temp }}</span>
+      <div style="margin-top:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="mono font-mono" id="tempPasswordVal" style="font-size:16px;font-weight:750;background:var(--subtle);padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--line)">{{ temp }}</span>
+        <button type="button" class="btn sm" id="copyTempPassBtn" data-copy-target="tempPasswordVal" style="display:inline-flex;align-items:center;gap:5px">
+          {{ icons.icon('copy', 13) }}<span>{{ 'Copy Password' if lang=='en' else 'কপি করুন' }}</span>
+        </button>
         <span class="small dim">{{ 'Copy now; this password is shown only once and requires a change at first login.' if lang=='en' else 'এখনই কপি করুন; এটি শুধুমাত্র একবার দেখানো হবে এবং প্রথম লগইনে পরিবর্তন করতে হবে।' }}</span>
       </div>
     </div>
@@ -425,15 +428,15 @@
       {{ tr('admin.clause_readonly') }}
     </div>
   </div>
-  <div class="tblwrap">
+  <div class="tblwrap" data-table data-page-size="25">
     <table class="table">
       <thead>
         <tr>
-          <th>{{ tr('lots.buyer') }}</th>
-          <th>{{ tr('rev.type') }}</th>
-          <th>{{ tr('rev.zone') }}</th>
+          <th data-sort>{{ tr('lots.buyer') }}</th>
+          <th data-sort>{{ tr('rev.type') }}</th>
+          <th data-sort>{{ tr('rev.zone') }}</th>
           <th>{{ tr('rev.size_band') }}</th>
-          <th>{{ 'Severity' if lang=='en' else 'সিরিয়িটি' }}</th>
+          <th data-sort>{{ 'Severity' if lang=='en' else 'সিরিয়িটি' }}</th>
           <th>{{ 'Clause' if lang=='en' else 'ক্লজ' }}</th>
         </tr>
       </thead>

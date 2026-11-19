@@ -43,27 +43,31 @@
 {%- endmacro %}
 
 {% macro status_badge(status, label=None, tone=None, dot=True) -%}
-{%- set map = {
-  'open': ('info', 'Open'),
-  'decided': ('success', 'Decided'),
-  'reopened': ('warning', 'Reopened'),
-  'archived': ('neutral', 'Archived'),
-  'pending': ('warning', 'Pending'),
-  'pending_approval': ('warning', 'Pending approval'),
-  'ok': ('success', 'OK'),
-  'failed': ('danger', 'Failed'),
-  'not_inferred': ('neutral', 'Not inferred'),
-  'needs_retake': ('warning', 'Needs retake'),
-  'reviewed_clean': ('success', 'Reviewed clean'),
-  'confirmed_defects': ('danger', 'Defects confirmed'),
-  'active': ('success', 'Active'),
-  'disabled': ('neutral', 'Disabled'),
-  'proposed': ('ai', 'Open proposal'),
-  'confirmed': ('confirmed', 'Confirmed'),
-  'rejected': ('rejected', 'Rejected')
+{%- set tones = {
+  'open': 'info',
+  'decided': 'success',
+  'reopened': 'warning',
+  'archived': 'neutral',
+  'pending': 'warning',
+  'pending_approval': 'warning',
+  'ok': 'success',
+  'failed': 'danger',
+  'not_inferred': 'neutral',
+  'needs_retake': 'warning',
+  'reviewed_clean': 'success',
+  'confirmed_defects': 'danger',
+  'active': 'success',
+  'disabled': 'neutral',
+  'proposed': 'ai',
+  'confirmed': 'confirmed',
+  'rejected': 'rejected',
+  'done': 'success',
+  'not_required': 'neutral'
 } -%}
-{%- set pair = map.get(status, ('neutral', status)) -%}
-{{ badge(label or pair[1], tone or pair[0], dot=dot) }}
+{%- set key = status|string -%}
+{%- set known = key in tones -%}
+{%- set text = label or (tr('status.' ~ key) if known else key) -%}
+{{ badge(text, tone or tones.get(key, 'neutral'), dot=dot) }}
 {%- endmacro %}
 
 {# ------------------------------------------------------------------
@@ -86,7 +90,7 @@
       <span class="kpi-badge">{{ badge_text }}</span>
     {%- endif %}
   </div>
-  <div class="n">{{ value }}{% if unit %}<small> {{ unit }}</small>{% endif %}</div>
+  <div class="n">{{ value|num }}{% if unit %}<small> {{ unit }}</small>{% endif %}</div>
   {%- if hint %}
     <div class="meta"><span class="kpi-hint">{{ hint }}</span></div>
   {%- elif meta %}
@@ -101,18 +105,18 @@
           done | active | pending | failed | stale | skipped
 ------------------------------------------------------------------- #}
 {% macro pipeline_stepper(steps, compact=False) -%}
-<ol class="pipeline{{ ' is-compact' if compact }}" aria-label="Inspection pipeline">
+<ol class="pipeline{{ ' is-compact' if compact }}" aria-label="{{ tr('lot.pipeline') }}">
   {%- for step in steps %}
-  <li class="pipeline-step is-{{ step.state|default('pending') }}"{% if step.state == 'active' %} aria-current="step"{% endif %}>
+  <li class="pipeline-step is-{{ step.state|default('not-started') }}"{% if step.state == 'active' %} aria-current="step"{% endif %}>
     <span class="pipeline-dot" aria-hidden="true">
       {%- if step.state == 'done' %}{{ icons.icon('check', 12, 2.4) }}
-      {%- elif step.state == 'failed' %}{{ icons.icon('x', 12, 2.4) }}
-      {%- elif step.state == 'stale' %}{{ icons.icon('refresh-cw', 12, 2.2) }}
+      {%- elif step.state in ('failed',) %}{{ icons.icon('x', 12, 2.4) }}
+      {%- elif step.state in ('blocked', 'stale') %}{{ icons.icon('alert-triangle', 12, 2.2) }}
       {%- else %}<span>{{ loop.index }}</span>{% endif -%}
     </span>
     <span class="pipeline-copy">
       <span class="pipeline-label">{{ step.label }}</span>
-      {%- if step.value %}<span class="pipeline-value">{{ step.value }}</span>{% endif -%}
+      {%- if step.value %}<span class="pipeline-value"{% if step.title %} title="{{ step.title }}"{% endif %}>{{ step.value }}</span>{% endif -%}
     </span>
   </li>
   {%- endfor %}
@@ -156,15 +160,24 @@
 {% macro timeline(items) -%}
 <ul class="timeline">
   {%- for item in items %}
-  <li class="timeline-item {{ 'is-' ~ item.tone if item.tone else '' }}">
+  <li class="timeline-item {{ 'is-' ~ item.tone if item.tone else '' }}"{% if item.key %} title="{{ item.key }}" data-event-key="{{ item.key }}"{% endif %}>
     <span class="timeline-dot" aria-hidden="true"></span>
     <div class="timeline-body">
       <div class="a">{{ item.title }}</div>
-      {%- if item.meta %}<div class="m">{{ item.meta }}</div>{% endif -%}
+      {%- if item.meta or item.actor or item.datetime %}
+      <div class="m">
+        {%- if item.actor %}<span class="timeline-actor">{{ item.actor }}</span>{% endif -%}
+        {%- if item.datetime -%}
+          {%- if item.actor %}<span aria-hidden="true"> · </span>{% endif -%}
+          <time datetime="{{ item.datetime }}" title="{{ item.datetime }}">{{ item.datetime|dt_local }}</time>
+        {%- endif -%}
+        {%- if item.meta %}{% if item.actor or item.datetime %}<span aria-hidden="true"> · </span>{% endif %}{{ item.meta }}{% endif -%}
+      </div>
+      {%- endif -%}
     </div>
   </li>
   {%- else %}
-  <li class="timeline-item"><div class="m">No events yet.</div></li>
+  <li class="timeline-item"><div class="m">{{ tr('common.no_events') }}</div></li>
   {%- endfor %}
 </ul>
 {%- endmacro %}
@@ -247,9 +260,10 @@
 </span>
 {%- endmacro %}
 
-{% macro ai_illustrative(label='Illustrative, not model output') -%}
-<span class="demo-tag demo-tag-ai" title="The running demo uses an unsupervised baseline, not a trained detector.">
-  {{ icons.icon('info', 12) }}{{ label }}
+{% macro ai_illustrative(label=None) -%}
+{%- set text = label or tr('dash.illustrative') -%}
+<span class="demo-tag demo-tag-ai" title="{{ text }}">
+  {{ icons.icon('info', 12) }}{{ text }}
 </span>
 {%- endmacro %}
 

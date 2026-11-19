@@ -178,7 +178,7 @@ def add_lot(code, buyer_id, color, size, creator, plan=None, units=0, nonvisual=
                    (lot_id, f"G-{i:02d}", db.now()))
         for side in ("front", "back"):
             db.x("INSERT INTO unit_view(sample_unit_id,side,required) VALUES (?,?,1)", (uid, side))
-    db.audit(creator, str(creator), "lot.created", "lot", lot_id, after={"lot_code": code, "lot_size": size})
+    db.audit(creator, _name(creator), "lot.created", "lot", lot_id, after={"lot_code": code, "lot_size": size})
     return lot_id
 
 
@@ -294,6 +294,13 @@ def run(force: bool = False) -> None:
             if not defects:
                 settle_view(img_id, insp)
 
+    # ---------------- Lots 7-11: realistic floor lots with styles, buyers, and colors
+    lot7 = add_lot("LT-2026-020", nordika, "Charcoal", 360, insp, plan8, units=4, nonvisual="done")
+    lot8 = add_lot("LT-2026-021", sakura, "Olive", 240, insp, plan6, units=6, nonvisual="pending")
+    lot9 = add_lot("LT-2026-022", nordika, "Indigo", 520, insp, plan8, units=8, nonvisual="done")
+    lot10 = add_lot("LT-2026-023", sakura, "Oatmeal", 180, insp, plan6, units=3, nonvisual="pending")
+    lot11 = add_lot("LT-2026-024", nordika, "Burgundy", 440, insp, plan8, units=8, nonvisual="done")
+
     # ---------------- model registry (append-only)
     ok, detail = vision.selftest()
     sha = vision.model_sha()
@@ -317,9 +324,9 @@ def run(force: bool = False) -> None:
         json.dump(card, f, indent=2)
 
     # ---------------- first decisions
-    for lot_id in (lot1, lot2, lot3, lot4, lot5, lot6):
+    for lot_id in (lot1, lot2, lot3, lot4, lot5, lot6, lot7, lot8, lot9, lot10, lot11):
         service.compute_decision(lot_id, sup)
-    print("Seed complete: lots", [lot1, lot2, lot3, lot4, lot5, lot6])
+    print("Seed complete: lots", [lot1, lot2, lot3, lot4, lot5, lot6, lot7, lot8, lot9, lot10, lot11])
 
 
 if __name__ == "__main__":

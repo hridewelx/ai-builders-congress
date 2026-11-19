@@ -1,7 +1,74 @@
 """Bilingual UI strings. Bangla is a first-class UI language, not a subtitle."""
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 LANGS = {"en": "English", "bn": "বাংলা"}
+
+BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+BN_MONTHS = ("জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+             "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর")
+EN_MONTHS = ("January", "February", "March", "April", "May", "June",
+             "July", "August", "September", "October", "November", "December")
+DHAKA_TZ = timezone(timedelta(hours=6))  # Asia/Dhaka has no daylight saving time.
+
+
+def format_num(val: object, lang: str = "en") -> str:
+    """Format integers, floats, and numeric strings using the target language's numerals."""
+    if val is None or val == "":
+        return "—"
+    s = str(val)
+    if lang == "bn":
+        return s.translate(BN_DIGITS)
+    return s
+
+
+def format_grouped_num(val: object, lang: str = "en") -> str:
+    """Format a number with thousands separators, then localise its digits."""
+    if val is None or val == "":
+        return "—"
+    try:
+        s = f"{int(val):,}"
+    except (TypeError, ValueError):
+        try:
+            s = f"{float(val):,.2f}".rstrip("0").rstrip(".")
+        except (TypeError, ValueError):
+            s = str(val)
+    return format_num(s, lang)
+
+
+def format_datetime(val: object, lang: str = "en") -> str:
+    """Render a UTC timestamp in Asia/Dhaka, using the language's numerals and month names."""
+    if val is None or val == "":
+        return "—"
+    if isinstance(val, datetime):
+        dt = val
+    else:
+        text = str(val).strip()
+        try:
+            if text.endswith("Z"):
+                text = text[:-1] + "+00:00"
+            dt = datetime.fromisoformat(text)
+        except ValueError:
+            return str(val)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    dt = dt.astimezone(DHAKA_TZ)
+    months = BN_MONTHS if lang == "bn" else EN_MONTHS
+    day = format_num(dt.day, lang)
+    year = format_num(dt.year, lang)
+    hour = format_num(dt.hour % 12 or 12, lang)
+    minute = format_num(f"{dt.minute:02d}", lang)
+    suffix = "AM" if dt.hour < 12 else "PM"
+    return f"{day} {months[dt.month - 1]} {year}, {hour}:{minute} {suffix}"
+
+
+def event_label(action: str, lang: str = "en") -> str:
+    """Human label for an audit event key, with a safe fallback for new keys."""
+    pair = STR.get("event." + str(action))
+    if pair:
+        return pair[1] if lang == "bn" else pair[0]
+    return str(action).replace(".", " / ").replace("_", " ").strip().title()
 
 STR = {
     "app.name": ("Lotline", "লটলাইন"),
@@ -47,6 +114,7 @@ STR = {
     "common.yes": ("Yes", "হ্যাঁ"),
     "common.no": ("No", "না"),
     "common.lot": ("Lot", "লট"),
+    "common.unit": ("Garment", "গার্মেন্ট"),
     "common.units": ("Garments", "গার্মেন্টস"),
     "common.images": ("Photos", "ছবি"),
     "common.details": ("Details", "বিবরণ"),
@@ -57,6 +125,30 @@ STR = {
     "common.loading": ("Working…", "চলছে…"),
     "common.not_set": ("Not set", "সেট করা হয়নি"),
     "common.today": ("Today", "আজ"),
+    "common.system": ("System", "সিস্টেম"),
+    "common.pcs": ("pcs", "পিস"),
+    "common.no_events": ("No events yet.", "এখনো কোনো ইভেন্ট নেই।"),
+
+    "status.in_progress": ("In progress", "চলমান"),
+    "status.open": ("In progress", "চলমান"),
+    "status.decided": ("Decided", "নিষ্পন্ন"),
+    "status.reopened": ("Reopened", "পুনরায় খোলা"),
+    "status.archived": ("Archived", "আর্কাইভড"),
+    "status.pending": ("Pending", "মুলতুবি"),
+    "status.pending_approval": ("Pending approval", "অনুমোদন বাকি"),
+    "status.ok": ("OK", "ঠিক আছে"),
+    "status.failed": ("Failed", "ব্যর্থ"),
+    "status.not_inferred": ("Not inferred", "ইনফারেন্স হয়নি"),
+    "status.needs_retake": ("Needs retake", "আবার ছবি দরকার"),
+    "status.reviewed_clean": ("Reviewed — no defects", "পর্যালোচিত — ত্রুটি নেই"),
+    "status.confirmed_defects": ("Defects confirmed", "ত্রুটি নিশ্চিত"),
+    "status.active": ("Active", "সক্রিয়"),
+    "status.disabled": ("Disabled", "নিষ্ক্রিয়"),
+    "status.proposed": ("Open proposal", "খোলা প্রস্তাব"),
+    "status.confirmed": ("Confirmed", "নিশ্চিত"),
+    "status.rejected": ("Rejected", "বাতিল"),
+    "status.done": ("Complete", "সম্পন্ন"),
+    "status.not_required": ("Not required", "প্রযোজ্য নয়"),
 
     "login.title": ("Sign in", "সাইন ইন"),
     "login.subtitle": ("Knitwear QC, made auditable.", "নিটওয়্যার কিউসি, অডিটযোগ্য।"),
@@ -81,6 +173,49 @@ STR = {
     "dash.model": ("Detector", "ডিটেক্টর"),
     "dash.model_up": ("online · on-device", "অনলাইন · ডিভাইসে"),
     "dash.principle": ("The AI never approves a lot.", "এআই কখনো লট অনুমোদন করে না।"),
+    "dash.single_decision": ("Decision:", "সিদ্ধান্ত:"),
+    "dash.current_decision": ("Current decision:", "বর্তমান সিদ্ধান্ত:"),
+    "dash.final_disposition": ("Final disposition:", "চূড়ান্ত সিদ্ধান্ত:"),
+    "dash.recent_lots_count": ("Recent {recent} lots / {total} total", "সাম্প্রতিক {recent} লট / মোট {total}"),
+    "dash.self_test_passed": ("self-test passed", "সেলফ-টেস্ট উত্তীর্ণ"),
+    "dash.check_model": ("check model", "মডেল পরীক্ষা করুন"),
+    "dash.four_steps": ("4 Steps", "৪টি ধাপ"),
+    "dash.pipeline_aria": ("Inspection pipeline", "পরিদর্শন পাইপলাইন"),
+    "dash.illustrative": ("Illustrative, not model output", "দৃষ্টান্তমূলক, মডেলের আউটপুট নয়"),
+    "dash.detector_desc": ("Server-side autoencoder · CPU in-process · 0 cloud calls",
+                           "সার্ভার-সাইড অটোএনকোডার · সিপিইউ (ইন-প্রসেস) · কোনো ক্লাউড কল নেই"),
+    "dash.baseline_proposals": ("Baseline detector proposals", "বেসলাইন ডিটেক্টরের প্রস্তাব"),
+    "dash.baseline_notice": ("Unsupervised baseline, not a trained model", "আনসুপারভাইজড বেসলাইন, প্রশিক্ষিত মডেল নয়"),
+    "dash.active_lots_subtitle": ("Active inspection lots and their current decisions", "চলমান ইন্সপেকশন লট ও তাদের বর্তমান সিদ্ধান্ত"),
+    "dash.no_garments": ("No garments", "কোনো গার্মেন্ট নেই"),
+    "dash.step1_title": ("Photo Capture", "ছবি ধারণ"),
+    "dash.step1_desc": ("Phone camera, metadata stripped, SHA-256 hash locked.",
+                        "মোবাইল ক্যামেরা, মেটাডেটা অপসারণ, SHA-256 হ্যাশ সংরক্ষিত।"),
+    "dash.step2_title": ("AI Proposes", "এআই প্রস্তাব"),
+    "dash.step2_desc": ("Server-side autoencoder (CPU) flags candidate defect boxes; never approves/rejects.",
+                        "সার্ভার-সাইড অটোএনকোডার (CPU) সম্ভাব্য ডিফেক্ট প্রস্তাব করে; কখনো অনুমোদন বা বাতিল করে না।"),
+    "dash.step3_title": ("Human Confirms", "মানুষ নিশ্চিত করে"),
+    "dash.step3_desc": ("Inspector verifies boxes; severity looked up from buyer clause.",
+                        "ইন্সপেক্টর নিশ্চিত বা বাতিল করেন; ক্রেতার ক্লজ থেকে সিরিয়িটি আসে।"),
+    "dash.step4_title": ("Deterministic Engine", "ইঞ্জিনের সিদ্ধান্ত"),
+    "dash.step4_desc": ("Pure rule engine compares confirmed counts against AQL Ac/Re limits.",
+                        "বিশুদ্ধ ফাংশন গণনা ও Ac/Re তুলনা করে সিদ্ধান্ত দেয়।"),
+    "how.step5_title": ("Evidence & Report", "প্রমাণ ও রিপোর্ট"),
+    "how.step5_desc": ("Immutable snapshot hash, 1-page PDF, tamper-evident audit trail.",
+                       "অপরিবর্তনীয় স্ন্যাপশট হ্যাশ, ১ পৃষ্ঠার পিডিএফ ও অডিট লগ।"),
+    "health.system_status": ("System Status", "সিস্টেম অবস্থা"),
+    "health.tested": ("Tested", "পরীক্ষিত"),
+    "health.append_only": ("Append-only audit log", "অ্যাপেন্ড-অনলি অডিট লগ"),
+    "health.policy_title": ("Role Isolation Policy", "রোল আইসোলেশন নীতি"),
+    "health.policy_badge": ("Policy", "নীতিমালা"),
+    "health.policy_desc": ("Separation of duties: admin cannot capture, review, or override",
+                           "দায়িত্বের বিভাজন: অ্যাডমিন ক্যাপচার, রিভিউ বা ওভাররাইড করতে পারেন না"),
+    "common.view": ("View", "দেখুন"),
+    "nav.view_only": ("View only", "শুধু দেখা"),
+    "meta.description": ("Lotline — auditable AI-assisted knitwear lot acceptance. AI proposes, humans confirm, a deterministic engine decides.",
+                        "লটলাইন — যাচাইযোগ্য এআই-সহায়তাপ্রাপ্ত নিটওয়্যার লট গ্রহণ। এআই প্রস্তাব করে, মানুষ নিশ্চিত করে, নির্ধারক ইঞ্জিন সিদ্ধান্ত দেয়।"),
+    "foot.demo_note": ("Demo build · staged synthetic photos · no real buyer or personal data.",
+                       "ডেমো বিল্ড · স্টেজ করা কৃত্রিম ছবি · বাস্তব ক্রেতা বা ব্যক্তিগত তথ্য নেই।"),
 
     "lots.title": ("Lots", "লট"),
     "lots.code": ("Lot code", "লট কোড"),
@@ -109,17 +244,91 @@ STR = {
     "lot.review": ("Review", "পর্যালোচনা"),
     "lot.decision": ("Decision", "সিদ্ধান্ত"),
     "lot.report": ("Report", "রিপোর্ট"),
+    "lot.sections": ("Lot sections", "লট বিভাগ"),
     "lot.units_registered": ("garments registered", "গার্মেন্টস নিবন্ধিত"),
     "lot.views_reviewed": ("views reviewed", "ভিউ পর্যালোচিত"),
     "lot.plan_missing": ("No plan yet. Decisions will be HOLD.", "প্ল্যান নেই। সিদ্ধান্ত হোল্ড হবে।"),
     "lot.plan_assumption": ("Default plan is an assumption, not a standard value.",
                             "ডিফল্ট প্ল্যান একটি অনুমান, স্ট্যান্ডার্ড মান নয়।"),
+    "lot.step_detect": ("AI detection", "এআই শনাক্তকরণ"),
+    "lot.step_review": ("Human review", "মানুষ পর্যালোচনা"),
+    "lot.step_decide": ("Decision engine", "নির্ধারক ইঞ্জিন"),
+    "lot.step_photos": ("{done} / {total} photos", "{done} / {total} ছবি"),
+    "lot.step_reviewed": ("{done} / {total} reviewed", "{done} / {total} পর্যালোচিত"),
+    "lot.step_queued": ("{n} queued", "{n} প্রক্রিয়াধীন"),
+    "lot.step_manual": ("{n} manual", "{n} ম্যানুয়াল"),
+    "lot.step_blocked_plan": ("Blocked: no sampling plan", "বন্ধ: স্যাম্পলিং প্ল্যান নেই"),
+    "lot.step_blocked_plan_invalid": ("Blocked: invalid sampling plan", "বন্ধ: স্যাম্পলিং প্ল্যান বৈধ নয়"),
+    "lot.step_waiting_review": ("Waiting for review", "পর্যালোচনার অপেক্ষায়"),
+    "lot.pipeline": ("Inspection pipeline", "ইনস্পেকশন পাইপলাইন"),
+    "lot.next_step": ("Next step", "পরের ধাপ"),
+    "lot.awaiting_compute": ("Awaiting computation", "গণনা বাকি"),
+    "lot.current_decision": ("Current decision", "বর্তমান সিদ্ধান্ত"),
+    "lot.final_decision": ("Final decision", "চূড়ান্ত সিদ্ধান্ত"),
+    "lot.system_recommendation": ("System recommendation", "সিস্টেম সুপারিশ"),
+    "lot.no_decision_short": ("Pending", "মুলতুবি"),
+    "lot.compute_need_plan": ("A confirmed sampling plan is required before computing.",
+                              "সিদ্ধান্ত গণনার আগে নিশ্চিত স্যাম্পলিং প্ল্যান দরকার।"),
+    "lot.compute_need_photos": ("Upload at least one garment photo before computing.",
+                                "সিদ্ধান্ত গণনার আগে অন্তত একটি ছবি আপলোড করুন।"),
+    "lot.compute_after_review": ("Review every view before computing the decision.",
+                                 "সিদ্ধান্ত গণনার আগে প্রতিটি ভিউ পর্যালোচনা করুন।"),
+    "lot.review_need_photos": ("Upload photos before reviewing.",
+                               "পর্যালোচনার আগে ছবি আপলোড করুন।"),
+    "lot.review_need_units": ("No garments to review yet.", "পর্যালোচনার জন্য এখনো কোনো গার্মেন্ট নেই।"),
+    "lot.read_only": ("Read-only view. A supervisor records the plan and checks.",
+                      "শুধু পড়ার ভিউ। সুপারভাইজার প্ল্যান ও চেক রেকর্ড করেন।"),
+    "lot.plan_waiting_supervisor": ("Waiting for a supervisor", "সুপারভাইজারের অপেক্ষায়"),
+    "lot.plan_waiting_reason": ("A supervisor must confirm a sampling plan before this lot can be decided.",
+                                "সিদ্ধান্ত নেওয়ার আগে সুপারভাইজারকে একটি স্যাম্পলিং প্ল্যান নিশ্চিত করতে হবে।"),
+    "lot.create_plan": ("Create plan", "প্ল্যান তৈরি করুন"),
+    "lot.plan_needed": ("A sampling plan is needed", "স্যাম্পলিং প্ল্যান দরকার"),
+    "lot.plan_needed_reason": ("Enter the sample size and Ac/Re limits so the engine can compute a decision.",
+                               "সিদ্ধান্ত গণনার জন্য স্যাম্পল সাইজ ও Ac/Re সীমা লিখুন।"),
+    "lot.plan_ready": ("Plan confirmed", "প্ল্যান নিশ্চিত"),
+    "lot.plan_update": ("Update plan", "প্ল্যান হালনাগাদ"),
+    "lot.plan_condition": ("Normal inspection · Single sampling · General Level II (ISO 2859-1 / ANSI ASQ Z1.4)",
+                           "নরমাল ইন্সপেকশন · সিঙ্গেল স্যাম্পলিং · জেনারেল লেভেল II (ISO 2859-1 / ANSI ASQ Z1.4)"),
+    "lot.plan_test_config": ("Test configuration", "টেস্ট কনফিগারেশন"),
+    "lot.assumption": ("Assumption", "অনুমান"),
+    "plan.class": ("Class", "শ্রেণি"),
     "lot.nonvisual": ("Critical non-visual check", "ক্রিটিক্যাল নন-ভিজ্যুয়াল চেক"),
     "lot.nonvisual_hint": ("Needle fragments, metal, legal labels. A photo cannot prove these.",
                            "ভাঙা সুই, ধাতু, আইনি লেবেল। ছবি এগুলো প্রমাণ করতে পারে না।"),
+    "lot.nonvisual_pending": ("Unresolved", "অমীমাংসিত"),
+    "lot.nonvisual_done": ("Complete", "সম্পন্ন"),
+    "lot.nonvisual_not_required": ("Not required", "প্রযোজ্য নয়"),
+    "lot.nonvisual_failed": ("Failed", "ব্যর্থ"),
+    "nv.pending": ("Unresolved", "অমীমাংসিত"),
+    "nv.done": ("Complete", "সম্পন্ন"),
+    "nv.not_required": ("Not required", "প্রযোজ্য নয়"),
+    "nv.failed": ("Failed", "ব্যর্থ"),
+    "lot.nonvisual_record": ("Record check", "চেক রেকর্ড করুন"),
+    "lot.nonvisual_recorded": ("Recorded check", "নথিভুক্ত চেক"),
+    "lot.nonvisual_note_hint": ("A note is required for a failed check.",
+                                "ব্যর্থ চেকের জন্য নোট আবশ্যক।"),
+    "lot.supervisor_only_nv": ("Non-visual checks (needle detection, metal, safety) are recorded by supervisors.",
+                               "নন-ভিজ্যুয়াল চেক (সুই পরীক্ষা, মেটাল, নিরাপত্তা) সুপারভাইজার কর্তৃক নথিভুক্ত হয়।"),
+    "lot.awaiting_supervisor": ("Awaiting supervisor", "সুপারভাইজারের অপেক্ষায়"),
+    "lot.awaiting_supervisor_desc": ("Only supervisors can configure and confirm the AQL sampling plan for this lot.",
+                                     "শুধুমাত্র সুপারভাইজার এই লটের জন্য AQL স্যাম্পলিং প্ল্যান তৈরি ও অনুমোদন করতে পারেন।"),
+    "lot.create_plan": ("Create sampling plan", "প্ল্যান তৈরি করুন"),
+    "lot.no_changes": ("No changes since last computation.", "সর্বশেষ গণনার পর কোনো পরিবর্তন হয়নি।"),
+    "dec.final_disposition": ("Final disposition", "চূড়ান্ত সিদ্ধান্ত"),
+    "dec.current_decision": ("Current decision", "বর্তমান সিদ্ধান্ত"),
+    "pipe.ai_detection": ("AI Detection", "এআই শনাক্তকরণ"),
+    "pipe.human_review": ("Human Review", "মানুষ পর্যালোচনা"),
+    "pipe.decision_engine": ("Decision Engine", "নির্ধারক ইঞ্জিন"),
+    "pipe.blocked_no_plan": ("Blocked: no sampling plan", "স্থগিত: স্যাম্পলিং প্ল্যান নেই"),
+    "pipe.awaiting_photos": ("Awaiting photos", "ছবির অপেক্ষায়"),
+    "pipe.awaiting_review": ("Awaiting review", "পর্যালোচনার অপেক্ষায়"),
+    "pipe.ready_to_compute": ("Ready to compute", "গণনার জন্য প্রস্তুত"),
     "lot.timeline": ("History", "ইতিহাস"),
+    "lot.events_count": ("{n} events", "{n}টি ইভেন্ট"),
     "lot.unit": ("Garment", "গার্মেন্ট"),
-    "lot.no_units": ("No garments registered yet.", "এখনো কোনো গার্মেন্ট নেই।"),
+    "lot.no_units": ("No garments added yet.", "এখনো কোনো গার্মেন্ট যোগ করা হয়নি।"),
+    "lot.no_units_body": ("Upload photos to see the garment list here.",
+                          "ছবি আপলোড করলে এখানে গার্মেন্টস তালিকা দেখা যাবে।"),
     "lot.locked": ("Decided lots are locked. A Supervisor can reopen with an audit reason.",
                    "সিদ্ধান্ত হওয়া লট লক থাকে। সুপারভাইজার কারণ লিখে পুনরায় খুলতে পারেন।"),
     "lot.demo_data": ("Demo data · staged images", "ডেমো ডেটা · স্টেজ করা ছবি"),
@@ -133,6 +342,8 @@ STR = {
                           "শুধু সর্বোচ্চ শ্রেণি — এক গার্মেন্ট একবার"),
     "plan.mode_every": ("Every class — one garment counts in each class",
                         "প্রতিটি শ্রেণি — প্রতিটি শ্রেণিতে একবার"),
+    "plan.mode_highest_class_only": ("Highest class only", "শুধু সর্বোচ্চ শ্রেণি"),
+    "plan.mode_every_class": ("Every class", "প্রতিটি শ্রেণি"),
     "plan.aql": ("AQL label (informational)", "AQL লেবেল (তথ্যের জন্য)"),
     "plan.ac": ("Ac (accept)", "Ac (গ্রহণ)"),
     "plan.re": ("Re (reject)", "Re (বাতিল)"),
@@ -148,8 +359,8 @@ STR = {
                     "n লট সাইজের সমান বা বেশি: পুরো লট পরীক্ষা করুন।"),
 
     "cap.title": ("Capture garment photos", "গার্মেন্টসের ছবি তুলুন"),
-    "cap.guidance": ("No faces, no badges. Fill the frame with the garment panel.",
-                     "মুখ নয়, ব্যাজ নয়। গার্মেন্টস প্যানেলে ফ্রেম ভরুন।"),
+    "cap.guidance": ("Keep the garment panel inside the frame.",
+                     "গার্মেন্টসের প্যানেল ফ্রেমের মধ্যে রাখুন।"),
     "cap.side": ("Side", "দিক"),
     "cap.front": ("Front", "সামনে"),
     "cap.back": ("Back", "পিছনে"),
@@ -248,13 +459,33 @@ STR = {
     "audit.immutable": ("Append-only. No role can edit or delete an audit row.",
                         "শুধু যোগ করা যায়। কোনো ভূমিকা অডিট রেকর্ড সম্পাদনা বা মুছতে পারে না।"),
 
-    "how.title": ("How Lotline decides", "লটলাইন কীভাবে সিদ্ধান্ত নেয়"),
+    "how.title": ("How Lotline decides", "Lotline কীভাবে সিদ্ধান্ত নেয়"),
     "how.principle": ("AI proposes defects. Humans confirm defects. The deterministic sampling engine makes the recommendation.",
-                      "এআই ত্রুটি প্রস্তাব করে। মানুষ নিশ্চিত করে। নির্ধারক স্যাম্পলিং ইঞ্জিন সুপারিশ দেয়।"),
+                      "AI ত্রুটি প্রস্তাব করে। মানুষ নিশ্চিত করে। নির্ধারক স্যাম্পলিং ইঞ্জিন সুপারিশ দেয়।"),
     "how.pipeline": ("Pipeline", "পাইপলাইন"),
     "how.model_card": ("Model card", "মডেল কার্ড"),
     "how.limits": ("Honest limits", "সৎ সীমাবদ্ধতা"),
-    "how.impact": ("Impact measured in this demo", "এই ডেমোতে পরিমাপিত প্রভাব"),
+    "how.impact": ("Demo data summary", "ডেমো ডেটার সারসংক্ষেপ"),
+    "how.principles_title": ("Design principles", "ডিজাইন নীতি"),
+    "how.data_sovereignty": ("Data sovereignty", "ডেটা সার্বভৌমত্ব"),
+    "how.fail_safe": ("Fail-safe by construction", "ব্যর্থতা-নিরাপদ স্থাপত্য"),
+    "how.explainability": ("Explainability", "ব্যাখ্যাযোগ্যতা"),
+    "how.glossary": ("Inspection Terminology & Glossary", "ইন্সপেকশন পরিভাষা ও নির্দেশিকা"),
+    "how.self_test_passed": ("Self-test passed", "সেলফ-টেস্ট সফল"),
+    "how.run_self_test": ("Run self-test", "সেলফ-টেস্ট চালান"),
+    "how.model": ("Model", "মডেল"),
+    "how.training": ("Training data", "প্রশিক্ষণের ডেটা"),
+    "how.labels": ("Labels used", "ব্যবহৃত লেবেল"),
+    "how.calibration": ("Calibration", "ক্যালিব্রেশন"),
+    "how.eval_domain": ("Evaluation domain", "মূল্যায়নের ক্ষেত্র"),
+    "how.runtime": ("Runtime", "রানটাইম"),
+    "how.artifact": ("Model artifact", "মডেল আর্টিফ্যাক্ট"),
+    "how.self_test": ("Self-test", "সেলফ-টেস্ট"),
+    "how.demo_topology": ("Demo Architecture (Current)", "ডেমো আর্কিটেকচার (বর্তমান)"),
+    "how.prod_topology": ("Production Target", "প্রোডাকশন লক্ষ্য"),
+    "how.reviewer_actions": ("Total reviewer actions", "পর্যালোচকের মোট কাজ"),
+    "how.confirmed_defects": ("Confirmed defects", "নিশ্চিত ত্রুটি"),
+    "how.pipeline_chip": ("input → AI → human → rule → evidence", "ইনপুট → এআই → মানুষ → নিয়ম → প্রমাণ"),
 
     "out.ACCEPT": ("ACCEPT", "গ্রহণ"),
     "out.REJECT": ("REJECT", "বাতিল"),
@@ -274,20 +505,43 @@ STR = {
     "type.other": ("other", "অন্যান্য"),
 
     "flash.saved": ("Saved.", "সংরক্ষিত।"),
+    "flash.unchanged": ("No changes since the last computation.", "শেষ গণনার পর কোনো পরিবর্তন নেই।"),
     "flash.denied": ("You do not have permission for that action.", "এই কাজের অনুমতি আপনার নেই।"),
     "flash.locked": ("This lot is decided and locked.", "এই লটের সিদ্ধান্ত হয়ে গেছে এবং লক করা।"),
     "flash.not_found": ("Not found.", "পাওয়া যায়নি।"),
     "flash.csrf": ("Security token expired. Reload the page.", "সিকিউরিটি টোকেনের মেয়াদ শেষ। পৃষ্ঠা রিফ্রেশ করুন।"),
     "flash.review_first": ("Answer every proposal before marking the view.", 
                            "ভিউ চিহ্নিত করার আগে প্রতিটি প্রস্তাবের উত্তর দিন।"),
+
+    # Human labels for append-only audit event keys. The raw key stays available
+    # in the UI as a title/tooltip for auditors.
+    "event.lot.created": ("Lot created", "লট তৈরি হয়েছে"),
+    "event.plan.created": ("Sampling plan created", "স্যাম্পলিং প্ল্যান তৈরি হয়েছে"),
+    "event.units.generated": ("Garment slots generated", "গার্মেন্ট স্লট তৈরি হয়েছে"),
+    "event.unit.created": ("Garment added", "গার্মেন্ট যোগ হয়েছে"),
+    "event.image.uploaded": ("Photo uploaded", "ছবি আপলোড হয়েছে"),
+    "event.inference.succeeded": ("Detector run completed", "ডিটেক্টর সম্পন্ন হয়েছে"),
+    "event.inference.failed": ("Detector run failed", "ডিটেক্টর ব্যর্থ হয়েছে"),
+    "event.view.confirmed_defects": ("View reviewed — defects confirmed", "ভিউ পর্যালোচিত — ত্রুটি নিশ্চিত"),
+    "event.view.reviewed_clean": ("View reviewed — no defects", "ভিউ পর্যালোচিত — ত্রুটি নেই"),
+    "event.view.needs_retake": ("View marked for retake", "ভিউ পুনরায় ছবির জন্য চিহ্নিত"),
+    "event.defect.confirmed": ("Defect confirmed", "ত্রুটি নিশ্চিত হয়েছে"),
+    "event.defect.rejected": ("Proposal rejected", "প্রস্তাব বাতিল হয়েছে"),
+    "event.defect.added_manually": ("Defect added manually", "ত্রুটি ম্যানুয়ালি যোগ হয়েছে"),
+    "event.defect.second_review": ("Second review recorded", "দ্বিতীয় পর্যালোচনা রেকর্ড হয়েছে"),
+    "event.decision.computed": ("Decision computed", "সিদ্ধান্ত গণনা হয়েছে"),
+    "event.decision.overridden": ("Decision overridden", "সিদ্ধান্ত ওভাররাইড হয়েছে"),
+    "event.decision.override_approved": ("Override approved", "ওভাররাইড অনুমোদিত হয়েছে"),
+    "event.lot.nonvisual_changed": ("Non-visual check updated", "নন-ভিজ্যুয়াল চেক হালনাগাদ হয়েছে"),
 }
 
 
-def t(key: str, lang: str = "en") -> str:
+def t(key: str, lang: str = "en", **values: object) -> str:
     pair = STR.get(key)
     if not pair:
         return key
-    return pair[1] if lang == "bn" else pair[0]
+    text = pair[1] if lang == "bn" else pair[0]
+    return text.format(**values) if values else text
 
 
 # Flash and error codes used by redirects (?ok= / ?err=)

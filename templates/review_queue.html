@@ -36,10 +36,10 @@
     <table class="table" data-table data-page-size="10">
       <thead>
         <tr>
-          <th>{{ tr('lot.unit') }}</th>
-          <th>{{ tr('cap.side') }}</th>
-          <th>{{ tr('common.status') }}</th>
-          <th>{{ 'Priority' if lang=='en' else 'অগ্রাধিকার' }}</th>
+          <th data-sort>{{ tr('lot.unit') }}</th>
+          <th data-sort>{{ tr('cap.side') }}</th>
+          <th data-sort>{{ tr('common.status') }}</th>
+          <th data-sort>{{ 'Priority' if lang=='en' else 'অগ্রাধিকার' }}</th>
           <th class="right">{{ tr('common.actions') }}</th>
         </tr>
       </thead>
@@ -83,7 +83,7 @@
     </table>
   </div>
   {% else %}
-  <div class="pad">
+  <div class="pad review-queue-empty" data-queue="empty">
     {{ ui.empty_state(tr('rev.queue_empty'), 'A complete sample is reviewed. Proceed to compute decision.', action_label=tr('dec.compute'), action_href='/lots/' ~ lot.id ~ '/decision', icon_name='check-circle') }}
   </div>
   {% endif %}

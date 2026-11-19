@@ -411,9 +411,13 @@
               {{ icons.icon('shield-alert', 14) }}
               <span>{{ 'High-risk override policy: Overriding REJECT to ACCEPT requires approval by a different active Supervisor. The lot status remains unapproved until confirmed.' if lang=='en' else 'উচ্চ ঝুঁকি: REJECT থেকে ACCEPT করতে দ্বিতীয় সুপারভাইজারের অনুমোদন প্রয়োজন।' }}</span>
             </div>
+            <div class="note ok" id="immediateNotice" style="font-size:12px;display:none">
+              {{ icons.icon('check-circle', 14) }}
+              <span>{{ 'Stricter override policy: Overriding to REJECT is immediately effective upon submission.' if lang=='en' else 'কঠোর নীতি: REJECT ওভাররাইড দাখিলের সাথে সাথেই কার্যকর হয়।' }}</span>
+            </div>
             {% endif %}
 
-            <button class="btn primary sm" type="submit">{{ icons.icon('check', 14) }}<span>{{ 'Submit Override' if lang=='en' else 'ওভাররাইড দাখিল' }}</span></button>
+            <button class="btn primary sm" type="submit" id="submitOverrideBtn" disabled>{{ icons.icon('check', 14) }}<span>{{ 'Submit Override' if lang=='en' else 'ওভাররাইড দাখিল' }}</span></button>
           </form>
           {% endif %}
         </div>
