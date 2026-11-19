@@ -1900,7 +1900,7 @@ No visual regression suite in v1. The demo device matrix is more valuable than p
 
 | Role | Dataset | Use |
 |---|---|---|
-| Primary public | BDFD9 (`10.17632/z49cc7zvfc.1`, CC BY 4.0) | Transfer learning; its 105-image test split is the only public phone-photo test column |
+| Primary public | BDFD9 (`10.17632/z49cc7zvfc.1`, CC BY 4.0) | Transfer learning; its official test folder is the only public factory-fabric test column (109 files; 42 in-scope after within-test dedupe) |
 | Conditional primary | ISL-Knit | Excluded until its Kaggle dataset license is confirmed; then candidate for knit/phone transfer |
 | Supplementary | FabriD v3 (`10.17632/vncdwps24r.3`, CC BY 4.0) | Needle mark, missing yarn, stain, hole, defect-free; capture device unknown |
 | Negative controls | AFID, RAW-FABRID, MVTec AD 2 | Never trained on; woven/line-scan/non-commercial checks only |
@@ -1949,7 +1949,7 @@ No visual regression suite in v1. The demo device matrix is more valuable than p
 |---|---|---|
 | Train | Deduplicated public train + staged train | Per-source holdout preserved; pHash clusters whole |
 | Validation | Per-source validation + staged validation | Used for early stopping and threshold selection only |
-| Public test | BDFD9 official 105-image test split | Frozen; never trained or tuned on |
+| Public test | BDFD9 official test folder (42 in-scope images after dedupe) | Frozen; never trained or tuned on; `ml.verify_split` must pass |
 | Staged test | Frozen manifest of staged garments | Frozen by manifest hash; never added to training |
 | Factory test | None in v1 unless access exists | If none, the report says “no factory evidence” |
 

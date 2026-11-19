@@ -148,28 +148,40 @@
         <caption class="sr-only">{{ 'Model specification and evaluation parameters' if lang=='en' else 'মডেল স্পেসিফিকেশন ও মূল্যায়ন পরামিতি' }}</caption>
         <tbody>
           <tr>
-            <th scope="row" class="dim-col">{{ tr('how.model') }}</th>
+            <th scope="row" class="dim-col">{{ 'Seeded history' if lang=='en' else 'সিড ইতিহাস' }}</th>
             <td class="val-col font-mono">{{ card.get('model', 'ae-knit-v1') }}</td>
           </tr>
           <tr>
-            <th scope="row" class="dim-col">{{ tr('how.training') }}</th>
-            <td class="val-col">{{ 'Synthetic clean knit textures (procedural), no defect labels' if lang=='en' else 'কৃত্রিম পরিষ্কার নিট টেক্সচার (প্রসিডিউরাল), কোনো ডিফেক্ট লেবেল ছাড়া' }}</td>
+            <th scope="row" class="dim-col">{{ 'Labels (seeded)' if lang=='en' else 'ব্যবহৃত লেবেল (সিড)' }}</th>
+            <td class="val-col">{{ card.get('labels', 'none (unsupervised)') if lang=='en' else (card.get('labels') or 'কোনোটি নয় (আনসুপারভাইজড)') }}</td>
           </tr>
           <tr>
-            <th scope="row" class="dim-col">{{ tr('how.labels') }}</th>
-            <td class="val-col">{{ 'None (unsupervised)' if lang=='en' else 'কোনোটি নয় (আনসুপারভাইজড)' }}</td>
+            <th scope="row" class="dim-col">{{ 'Seeded training' if lang=='en' else 'সিড প্রশিক্ষণ' }}</th>
+            <td class="val-col">{{ card.get('training', 'synthetic clean knit textures (procedural), no defect labels') if lang=='en' else 'কৃত্রিম পরিষ্কার নিট টেক্সচার (প্রসিডিউরাল), কোনো ডিফেক্ট লেবেল ছাড়া' }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live uploads' if lang=='en' else 'লাইভ আপলোড' }}</th>
+            <td class="val-col font-mono">{{ card.get('live_model', 'same as seeded') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Labels (live)' if lang=='en' else 'ব্যবহৃত লেবেল (লাইভ)' }}</th>
+            <td class="val-col">{{ card.get('live_labels', 'none') if lang=='en' else (card.get('live_labels') or 'কোনোটি নয়') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live training' if lang=='en' else 'লাইভ প্রশিক্ষণ' }}</th>
+            <td class="val-col">{{ card.get('live_training', '—') }}</td>
           </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.calibration') }}</th>
-            <td class="val-col text-warning-contrast">{{ 'None — raw reconstruction error scores' if lang=='en' else 'কোনোটি নয় — স্কোর অপরিমাপিত' }}</td>
+            <td class="val-col text-warning-contrast">{{ card.get('calibration', 'none — raw reconstruction error scores') if lang=='en' else (card.get('calibration') or 'কোনোটি নয় — স্কোর অপরিমাপিত') }}</td>
           </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.eval_domain') }}</th>
-            <td class="val-col">{{ 'Staged knit panels only (laboratory test set)' if lang=='en' else 'স্টেজ করা নিট প্যানেল (ল্যাব টেস্ট সেট)' }}</td>
+            <td class="val-col">{{ card.get('domains', 'staged knit panels only (laboratory test set)') if lang=='en' else 'স্টেজ করা নিট প্যানেল (ল্যাব টেস্ট সেট)' }}</td>
           </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.runtime') }}</th>
-            <td class="val-col">{{ 'Server CPU (in-process), ~0.4 s / image' if lang=='en' else 'সার্ভার সিপিইউ (ইন-প্রসেস), প্রতি ছবিতে ~০.৪ সেকেন্ড' }}</td>
+            <td class="val-col">{{ card.get('device', 'Server CPU (in-process), ~0.4 s / image') if lang=='en' else 'সার্ভার সিপিইউ (ইন-প্রসেস), প্রতি ছবিতে ~০.৪ সেকেন্ড' }}</td>
           </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.artifact') }}</th>
@@ -182,6 +194,10 @@
                 </button>
               </div>
             </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.self_test') }}</th>
+            <td class="val-col small">{{ card.get('self_test', {}).get('detail', '—') }}</td>
           </tr>
         </tbody>
       </table>

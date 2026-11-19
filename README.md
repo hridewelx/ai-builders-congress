@@ -52,7 +52,7 @@ This is enforced structurally, not by policy text:
 
 ```bash
 # Python 3.11+ ; on this machine use the full interpreter path
-python -m app.seed          # 6 lots, 70 staged photos, ~25 s (first run trains the detector)
+python -m app.seed          # 6 lots, 70 staged photos, ~30 s (first run fits the autoencoder)
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8077
 ```
 
@@ -86,7 +86,7 @@ python -m ruff check app    # import order, undefined names, dead code
 | 7 | `LT-2026-017` | Sakura Apparel clause map is missing an oil-stain zone → **ESCALATE_UNMAPPED_CLAUSE** |
 | 8 | `LT-2026-018` | no plan → **HOLD_PLAN_MISSING** (the engine refuses to guess) |
 | 9 | Audit | 100+ append-only events: who did what, to which entity, when |
-| 10 | বাংলা | the whole UI in Bangla, same logic, same report |
+| 10 | বাংলা | the whole UI in Bangla, same logic and screens; PDF labels stay English |
 
 ---
 
@@ -96,21 +96,32 @@ Honesty is part of the product. Every limitation below is also printed in the
 UI and in the PDF report.
 
 **Real**
-- The detector is a genuine unsupervised autoencoder (numpy, in-process, CPU,
-  ~0.4 s/photo). Trained only on **clean synthetic knit patches** — no defect
-  labels — and it localises defects by reconstruction residual on a 3×3 patch
-  grid, with a robust z-score (median/MAD), connected components and IoU dedupe.
+- Two model paths. The seeded demo history uses a genuine unsupervised
+  autoencoder (numpy, in-process, CPU, ~0.4 s/photo), trained only on **clean
+  synthetic knit patches** and localising defects by reconstruction residual.
+  New uploads use a trained Faster R-CNN (MobileNetV3-FPN, ONNX, CPU) supervised
+  on **BDFD9 factory fabric plus staged panels**; it proposes boxes and classes
+  only.
 - The engine, the counting modes, the precedence order, `Re = Ac + 1`
   validation, the append-only decision/override/audit model, Argon2id + CSRF +
   server-side sessions, the PDF report: all production-shaped, not mocked.
-- Photos are generated procedurally (knit texture + staged defects) — no real
-  buyer, worker or factory data is used anywhere.
+- Demo photos are generated procedurally (knit texture + staged defects).
+  BDFD9 images are used only for detector training/evaluation, never as buyer,
+  worker or inspection records.
 
 **Not real (stated in the UI)**
-- **Uncalibrated.** Scores are anomaly residuals, not probabilities.
-- Evaluated on **staged synthetic panels only**. Factory performance is unknown
-  and must be measured on-site before any production claim.
-- Defect-type classification is a heuristic; the reviewer can change the type.
+- The autoencoder's scores are anomaly residuals, not probabilities. For the
+  trained detector, temperature scaling was fitted on validation and **rejected**
+  because it increased ECE (0.106 → 0.118), so the runtime keeps raw scores and no
+  calibrated-probability claim is made.
+- The trained detector is a **fabric close-up** detector, not finished-garment
+  inspection. BDFD9 covers four Bangladeshi factories and four mapped classes;
+  performance on another factory or line is unmeasured.
+- Evaluation is on a held-out official BDFD9 test split; see
+  `docs/MODEL_CARD.md` for the current numbers. Do not quote them as a
+  production guarantee.
+- `needle_line` is an **approximate** mapping from BDFD9's `Vertical LineMark`;
+  the reviewer can change the type.
 - Critical **non-visual** defects (needle, metal) cannot be photographed; a
   supervisor records them separately.
 - Sampling randomness is **self-declared**; the software cannot verify a draw.
@@ -208,7 +219,7 @@ app/
   core/security.py        Argon2id, sessions, CSRF, login delay, password policy
   services/review.py      evidence assembly, decision rows, overrides, timeline
   services/vision.py      unsupervised knit-defect detector (numpy) + self-test
-  services/report.py      one-page FPDF report (Bangla-capable font fallback)
+  services/report.py      one-page FPDF report (ASCII-safe fallback; DejaVu in Docker)
   services/seed.py        demo data generator (idempotent, --force to rebuild)
   web/pages.py            template environment + shared context
   web/deps.py             sessions, role gates, CSRF, write permissions
@@ -257,5 +268,7 @@ See `docs/DATA.md` for provenance, splits and the honest limits of the data.
 
 ---
 
-*Demo build for the International AI Builders Congress 2026. Staged garment
-images; no real buyer, factory or worker data. Engine `lotline-engine-1.2.0`.*
+*Demo build for the International AI Builders Congress 2026. The UI uses staged
+garment images; the trained detector is additionally trained and evaluated on
+BDFD9 factory fabric (CC BY 4.0). No buyer, worker or inspection records are
+used. Engine `lotline-engine-1.2.0`.*
