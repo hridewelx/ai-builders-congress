@@ -1,0 +1,75 @@
+  <div class="stack">
+    {# Demo Data Summary (Requirement 2 & 1) #}
+    <div class="card">
+      <div class="card-h">
+        <h3>{{ tr('how.impact') }}</h3>
+      </div>
+      <div class="pad-sm">
+        <div class="grid cols-2" style="gap:9px">
+          <div class="kpi p-2">
+            <div class="lbl">{{ tr('common.lots') }}</div>
+            <div class="n" style="font-size:20px">{{ stats.lots|num }}</div>
+          </div>
+          <div class="kpi p-2">
+            <div class="lbl">{{ tr('common.images') }}</div>
+            <div class="n" style="font-size:20px">{{ stats.images|num }}</div>
+          </div>
+          <div class="kpi p-2">
+            <div class="lbl">{{ 'AI Proposals' if lang=='en' else 'এআই প্রস্তাব' }}</div>
+            <div class="n" style="font-size:20px">{{ stats.proposals|num }}</div>
+            <div class="small dim" style="margin-top:2px">{{ stats.proposed|num }} {{ 'pending review' if lang=='en' else 'বিবেচনাধীন' }}</div>
+          </div>
+          <div class="kpi p-2">
+            <div class="lbl">{{ tr('how.reviewer_actions') }}</div>
+            <div class="n" style="font-size:20px">{{ (stats.confirmed + stats.rejected)|num }}</div>
+            <div class="small dim" style="margin-top:2px">
+              {{ stats.confirmed|num }} {{ 'confirmed' if lang=='en' else 'নিশ্চিত' }} · {{ stats.rejected|num }} {{ 'rejected' if lang=='en' else 'বাতিল' }}
+            </div>
+          </div>
+        </div>
+
+        {# Outcome Breakdown (Valid <ul> list, Requirement 14) #}
+        <ul class="how-impact-list">
+          <li>
+            <div>
+              <b>{{ stats.decisions.get('ACCEPT',0)|num }} {{ tr('out.ACCEPT') }} · {{ stats.decisions.get('REJECT',0)|num }} {{ tr('out.REJECT') }}</b>
+              <div class="small dim">{{ 'Two complete lots with opposite final dispositions' if lang=='en' else '২টি সম্পূর্ণ লট, বিপরীত চূড়ান্ত ফলাফল' }}</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <b>{{ stats.decisions.get('HOLD',0)|num }} {{ tr('out.HOLD') }} · {{ stats.decisions.get('ESCALATE',0)|num }} {{ tr('out.ESCALATE') }}</b>
+              <div class="small dim">{{ 'Incomplete evidence (HOLD) and unmapped buyer clauses (ESCALATE)' if lang=='en' else 'অসম্পূর্ণ প্রমাণ (হোল্ড) ও ম্যাপ করা হয়নি এমন ক্রেতা ক্লজ (এস্কেলেট)' }}</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <b>{{ stats.audit|num }} {{ 'recorded audit events' if lang=='en' else 'টি অডিট ইভেন্ট সংরক্ষিত' }}</b>
+              <div class="small dim">{{ 'Every state change recorded in append-only log' if lang=='en' else 'প্রতিটি অবস্থা পরিবর্তন, শুধু-যোগ (অ্যাপেন্ড-অনলি)' }}</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="note warn mt-2">
+          {{ 'These are demo counts from seeded data, not measured factory savings. No time-saving claim is made without a manual baseline study.' if lang=='en' else 'এগুলো ডেমো ডেটার গণনা, কারখানার সাশ্রয় নয়। ম্যানুয়াল বেসলাইন গবেষণা ছাড়া কোনো সময়-সাশ্রয়ের দাবি করা হয় না।' }}
+        </div>
+      </div>
+    </div>
+
+    {# Honest Limits Card (Requirement 7) #}
+    <div class="card">
+      <div class="card-h">
+        <h3>{{ tr('how.limits') }}</h3>
+      </div>
+      <div class="pad-sm">
+        <ul class="small muted" style="margin:0;padding-left:18px;line-height:1.75">
+          <li>{{ 'Uncalibrated detector: scores are raw reconstruction errors, not probabilities.' if lang=='en' else 'অপরিমাপিত ডিটেক্টর: স্কোরগুলো সম্ভাবনা নয়, কেবল রিকনস্ট্রাকশন এরর স্কোর।' }}</li>
+          <li>{{ 'Trained and evaluated on staged knit panels only; no factory floor evidence yet.' if lang=='en' else 'শুধু স্টেজ করা সিন্থেটিক নিট প্যানেলে প্রশিক্ষণ ও মূল্যায়ন; বাস্তব কারখানার প্রমাণ এখনও অন্তর্ভুক্ত নয়।' }}</li>
+          <li>{{ 'Type classification is a heuristic suggestion; the human reviewer can change it freely.' if lang=='en' else 'ত্রুটির ধরন শ্রেণিবিন্যাস একটি প্রাথমিক অনুমান; মানুষ পর্যালোচক ড্রপডাউন থেকে এটি বদলাতে পারেন।' }}</li>
+          <li>{{ 'Critical non-visual defects (broken needle, metal fragments) cannot be photographed; a Supervisor records them separately.' if lang=='en' else 'অদৃশ্য ক্রিটিক্যাল ত্রুটি (সুই, ধাতু) ছবিতে ধরা যায় না; সুপারভাইজার আলাদা মেটাল ডিটেকশন লগ করেন।' }}</li>
+          <li>{{ 'Sampling randomness is self-declared. Software cannot physically verify the draw.' if lang=='en' else 'নমুনার এলোমেলোতা স্ব-ঘোষিত। সফটওয়্যার বাস্তব লট থেকে উত্তোলনের এলোমেলোতা যাচাই করতে পারে না।' }}</li>
+          <li>{{ 'No ISO certification, no "ISO-compliant AI", and sampling tables are not reinvented from the standard.' if lang=='en' else 'কোনো ISO সার্টিফিকেশন বা "ISO-কমপ্লায়েন্ট এআই" দাবি নেই; স্ট্যান্ডার্ডের নমুনা-সারণি নিজে বানিয়ে দেখানো হয়নি।' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>

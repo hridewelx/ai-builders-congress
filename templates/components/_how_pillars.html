@@ -1,0 +1,36 @@
+{# --- 1. Three Core Pillars (Neutral Step Styling, not outcome colors) --- #}
+<div class="how-header-grid">
+  <div class="card">
+    <div class="pad-sm">
+      <div class="step-badge">
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{ '1. AI proposes' if lang=='en' else '১. এআই প্রস্তাব দেয়' }}</span>
+      </div>
+      <p class="small muted mt-2">
+        {{ 'An unsupervised autoencoder learns what clean knit texture looks like from pixels alone. It proposes candidate bounding boxes and a class guess. It has no severity head, no count, no verdict, and no way to approve or reject a lot.' if lang=='en' else 'একটি আনসুপারভাইজড অটোএনকোডার শুধু পিক্সেল থেকে পরিষ্কার নিট টেক্সচার শেখে। এটি সম্ভাব্য ত্রুটির বক্স ও শ্রেণির প্রাথমিক অনুমান দেয়। এর কোনো অনুমোদন, বাতিল বা লট পাসের ক্ষমতা নেই।' }}
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pad-sm">
+      <div class="step-badge">
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{ '2. Humans confirm' if lang=='en' else '২. মানুষ নিশ্চিত করে' }}</span>
+      </div>
+      <p class="small muted mt-2">
+        {{ 'A human reviewer confirms, edits, rejects or adds each defect, selects the zone, and reviews every view. Severity is looked up strictly from the buyer clause list after human confirmation — never from the model.' if lang=='en' else 'পর্যালোচক প্রতিটি প্রস্তাবিত ত্রুটি নিশ্চিত, সংশোধন, বাতিল বা নতুন যোগ করেন এবং জোন নির্ধারণ করেন। মডেলের বদলে মানুষের নিশ্চিতকরণের পরই ক্রেতার স্পেসিফিকেশন অনুযায়ী গুরুত্ব (Severity) নির্ধারিত হয়।' }}
+      </p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pad-sm">
+      <div class="step-badge">
+        <span class="dot" aria-hidden="true"></span>
+        <span>{{ '3. The rule decides' if lang=='en' else '৩. নিয়ম সিদ্ধান্ত দেয়' }}</span>
+      </div>
+      <p class="small muted mt-2">
+        {{ 'A deterministic pure function compares confirmed defective-garment counts against entered Ac/Re limits in strict precedence: Plan → REJECT → ESCALATE → HOLD → ACCEPT. Same inputs always produce the exact same outcome.' if lang=='en' else 'একটি বিশুদ্ধ নির্ধারক ফাংশন নিশ্চিত ত্রুটিপূর্ণ গার্মেন্টসের সংখ্যার সাথে চুক্তির Ac/Re সীমার তুলনা করে: প্ল্যান → বাতিল (REJECT) → এস্কেলেট (ESCALATE) → হোল্ড (HOLD) → গ্রহণযোগ্য (ACCEPT)। একই ইনপুটে প্রতিবার একই অপরিবর্তনীয় ফলাফল।' }}
+      </p>
+    </div>
+  </div>
+</div>

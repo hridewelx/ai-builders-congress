@@ -1,0 +1,39 @@
+{# --- 4. Design Principles (Renamed from "Why AI-native", Requirement 3 & 4) --- #}
+<div class="card mt-3">
+  <div class="card-h">
+    <h3>{{ tr('how.principles_title') }}</h3>
+  </div>
+  <div class="pad">
+    <div class="grid cols-3" style="gap:16px">
+      <div>
+        <div class="step-badge mb-2">
+          <span class="dot" aria-hidden="true"></span>
+          <span>{{ tr('how.explainability') }}</span>
+        </div>
+        <p class="small muted">
+          {{ 'Every box includes a reconstruction-error attention map and numeric score. The decision page shows exact reason codes, counts, limits, and a SHA-256 hash of the confirmed-defect snapshot.' if lang=='en' else 'প্রতিটি বক্সের সঙ্গে রিকনস্ট্রাকশন-এরর স্কোর পাওয়া যায়। সিদ্ধান্ত পৃষ্ঠায় সুনির্দিষ্ট কারণ কোড, গণনা, সীমা ও নিশ্চিত ত্রুটি স্ন্যাপশটের SHA-256 হ্যাশ দেখা যায়।' }}
+        </p>
+      </div>
+
+      <div>
+        <div class="step-badge mb-2">
+          <span class="dot" aria-hidden="true"></span>
+          <span>{{ tr('how.data_sovereignty') }}</span>
+        </div>
+        <p class="small muted">
+          {{ 'Inference runs locally server-side (CPU, in-process), never through a third-party cloud API. In the production topology, photos never leave the factory network and the vision model has no external network access.' if lang=='en' else 'ইনফারেন্স স্থানীয় সার্ভার প্রসেসে (সিপিইউ) পরিচালিত হয়, কোনো ক্লাউড এপিআই-তে নয়। প্রোডাকশনে ছবি কারখানার নেটওয়ার্ক ছাড়ে না এবং মডেলের কোনো বহিঃস্থ নেটওয়ার্ক অ্যাক্সেস নেই।' }}
+        </p>
+      </div>
+
+      <div>
+        <div class="step-badge mb-2">
+          <span class="dot" aria-hidden="true"></span>
+          <span>{{ tr('how.fail_safe') }}</span>
+        </div>
+        <p class="small muted">
+          {{ 'Verified across 12 automated unit tests: failed jobs, missing files, unmapped clauses, pending critical checks, or missing sampling plans strictly produce HOLD or ESCALATE, never ACCEPT. Rather than an automated blur filter, human reviewers mark blurry/unusable photos for retake, which immediately holds the lot until recaptured.' if lang=='en' else '১২টি স্বয়ংক্রিয় টেস্টে যাচাইকৃত: ব্যর্থ কাজ, হারানো ফাইল, ম্যাপ করা হয়নি এমন ক্রেতা ক্লজ, বাকি ক্রিটিক্যাল চেক বা অনুপস্থিত স্যাম্পলিং প্ল্যানে সিস্টেম কখনই গ্রহণযোগ্য (ACCEPT) দিতে পারে না; বরং বাধ্যতামূলকভাবে HOLD বা ESCALATE দেয়। ঝাপসা ছবির ক্ষেত্রে মানুষ পর্যালোচক অনুপযোগী হিসেবে চিহ্নিত করে রিটেক (Retake) চাইতে পারেন, যা লটকে সাথে সাথে HOLD অবস্থায় রাখে।' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

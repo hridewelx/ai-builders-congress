@@ -1,0 +1,41 @@
+<div class="grid cols-4 kpi-grid kpi-grid-dashboard">
+  {{ ui.metric_card(
+    tr('dash.open_lots'),
+    stats.lots|num,
+    hint=stats.images|num ~ ' ' ~ tr('common.images')|lower,
+    badge_text='',
+    tone='accent',
+    icon_name='layers',
+    href='/lots'
+  ) }}
+
+  {{ ui.metric_card(
+    tr('dash.hold'),
+    counters.HOLD|num,
+    hint=('Awaiting evidence review' if lang=='en' else 'প্রমাণের অপেক্ষায়'),
+    badge_text='',
+    tone='warning',
+    icon_name='pause',
+    href='/lots?outcome=HOLD'
+  ) }}
+
+  {{ ui.metric_card(
+    tr('dash.escalate'),
+    counters.ESCALATE|num,
+    hint=('Supervisor decision needed' if lang=='en' else 'সুপারভাইজার সিদ্ধান্ত জরুরি'),
+    badge_text='',
+    tone='info',
+    icon_name='arrow-up-right',
+    href='/lots?outcome=ESCALATE'
+  ) }}
+
+  {{ ui.metric_card(
+    tr('dash.decided'),
+    counters.decided|num,
+    hint=stats.audit|num ~ (' audit events' if lang=='en' else 'টি অডিট ইভেন্ট'),
+    badge_text=('Locked' if lang=='en' else 'লকড'),
+    tone='success',
+    icon_name='badge-check',
+    href='/lots?state=decided'
+  ) }}
+</div>

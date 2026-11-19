@@ -1,0 +1,56 @@
+<div class="card pending-override-card">
+  <div class="card-h">
+    <h2 class="override-banner-title">
+      {{ icons.icon('git-pull-request', 18) }}
+      <span>{{ 'High-Risk Overrides Awaiting Second Supervisor' if lang=='en' else 'দ্বিতীয় সুপারভাইজারের অনুমোদনের অপেক্ষায় হাই-রিস্ক ওভাররাইড' }}</span>
+    </h2>
+    <div class="right">
+      <span class="badge HOLD">{{ pending_overrides|length|num }} {{ 'pending approval' if lang=='en' else 'অনুমোদন বাকি' }}</span>
+    </div>
+  </div>
+  <div class="tblwrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ tr('common.lot') }}</th>
+          <th>{{ 'Requested By' if lang=='en' else 'আবেদনকারী' }}</th>
+          <th>{{ 'Requested Disposition' if lang=='en' else 'আবেদিত ফলাফল' }}</th>
+          <th>{{ tr('common.reason') }}</th>
+          <th class="right">{{ tr('common.actions') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in pending_overrides %}
+        <tr>
+          <td>
+            <a href="/lots/{{ c.id }}" class="font-bold">{{ c.lot_code }}</a>
+            <div class="small dim">
+              <span>{{ c.buyer_name }}</span>
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span>{{ c.product_name }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="small font-medium">{{ c.override.supervisor or ('Supervisor' if lang=='en' else 'সুপারভাইজার') }}</span>
+            <div class="small dim mono">{{ c.override.created_at[:16] if c.override.created_at else '' }}</div>
+          </td>
+          <td>
+            <span class="badge ACCEPT">
+              <span class="dot" aria-hidden="true"></span>
+              {{ c.override.final_disposition.replace('OVERRIDE_','') }}
+            </span>
+          </td>
+          <td class="small muted tbl-reason">
+            {{ c.override.reason[:100] }}{% if c.override.reason|length > 100 %}…{% endif %}
+          </td>
+          <td class="right">
+            <a class="btn sm primary" href="/lots/{{ c.id }}/decision">
+              {{ 'Review & Decide' if lang=='en' else 'যাচাই ও সিদ্ধান্ত' }} →
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

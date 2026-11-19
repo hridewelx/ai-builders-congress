@@ -1,0 +1,87 @@
+{# --- 2. Pipeline Card with Responsive Flow & Topology Comparison --- #}
+<div class="card mb-3">
+  <div class="card-h">
+    <h3>{{ tr('how.pipeline') }}</h3>
+    <div class="right">
+      <span class="chip">{{ tr('how.pipeline_chip') }}</span>
+    </div>
+  </div>
+  <div class="pad">
+    {# 5 Canonical Steps #}
+    <div class="how-pipeline-grid">
+      {% set steps = [
+        ('1', '১', 'dash.step1_title', 'dash.step1_desc'),
+        ('2', '২', 'dash.step2_title', 'dash.step2_desc'),
+        ('3', '৩', 'dash.step3_title', 'dash.step3_desc'),
+        ('4', '৪', 'dash.step4_title', 'dash.step4_desc'),
+        ('5', '৫', 'how.step5_title', 'how.step5_desc')
+      ] %}
+      {% for s in steps %}
+      <div class="how-pipeline-unit">
+        <div class="between">
+          <span class="how-pipeline-step-num">{{ s[0] if lang=='en' else s[1] }} · {{ tr(s[2]) }}</span>
+          {% if not loop.last %}
+          <span class="dim" aria-hidden="true" style="font-size:12px">→</span>
+          {% endif %}
+        </div>
+        <div class="how-pipeline-desc">{{ tr(s[3]) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {# Topology Comparison Box: Demo vs Production Target (Requirement 5) #}
+    <div class="topology-box">
+      <div class="topology-title">
+        <span>{{ 'System Topology: Current Demo vs Production Target' if lang=='en' else 'সিস্টেম আর্কিটেকচার: বর্তমান ডেমো বনাম প্রোডাকশন লক্ষ্য' }}</span>
+      </div>
+      <div class="topology-grid">
+        <div class="topology-col">
+          <div class="between">
+            <b>{{ tr('how.demo_topology') }}</b>
+            <span class="topology-badge current">{{ 'Current' if lang=='en' else 'চলমান' }}</span>
+          </div>
+          <p class="small muted">
+            {{ 'Single container process, in-process CPU autoencoder, local SQLite database. Easy to inspect and test on developer machines without distributed infrastructure.' if lang=='en' else 'একক কন্টেইনার প্রসেস, ইন-প্রসেস সিপিইউ অটোএনকোডার, লোকাল SQLite ডেটাবেস। কোনো ক্লাউড কল নেই; সহজে যাচাই ও ক্লিক করার জন্য একক প্রসেসে চালিত।' }}
+          </p>
+          <div class="topology-diag">
+            <div class="topology-flow">
+              <span class="topology-node">Browser / Client</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">FastAPI Server</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">In-Process Vision (CPU)</span>
+              <span class="topology-arrow">⇄</span>
+              <span class="topology-node">SQLite DB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topology-col">
+          <div class="between">
+            <b>{{ tr('how.prod_topology') }}</b>
+            <span class="topology-badge target">{{ 'Target' if lang=='en' else 'লক্ষ্য' }}</span>
+          </div>
+          <p class="small muted">
+            {{ 'Production target architecture: Reverse proxy, API server, dedicated inference worker with no table privileges, isolated vision container with no database access, and PostgreSQL on a private network.' if lang=='en' else 'পরিকল্পিত প্রোডাকশন লক্ষ্য: রিভার্স প্রক্সি, মূল এপিআই সার্ভার, টেবিল প্রিভিলেজবিহীন ইনফারেন্স ওয়ার্কার, ডেটাবেস অধিকারবিহীন আইসোলেটেড ভিশন কন্টেইনার এবং প্রাইভেট নেটওয়ার্কে PostgreSQL।' }}
+          </p>
+          <div class="topology-diag">
+            <div class="topology-flow">
+              <span class="topology-node">Client</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">TLS Proxy</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">API Worker</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">Inference (No DB grants)</span>
+              <span class="topology-arrow">→</span>
+              <span class="topology-node">Vision</span>
+            </div>
+            <div class="topology-flow" style="margin-top:6px">
+              <span class="small dim">Database: API Worker ⇄ PostgreSQL (Isolated Private Network)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

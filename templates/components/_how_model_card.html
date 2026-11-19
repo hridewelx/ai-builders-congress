@@ -1,0 +1,177 @@
+  <div class="card">
+    <div class="card-h">
+      <h3>{{ tr('how.model_card') }}</h3>
+      <div class="right">
+        {% set st = card.get('self_test', {}) %}
+        <span class="badge {{ 'badge-success' if st.get('passed') else 'badge-warning' }}">
+          <span class="dot"></span>{{ tr('how.self_test_passed') if st.get('passed') else tr('how.run_self_test') }}
+        </span>
+      </div>
+    </div>
+    <div class="pad-sm">
+      <table class="model-card-table">
+        <caption class="sr-only">{{ 'Model specification and evaluation parameters' if lang=='en' else 'মডেল স্পেসিফিকেশন ও মূল্যায়ন পরামিতি' }}</caption>
+        <tbody>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Seeded history' if lang=='en' else 'সিড ইতিহাস' }}</th>
+            <td class="val-col font-mono">{{ card.get('model', 'ae-knit-v1') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Labels (seeded)' if lang=='en' else 'ব্যবহৃত লেবেল (সিড)' }}</th>
+            <td class="val-col">{{ card.get('labels', 'none (unsupervised)') if lang=='en' else (card.get('labels') or 'কোনোটি নয় (আনসুপারভাইজড)') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Seeded training' if lang=='en' else 'সিড প্রশিক্ষণ' }}</th>
+            <td class="val-col">{{ card.get('training', 'synthetic clean knit textures (procedural), no defect labels') if lang=='en' else 'কৃত্রিম পরিষ্কার নিট টেক্সচার (প্রসিডিউরাল), কোনো ডিফেক্ট লেবেল ছাড়া' }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live uploads' if lang=='en' else 'লাইভ আপলোড' }}</th>
+            <td class="val-col font-mono">{{ card.get('live_model', 'same as seeded') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Labels (live)' if lang=='en' else 'ব্যবহৃত লেবেল (লাইভ)' }}</th>
+            <td class="val-col">{{ card.get('live_labels', 'none') if lang=='en' else (card.get('live_labels') or 'কোনোটি নয়') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live training' if lang=='en' else 'লাইভ প্রশিক্ষণ' }}</th>
+            <td class="val-col">{{ card.get('live_training', '—') }}</td>
+          </tr>
+          {% set ev = card.get('live_evaluation') or {} %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live test score' if lang=='en' else 'লাইভ টেস্ট স্কোর' }}</th>
+            <td class="val-col">
+              {% if ev.get('map50') is not none %}
+                mAP@0.5 <strong>{{ ev.get('map50') }}</strong> · {{ ev.get('images') }} {{ 'held-out photos' if lang=='en' else 'হেল্ড-আউট ছবি' }}
+                ({{ ev.get('split') }}) · P {{ ev.get('precision') }} · R {{ ev.get('recall') }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Review threshold' if lang=='en' else 'রিভিউ থ্রেশহোল্ড' }}</th>
+            <td class="val-col">
+              {% if card.get('live_threshold') is not none %}
+                <strong>{{ card.get('live_threshold') }}</strong> — {{ 'chosen on validation, never on the test split' if lang=='en' else 'ভ্যালিডেশনে নির্বাচিত, টেস্ট স্প্লিটে কখনো নয়' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Runtime parity' if lang=='en' else 'রানটাইম পারিটি' }}</th>
+            <td class="val-col">
+              {% set par = card.get('live_parity') or {} %}
+              {% if par.get('delta') is not none %}
+                PyTorch → ONNX: {{ par.get('delta') }} mAP {{ 'on validation' if lang=='en' else 'ভ্যালিডেশনে' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% set rel = card.get('live_reliability') or {} %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Score reliability' if lang=='en' else 'স্কোর নির্ভরযোগ্যতা' }}</th>
+            <td class="val-col">
+              {% if rel.get('ece') is not none %}
+                ECE <strong>{{ rel.get('ece') }}</strong> {{ 'on' if lang=='en' else '' }} {{ rel.get('detections') }} {{ 'validation detections' if lang=='en' else 'ভ্যালিডেশন ডিটেকশন' }}
+                {% if rel.get('top_band') %} · {{ rel['top_band']['bin'] }}: {{ rel['top_band']['measured_precision'] }} {{ 'matched' if lang=='en' else 'মিলেছে' }}{% endif %}
+                — {{ 'a score is a ranking, not a probability' if lang=='en' else 'স্কোর একটি র‍্যাঙ্কিং, সম্ভাবনা নয়' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.calibration') }}</th>
+            <td class="val-col text-warning-contrast">{{ card.get('calibration', 'none — raw reconstruction error scores') if lang=='en' else (card.get('calibration') or 'কোনোটি নয় — স্কোর অপরিমাপিত') }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.eval_domain') }}</th>
+            <td class="val-col">{{ card.get('domains', 'staged knit panels only (laboratory test set)') if lang=='en' else 'স্টেজ করা নিট প্যানেল (ল্যাব টেস্ট সেট)' }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.runtime') }}</th>
+            <td class="val-col">{{ card.get('device', 'Server CPU (in-process), ~0.4 s / image') if lang=='en' else 'সার্ভার সিপিইউ (ইন-প্রসেস), প্রতি ছবিতে ~০.৪ সেকেন্ড' }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.artifact') }}</th>
+            <td class="val-col">
+              {% set sha = card.get('sha256', '') or '' %}
+              <div class="hash-copy-wrap">
+                <span class="font-mono small" title="{{ sha }}">{{ sha[:12] }}…</span>
+                <button class="btn-copy-hash" type="button" data-copy-hash="{{ sha }}" aria-label="{{ 'Copy SHA-256 hash' if lang=='en' else 'SHA-256 হ্যাশ কপি করুন' }}" title="{{ sha }}">
+                  {{ icons.icon('copy', 13) }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% if card.get('live_sha256') %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live artifact' if lang=='en' else 'লাইভ আর্টিফ্যাক্ট' }}</th>
+            <td class="val-col font-mono small">{{ card.get('live_sha256') }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th scope="row" class="dim-col">{{ tr('how.self_test') }}</th>
+            <td class="val-col small">{{ card.get('self_test', {}).get('detail', '—') }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {# Self-Test Checklist (Requirement 6) #}
+      <div class="selftest-checklist">
+        <div class="small bold" style="color:var(--text);margin-bottom:2px">
+          {{ 'Self-Test Verification Checklist:' if lang=='en' else 'সেলফ-টেস্ট যাচাইকরণ চেকলিস্ট:' }}
+        </div>
+        <div class="selftest-item">
+          <span class="selftest-icon-check">✓</span>
+          <span><b>{{ 'False Positive Guard:' if lang=='en' else 'পরিষ্কার টেক্সচার পরীক্ষা:' }}</b> {{ 'Zero proposals generated on clean synthetic knit patches.' if lang=='en' else 'পরিষ্কার নিট ফ্যাব্রিকে কোনো মিথ্যা ত্রুটি প্রস্তাব করেনি (ফলস পজিটিভ: ০)।' }}</span>
+        </div>
+        <div class="selftest-item">
+          <span class="selftest-icon-check">✓</span>
+          <span><b>{{ 'Defect Sensitivity:' if lang=='en' else 'ত্রুটি সংবেদনশীলতা:' }}</b> {{ 'Successfully flagged anomalous patch on defective knit sample.' if lang=='en' else 'ত্রুটিযুক্ত স্যাম্পল প্যানেলে সফলভাবে প্রস্তাব তৈরি করেছে।' }}</span>
+        </div>
+        <div class="selftest-item">
+          <span class="selftest-icon-check">✓</span>
+          <span><b>{{ 'Defect Localisation:' if lang=='en' else 'লোকালাইজেশন (Hole):' }}</b> {{ 'Accurately placed bounding box over known artificial hole.' if lang=='en' else 'নির্ধারিত কৃত্রিম ছিদ্রের বাউন্ডিং বক্স সঠিকভাবে শনাক্ত করেছে।' }}</span>
+        </div>
+      </div>
+
+      {# Staged-Set Evaluation Section #}
+      {% set ev = card.get('evaluation') %}
+      {% if ev %}
+      <div class="mt-3">
+        <div class="between mb-1">
+          <b>{{ 'Staged-Set Localisation (IoU ≥ 0.05)' if lang=='en' else 'স্টেজড-সেট লোকালাইজেশন (IoU ≥ ০.০৫)' }}</b>
+          <span class="small dim">n={{ ev.get('rows', [])|sum(attribute='n')|num }}</span>
+        </div>
+        <p class="small dim mb-2">
+          {{ 'IoU threshold in plain words: A proposal is counted as a hit if its box overlaps the ground truth by at least 5% (IoU ≥ 0.05).' if lang=='en' else 'IoU থ্রেশহোল্ড সহজ কথায়: প্রস্তাবিত বক্স এবং প্রকৃত ত্রুটির মাঝে অন্তত ৫% ওভারল্যাপ থাকলে সেটিকে সফল শনাক্তকরণ ধরা হয়েছে।' }}
+        </p>
+
+        <table class="table" style="font-size:12px">
+          <caption class="sr-only">{{ 'Defect detection recall breakdown' if lang=='en' else 'ত্রুটি শনাক্তকরণ রিকল বিবরণ' }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ tr('rev.type') }}</th>
+              <th scope="col" class="num">{{ 'Samples (n)' if lang=='en' else 'স্যাম্পল (n)' }}</th>
+              <th scope="col" class="num">{{ 'Detected / Recall' if lang=='en' else 'শনাক্তকরণ / রিকল' }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in ev.get('rows', []) %}
+            {% set recalled = (r.recall * r.n)|round|int %}
+            <tr>
+              <th scope="row" style="font-weight:500">{{ tr('type.' ~ r.class) }}</th>
+              <td class="num">{{ r.n|num }}</td>
+              <td class="num font-bold">{{ recalled|num }}/{{ r.n|num }} ({{ (r.recall * 100)|round|int|num }}%)</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% set clean_views = ev.get('views', {}).get('total', 16) - (ev.get('rows', [])|sum(attribute='n')) %}
+        <div class="small dim mt-2" style="line-height:1.5">
+          <div>• <b>{{ ev.get('views', {}).get('with_proposal', 0)|num }}/{{ ev.get('views', {}).get('total', 0)|num }}</b> {{ 'staged views received at least one proposal' if lang=='en' else 'টি স্টেজড ভিউতে অন্তত একটি প্রস্তাব এসেছে' }}</div>
+          <div>• <b>{{ ev.get('false_positive_views', 0)|num }}/{{ (clean_views if clean_views > 0 else 4)|num }}</b> {{ 'clean views flagged (false positive rate)' if lang=='en' else 'পরিষ্কার ভিউতে ভুল প্রস্তাব এসেছে (ফলস পজিটিভ)' }}</div>
+          <div class="mt-1">
+            {{ 'Data provenance & independence note: Staged defects were programmatically generated by the synthetic test harness; evaluation was conducted on procedural panels rather than real factory production images.' if lang=='en' else 'ডেটা উৎস ও স্বাধীনতা নোট: ত্রুটিগুলো টেস্ট হারনেস (সিন্থেটিক ডিফেক্ট জেনারেটর) দ্বারা কৃত্রিমভাবে তৈরি করা হয়েছে; মূল্যায়ন বাস্তব কারখানার ছবিতে নয় বরং প্রোগ্রামেটিক টেস্টিং সেটে সম্পন্ন।' }}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>

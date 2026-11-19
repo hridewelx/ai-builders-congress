@@ -1,0 +1,155 @@
+  <div>
+    {# Workspace Toolbar #}
+    <div class="workspace-head">
+      <div class="workspace-head-inner">
+        <div>
+          <h2 class="workspace-title">
+            <span>{{ tr('dash.recent') }}</span>
+            <span class="badge ghost badge-count">{{ tr('dash.recent_lots_count').format(recent=cards|length|num, total=stats.lots|num) }}</span>
+          </h2>
+          <div class="workspace-subtitle">
+            {{ tr('dash.active_lots_subtitle') }}
+          </div>
+        </div>
+        <div class="btnrow btnrow-gap">
+          {% if user.role in ('inspector', 'supervisor') %}
+          <a class="btn sm primary" href="/lots/new">
+            {{ icons.icon('plus', 14) }}
+            <span>{{ tr('nav.new_lot') }}</span>
+          </a>
+          {% endif %}
+          <a class="btn sm ghost" href="/lots">
+            <span>{{ tr('nav.lots') }}</span>
+            {{ icons.icon('arrow-right', 14) }}
+          </a>
+        </div>
+      </div>
+
+      {# Instant Search and Filter Bar #}
+      <div class="lot-toolbar">
+        <div class="search-wrap">
+          <label for="lotSearchInput" class="sr-only">{{ tr('common.search') }}</label>
+          <span class="search-icon" aria-hidden="true">
+            {{ icons.icon('search', 14) }}
+          </span>
+          <input type="search" id="lotSearchInput" class="input sm search-input"
+                 aria-controls="lotGrid"
+                 placeholder="{{ 'Search lot, buyer, style...' if lang=='en' else 'লট, ক্রেতা, পোশাক খুঁজুন...' }}">
+        </div>
+        <div id="lotSearchResultsLive" class="sr-only" aria-live="polite"></div>
+
+        <div class="filter-pills" role="group" aria-label="{{ 'Filter lots' if lang=='en' else 'লট ফিল্টার' }}">
+          <button type="button" class="pill-btn on" data-filter-tab="all" aria-pressed="true">{{ tr('common.all') }}</button>
+          <button type="button" class="pill-btn" data-filter-tab="open" aria-pressed="false">{{ tr('status.in_progress') }}</button>
+          <button type="button" class="pill-btn" data-filter-tab="decided" aria-pressed="false">{{ tr('dash.decided') }}</button>
+        </div>
+      </div>
+    </div>
+
+    {# Lots Grid #}
+    {% if cards %}
+    <div class="grid cols-2 lot-cards-grid" id="lotGrid">
+      {% for c in cards %}
+      <div class="card lot-card" data-lot-card data-lot-status="{{ c.status }}" data-lot-search="{{ c.lot_code }} {{ c.buyer_name }} {{ c.product_name }} {{ c.color }}">
+        <div class="lot-card-head">
+          <div class="grow">
+            <div class="disp-row">
+              <a href="/lots/{{ c.id }}" class="lot-code-link">
+                {{ c.lot_code }}
+              </a>
+              {% if c.status == 'decided' %}
+                <span class="badge decided"><span class="dot" aria-hidden="true"></span>{{ tr('dash.decided') }}</span>
+              {% else %}
+                <span class="badge open"><span class="dot" aria-hidden="true"></span>{{ tr('status.in_progress') }}</span>
+              {% endif %}
+            </div>
+            <div class="lot-meta-sub">
+              <span class="buyer-pill">{{ c.buyer_name }}</span>
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span>{{ c.product_name }}</span>
+              {% if c.color %}
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span>{{ c.color }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {# Disposition Box (Single row when recommendation matches final, two rows when they differ) #}
+        <div class="disp-cockpit">
+          {% if c.decision and c.final and c.decision.outcome == c.final %}
+          <div class="disp-row">
+            <span class="disp-lbl bold">{{ tr('dash.single_decision') }}</span>
+            {{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
+          </div>
+          {% else %}
+          <div class="disp-row">
+            <span class="disp-lbl">{{ 'System Recommendation:' if lang=='en' else 'সিস্টেম সুপারিশ:' }}</span>
+            {% if c.decision %}
+              {{ ui.decision_badge(c.decision.outcome, tr('out.' ~ c.decision.outcome)) }}
+            {% else %}
+              <span class="small dim mono">—</span>
+            {% endif %}
+          </div>
+          <div class="disp-row">
+            {% if c.status == 'decided' %}
+              <span class="disp-lbl bold">{{ tr('dash.final_disposition') }}</span>
+            {% else %}
+              <span class="disp-lbl bold">{{ tr('dash.current_decision') }}</span>
+            {% endif %}
+            {% if c.final %}
+              {{ ui.decision_badge(c.final, tr('out.' ~ c.final)) }}
+            {% else %}
+              <span class="small dim mono">—</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        {# Progress Bar #}
+        <div class="lot-progress-wrap">
+          <div class="bar lot-bar"><i style="width:{{ c.progress.pct_views }}%"></i></div>
+          <div class="lot-progress-meta">
+            {% if c.progress.required_units %}
+              <span>{{ c.progress.units|num }}/{{ c.progress.required_units|num }} {{ tr('common.units')|lower }}</span>
+            {% elif c.progress.units %}
+              <span>{{ c.progress.units|num }} {{ tr('common.unit' if c.progress.units == 1 else 'common.units')|lower }}</span>
+            {% else %}
+              <span>{{ tr('dash.no_garments') }}</span>
+            {% endif %}
+            <span>{{ c.progress.reviewed|num }}/{{ c.progress.views|num }} {{ tr('lot.views_reviewed') }} ({{ c.progress.pct_views|num }}%)</span>
+          </div>
+        </div>
+
+        {# Footer Actions #}
+        <div class="lot-card-foot">
+          <div class="small dim">
+            {{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ c.lot_size|num_grouped }}</b>
+            {% if c.override %}
+              <span>
+                {% if c.override.effective %}
+                  {{ ui.badge(tr('dec.overridden'), 'pending', dot=False) }}
+                {% else %}
+                  {{ ui.badge('Pending Override' if lang=='en' else 'মুলতুবি ওভাররাইড', 'HOLD', dot=True) }}
+                {% endif %}
+              </span>
+            {% endif %}
+          </div>
+          <a class="btn sm secondary" href="/lots/{{ c.id }}">
+            <span>{{ tr('common.view') if user.role == 'admin' else tr('common.open') }}</span>
+            {{ icons.icon('arrow-right', 13) }}
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div id="lotEmptyMatch" class="card lot-empty-match">
+      <div class="dim small">{{ 'No matching lots found in recent view.' if lang=='en' else 'সাম্প্রতিক তালিকায় কোনো মিল পাওয়া যায়নি।' }}</div>
+      <div class="lot-empty-match-btn">
+        <a class="btn sm secondary" id="lotSearchDirLink" href="/lots">{{ 'Search all lots in Directory' if lang=='en' else 'সব লটের ডিরেক্টরিতে খুঁজুন' }} →</a>
+      </div>
+    </div>
+    {% else %}
+    <div class="card">{{ ui.empty_state(tr('dash.none'), tr('newlot.subtitle'), icon_name='layers') }}</div>
+    {% endif %}
+  </div>

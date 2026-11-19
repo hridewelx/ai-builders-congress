@@ -1,0 +1,54 @@
+<div class="card admin-health-card">
+  <div class="card-h">
+    <h2 class="card-title-h3">
+      <span class="navy-ink">{{ icons.icon('activity', 18) }}</span>
+      <span>{{ tr('health.system_status') }}</span>
+    </h2>
+    <div class="right">
+      <a class="btn sm ghost" href="/admin?tab=health">{{ 'Full Health' if lang=='en' else 'সম্পূর্ণ স্বাস্থ্য' }} →</a>
+    </div>
+  </div>
+  <div class="pad-sm">
+    <div class="grid cols-3 admin-health-grid">
+      <div class="admin-stat-box">
+        <div class="between">
+          <span class="small dim">{{ 'Inference Engine' if lang=='en' else 'ইনফারেন্স ইঞ্জিন' }}</span>
+          {% if last_selftest and last_selftest.passed %}
+            <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ tr('status.ok') }}</span>
+          {% elif model_ok %}
+            <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ tr('status.ok') }}</span>
+          {% else %}
+            <span class="badge HOLD"><span class="dot" aria-hidden="true"></span>{{ 'Check' if lang=='en' else 'পরীক্ষা করুন' }}</span>
+          {% endif %}
+        </div>
+        <div class="mono small font-bold mt-6">{{ model }}</div>
+        <div class="small dim">
+          {{ 'Server-side autoencoder · CPU in-process' if lang=='en' else 'সার্ভার-সাইড অটোএনকোডার · সিপিইউ (ইন-প্রসেস)' }}
+        </div>
+        {% if last_selftest and last_selftest.created_at %}
+        <div class="small dim" style="margin-top:3px">
+          {{ tr('health.tested') }}: {{ last_selftest.created_at|dt_local }}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="admin-stat-box">
+        <div class="between">
+          <span class="small dim">{{ 'Audit Log Integrity' if lang=='en' else 'অডিট লগ ইন্টিগ্রিটি' }}</span>
+          <span class="badge ACCEPT"><span class="dot" aria-hidden="true"></span>{{ 'Active' if lang=='en' else 'সক্রিয়' }}</span>
+        </div>
+        <div class="small font-bold mt-6">{{ stats.audit|num }} {{ 'recorded events' if lang=='en' else 'টি ইভেন্ট সংরক্ষিত' }}</div>
+        <div class="small dim">{{ tr('health.append_only') }}</div>
+      </div>
+
+      <div class="admin-stat-box">
+        <div class="between">
+          <span class="small dim">{{ tr('health.policy_title') }}</span>
+          <span class="badge ghost">{{ tr('health.policy_badge') }}</span>
+        </div>
+        <div class="small font-bold mt-6">{{ 'Admin QC Blocked' if lang=='en' else 'অ্যাডমিন QC নিষিদ্ধ' }}</div>
+        <div class="small dim">{{ tr('health.policy_desc') }}</div>
+      </div>
+    </div>
+  </div>
+</div>

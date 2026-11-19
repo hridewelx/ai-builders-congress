@@ -1,0 +1,25 @@
+{# --- 5. Glossary & Terminology Block (Collapsed Details, Requirement 10) --- #}
+<details class="how-glossary">
+  <summary>
+    <span>{{ tr('how.glossary') }}</span>
+    <span class="small dim" aria-hidden="true">▾</span>
+  </summary>
+  <div class="how-glossary-content">
+    <div class="how-glossary-item">
+      <b>Ac / Re (Acceptance / Rejection Number):</b>
+      <span>{{ 'Ac is the maximum number of defective garments permitted to accept the lot; Re is the minimum number of defectives that causes lot rejection.' if lang=='en' else 'Ac হলো সর্বোচ্চ অনুমোদিত ত্রুটিপূর্ণ ইউনিট সংখ্যা (এর সমান বা কম হলে পাস); Re হলো যে সংখ্যা বা তার বেশি ত্রুটি পেলে লট সরাসরি বাতিল হয়।' }}</span>
+    </div>
+    <div class="how-glossary-item">
+      <b>AQL (Acceptable Quality Limit):</b>
+      <span>{{ 'The maximum percent defective considered satisfactory as a process average under the buyer sampling standard.' if lang=='en' else 'চুক্তি অনুযায়ী লটে গ্রহণযোগ্য ত্রুটির সর্বোচ্চ অনুমোদিত শতকরা হার (যেমন: ২.৫% মেজর, ৪.০% মাইনর)।' }}</span>
+    </div>
+    <div class="how-glossary-item">
+      <b>ESCALATE vs HOLD:</b>
+      <span>{{ 'ESCALATE flags conditions requiring human policy judgment (unmapped buyer clauses, reviewer disagreements); HOLD flags incomplete evidence (missing photos, unreviewed views, missing sampling plan).' if lang=='en' else 'ESCALATE হলো মানুষের নীতিগত সিদ্ধান্ত প্রয়োজন (যেমন: ম্যাপ করা হয়নি এমন ক্লজ বা রিভিউয়ারের দ্বিমত); HOLD হলো অসম্পূর্ণ প্রমাণ বা তথ্যের অভাব (যেমন: অসম্পূর্ণ ছবি বা রিভিউ বাকি)।' }}</span>
+    </div>
+    <div class="how-glossary-item">
+      <b>SHA-256 Snapshot Hash:</b>
+      <span>{{ 'A 256-bit cryptographic fingerprint computed over all confirmed defects and inspection parameters, locking evidence immutability upon decision computation.' if lang=='en' else 'পর্যালোচিত সকল ত্রুটির ডিজিটাল ক্রিপ্টোগ্রাফিক ছাপ, যা নিশ্চিত করে সিদ্ধান্তের পর কোনো তথ্য পরিবর্তন করা হয়নি।' }}</span>
+    </div>
+  </div>
+</details>

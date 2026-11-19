@@ -1,0 +1,93 @@
+  <div class="stack dashboard-sidebar-stack">
+    {# Workflow Guide (Static Explainer) #}
+    <div class="card workflow-card">
+      <div class="card-h">
+        <h3 class="card-title-h3">
+          {{ icons.icon('git-commit', 15) }}
+          <span>{{ tr('how.pipeline') }}</span>
+        </h3>
+        <span class="badge ghost badge-count">{{ tr('dash.four_steps') }}</span>
+      </div>
+      <div class="card-b card-pad">
+        <ol class="pipeline is-vertical is-explainer" aria-label="{{ tr('dash.pipeline_aria') }}">
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 1|num }}</span>
+            <div class="pipeline-copy">
+              <span class="pipeline-label">{{ tr('dash.step1_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step1_desc') }}</span>
+            </div>
+          </li>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 2|num }}</span>
+            <div class="pipeline-copy">
+              <span class="pipeline-label">{{ tr('dash.step2_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step2_desc') }}</span>
+            </div>
+          </li>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 3|num }}</span>
+            <div class="pipeline-copy">
+              <span class="pipeline-label">{{ tr('dash.step3_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step3_desc') }}</span>
+            </div>
+          </li>
+          <li class="pipeline-step">
+            <span class="pipeline-dot" aria-hidden="true">{{ 4|num }}</span>
+            <div class="pipeline-copy">
+              <span class="pipeline-label">{{ tr('dash.step4_title') }}</span>
+              <span class="pipeline-desc">{{ tr('dash.step4_desc') }}</span>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    {# Detector Card #}
+    <div class="card detector-card">
+      <div class="card-h">
+        <h3 class="card-title-h3">
+          {{ icons.icon('cpu', 15) }}
+          <span>{{ tr('dash.model') }}</span>
+        </h3>
+        <span class="badge {{ 'ACCEPT' if model_ok else 'HOLD' }}">
+          <span class="dot" aria-hidden="true"></span>
+          {{ tr('dash.self_test_passed') if model_ok else tr('dash.check_model') }}
+        </span>
+      </div>
+      <div class="card-b card-pad">
+        <div class="detector-model-name">
+          <span class="dot bg-lime" aria-hidden="true"></span>
+          <span>{{ model }}</span>
+        </div>
+        <div class="detector-model-desc">
+          {{ tr('dash.detector_desc') }}
+        </div>
+        <div class="small dim" style="margin-top:4px">
+          {{ tr('dash.baseline_notice') }}
+        </div>
+
+        <div class="small bold" style="margin-top:14px;color:var(--text)">
+          {{ tr('dash.baseline_proposals') }}
+        </div>
+        <div class="grid cols-3 detector-stats-grid" style="margin-top:6px">
+          <div class="kpi mini">
+            <div class="lbl">{{ 'photos' if lang=='en' else 'ছবি' }}</div>
+            <div class="n detector-stat-num">{{ stats.images|num }}</div>
+          </div>
+          <div class="kpi mini">
+            <div class="lbl">{{ 'proposals' if lang=='en' else 'প্রস্তাব' }}</div>
+            <div class="n detector-stat-num">{{ stats.proposals|num }}</div>
+          </div>
+          <div class="kpi mini">
+            <div class="lbl">{{ 'confirmed' if lang=='en' else 'নিশ্চিত' }}</div>
+            <div class="n detector-stat-num">{{ stats.confirmed|num }}</div>
+          </div>
+        </div>
+
+        <a class="btn sm secondary btn-model-card" href="/how">
+          <span>{{ tr('how.model_card') }}</span>
+          {{ icons.icon('arrow-right', 13) }}
+        </a>
+      </div>
+    </div>
+  </div>
