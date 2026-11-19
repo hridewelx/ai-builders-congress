@@ -1,0 +1,139 @@
+<div class="split">
+  {# Users Table #}
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('users', 16) }}
+        <span>{{ tr('admin.users') }}</span>
+      </h3>
+      <div class="right"><span class="chip">{{ users|length }} {{ 'accounts' if lang=='en' else 'অ্যাকাউন্ট' }}</span></div>
+    </div>
+    <div class="tblwrap">
+      <table class="table" id="users">
+        <thead>
+          <tr>
+            <th>{{ tr('common.user') }}</th>
+            <th>{{ tr('common.role') }}</th>
+            <th>{{ tr('common.status') }}</th>
+            <th class="right">{{ tr('common.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          {% set is_last_admin = (u.role == 'admin' and u.status == 'active' and active_admins|length <= 1) %}
+          {% set is_self = (u.id == user.id) %}
+          <tr>
+            {# Display Name and Email #}
+            <td>
+              <div style="font-weight:650;color:var(--text)">{{ u.display_name }}</div>
+              <div class="small dim mono font-mono" style="font-size:11px">{{ u.email }}</div>
+            </td>
+
+            {# Role Badge #}
+            <td>
+              <span class="badge ghost">{{ tr('common.' ~ u.role) }}</span>
+            </td>
+
+            {# Status Badge #}
+            <td>
+              <span class="badge {{ 'ACCEPT' if u.status=='active' else 'REJECT' }}">
+                <span class="dot"></span>{{ u.status }}
+              </span>
+            </td>
+
+            {# User Actions #}
+            <td class="right">
+              <div class="btnrow" style="justify-content:flex-end;gap:6px;align-items:center">
+                {# Disable / Enable Form #}
+                {% if is_last_admin %}
+                <button class="btn sm ghost" disabled title="{{ 'Cannot disable last active administrator' if lang=='en' else 'একমাত্র সক্রিয় অ্যাডমিন নিষ্ক্রিয় করা যাবে না' }}">
+                  {{ icons.icon('lock', 12) }} {{ tr('admin.disable') }}
+                </button>
+                {% else %}
+                <form method="post" action="/admin/users/{{ u.id }}" style="margin:0">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <button class="btn sm ghost" name="action" value="{{ 'disable' if u.status=='active' else 'enable' }}">
+                    {{ tr('admin.disable') if u.status=='active' else tr('admin.enable') }}
+                  </button>
+                </form>
+                {% endif %}
+
+                {# Role Change Form #}
+                {% if is_self %}
+                <span class="small dim mono" style="font-size:11px" title="{{ 'Self-demotion forbidden' if lang=='en' else 'নিজের ভূমিকা পরিবর্তন নিষিদ্ধ' }}">
+                  {{ icons.icon('shield', 12) }} {{ 'Self (locked)' if lang=='en' else 'নিজের অ্যাকাউন্ট' }}
+                </span>
+                {% else %}
+                <form method="post" action="/admin/users/{{ u.id }}" class="inline" style="gap:4px;margin:0">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <select name="role" style="width:auto;padding:4px 8px;font-size:12px;margin:0">
+                    {% for r in ['inspector','supervisor','admin'] %}
+                    <option value="{{ r }}" {{ 'selected' if r==u.role }}>{{ tr('common.' ~ r) }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn sm" name="action" value="role">{{ tr('common.save') }}</button>
+                </form>
+                {% endif %}
+
+                {# Reset Password #}
+                <form method="post" action="/admin/users/{{ u.id }}" style="margin:0">
+                  <input type="hidden" name="csrf" value="{{ csrf }}">
+                  <button class="btn sm ghost" name="action" value="reset" title="{{ 'Issue temporary password' if lang=='en' else 'অস্থায়ী পাসওয়ার্ড দিন' }}">
+                    {{ tr('admin.reset') }}
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# Create User Card #}
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('user-plus', 16) }}
+        <span>{{ tr('admin.new_user') }}</span>
+      </h3>
+    </div>
+    <div class="pad">
+      <form method="post" action="/admin/users" id="createUserForm">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+
+        <div class="field">
+          <label for="u-email">{{ tr('login.email') }} <span class="req">*</span></label>
+          <input id="u-email" name="email" type="email" required placeholder="user@lotline.demo" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="u-name">{{ tr('admin.display_name') }} <span class="req">*</span></label>
+          <input id="u-name" name="display_name" required placeholder="Full Name" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="u-role">{{ tr('common.role') }} <span class="req">*</span></label>
+          <select id="u-role" name="role" required>
+            {% for r in ['inspector','supervisor','admin'] %}
+            <option value="{{ r }}">{{ tr('common.' ~ r) }}</option>
+            {% endfor %}
+          </select>
+          <div class="hint">{{ 'Inspector: capture/review; Supervisor: plan/override; Admin: user/system' if lang=='en' else 'ইন্সপেক্টর: ক্যাপচার/রিভিউ; সুপারভাইজার: প্ল্যান/ওভাররাইড; অ্যাডমিন: ইউজার/সিস্টেম' }}</div>
+        </div>
+
+        <div class="field">
+          <label for="u-pass">{{ tr('login.password') }} <span class="req">*</span></label>
+          <input id="u-pass" name="password" type="text" required minlength="15" placeholder="Minimum 15 characters...">
+        </div>
+
+        <div class="note info" style="margin-bottom:14px;font-size:11.5px;line-height:1.4">
+          {{ '15+ characters, no composition rules, checked against common and context words. Temporary password forces a change at first login.' if lang=='en' else '১৫+ অক্ষর, কম্পোজিশন নিয়ম নেই, সাধারণ শব্দ যাচাই হয়। অস্থায়ী পাসওয়ার্ডে প্রথম লগইনে পরিবর্তন বাধ্যতামূলক।' }}
+        </div>
+
+        <button class="btn primary" type="submit">{{ tr('common.save') }}</button>
+      </form>
+    </div>
+  </div>
+</div>

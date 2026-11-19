@@ -1,0 +1,40 @@
+<div class="card">
+  <div class="card-h">
+    <h3 style="display:flex;align-items:center;gap:8px">
+      {{ icons.icon('book-open', 16) }}
+      <span>{{ tr('admin.clauses') }} (Buyer Quality Specifications)</span>
+    </h3>
+    <div class="right"><span class="chip">{{ clauses|length }} {{ 'rules' if lang=='en' else 'নিয়ম' }}</span></div>
+  </div>
+  <div class="pad-sm">
+    <div class="note info" style="margin-bottom:12px">
+      {{ tr('admin.clause_readonly') }}
+    </div>
+  </div>
+  <div class="tblwrap" data-table data-page-size="25">
+    <table class="table">
+      <thead>
+        <tr>
+          <th data-sort>{{ tr('lots.buyer') }}</th>
+          <th data-sort>{{ tr('rev.type') }}</th>
+          <th data-sort>{{ tr('rev.zone') }}</th>
+          <th>{{ tr('rev.size_band') }}</th>
+          <th data-sort>{{ 'Severity' if lang=='en' else 'সিরিয়িটি' }}</th>
+          <th>{{ 'Clause' if lang=='en' else 'ক্লজ' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clauses %}
+        <tr>
+          <td><b style="color:var(--text)">{{ c.buyer_name }}</b></td>
+          <td>{{ tr('type.' ~ c.defect_type) }}</td>
+          <td class="mono font-mono" style="font-weight:600">{{ c.zone_code }}</td>
+          <td>{{ c.size_band or '—' }}</td>
+          <td><span class="badge {{ c.severity }}">{{ tr('severe.' ~ c.severity) }}</span></td>
+          <td class="mono dim font-mono" style="font-size:11.5px">{{ c.clause_ref }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

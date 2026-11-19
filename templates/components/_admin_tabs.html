@@ -1,0 +1,8 @@
+{# --- Navigation Tabs --- #}
+<div class="tabs" style="margin-bottom:18px">
+  <a href="/admin?tab=users" class="{{ 'on' if tab=='users' }}">{{ tr('admin.users') }}</a>
+  <a href="/admin?tab=models" class="{{ 'on' if tab=='models' }}">{{ tr('admin.models') }}</a>
+  <a href="/admin?tab=health" class="{{ 'on' if tab=='health' }}">{{ tr('admin.health') }}</a>
+  <a href="/admin?tab=clauses" class="{{ 'on' if tab=='clauses' }}">{{ tr('admin.clauses') }}</a>
+  <a href="/audit">{{ tr('admin.audit') }} ↗</a>
+</div>

@@ -1,0 +1,77 @@
+{% if temp %}
+<div class="note ok" style="margin-bottom:16px;border-color:var(--success)">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--success);margin-top:2px">{{ icons.icon('check-circle', 16) }}</span>
+    <div>
+      <b>{{ 'Temporary Password Generated' if lang=='en' else 'অস্থায়ী পাসওয়ার্ড তৈরি হয়েছে' }}</b>
+      <div style="margin-top:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="mono font-mono" id="tempPasswordVal" style="font-size:16px;font-weight:750;background:var(--subtle);padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--line)">{{ temp }}</span>
+        <button type="button" class="btn sm" id="copyTempPassBtn" data-copy-target="tempPasswordVal" style="display:inline-flex;align-items:center;gap:5px">
+          {{ icons.icon('copy', 13) }}<span>{{ 'Copy Password' if lang=='en' else 'কপি করুন' }}</span>
+        </button>
+        <span class="small dim">{{ 'Copy now; this password is shown only once and requires a change at first login.' if lang=='en' else 'এখনই কপি করুন; এটি শুধুমাত্র একবার দেখানো হবে এবং প্রথম লগইনে পরিবর্তন করতে হবে।' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'last_admin' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('shield-alert', 16) }}</span>
+    <div>
+      <b>{{ 'Cannot disable last active administrator' if lang=='en' else 'একমাত্র সক্রিয় অ্যাডমিন নিষ্ক্রিয় করা যাবে না' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'The system requires at least one active administrator at all times to manage security credentials, models, and accounts.' if lang=='en' else 'নিরাপত্তা, মডেল এবং অ্যাকাউন্ট ব্যবস্থাপনার জন্য সিস্টেমে সর্বদা অন্তত একজন সক্রিয় অ্যাডমিন আবশ্যক।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'self_role' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-circle', 16) }}</span>
+    <div>
+      <b>{{ 'Cannot modify your own administrative role' if lang=='en' else 'নিজের অ্যাডমিন ভূমিকা পরিবর্তন করা যাবে না' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'Self-demotion is forbidden to prevent accidental administration lockouts. Ask another active administrator to modify your permissions.' if lang=='en' else 'সিস্টেম থেকে ভুলবশত লকআউট হওয়া রোধ করতে নিজের ভূমিকা পরিবর্তন নিষিদ্ধ। অন্য সক্রিয় অ্যাডমিনের সাহায্য নিন।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'policy' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('lock', 16) }}</span>
+    <div>
+      <b>{{ 'Password policy requirements not met' if lang=='en' else 'পাসওয়ার্ড সিকিউরিটি নীতি পূরণ হয়নি' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'Passwords must be at least 15 characters long, cannot match common dictionary patterns, and must not contain account names or system context words.' if lang=='en' else 'পাসওয়ার্ড কমপক্ষে ১৫ অক্ষরের হতে হবে এবং সাধারণ শব্দ বা অ্যাকাউন্টের নাম ধারণ করতে পারবে না।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif err == 'invalid' %}
+<div class="note bad" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--danger);margin-top:2px">{{ icons.icon('alert-triangle', 16) }}</span>
+    <div>
+      <b>{{ 'Invalid user details submitted' if lang=='en' else 'প্রদত্ত তথ্য সঠিক নয়' }}</b>
+      <div class="small dim" style="margin-top:3px">
+        {{ 'A valid unique email address and a supported role (inspector, supervisor, admin) are required.' if lang=='en' else 'একটি একক বৈধ ইমেইল ঠিকানা এবং সমর্থিত ভূমিকা নির্বাচন আবশ্যক।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% elif ok == 'saved' %}
+<div class="note ok" style="margin-bottom:16px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <span style="color:var(--success);margin-top:2px">{{ icons.icon('check-circle', 16) }}</span>
+    <div>
+      <b>{{ 'User account updated successfully' if lang=='en' else 'ব্যবহারকারীর তথ্য সফলভাবে সংরক্ষিত হয়েছে' }}</b>
+      <div class="small dim" style="margin-top:2px">
+        {{ 'Changes are effective immediately. Active sessions for this user have been invalidated.' if lang=='en' else 'পরিবর্তনটি কার্যকর হয়েছে এবং সক্রিয় সেশন বাতিল করা হয়েছে।' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

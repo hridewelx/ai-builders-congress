@@ -1,0 +1,87 @@
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-h">
+        <h3 style="display:flex;align-items:center;gap:8px">
+          {{ icons.icon('cpu', 16) }}
+          <span>{{ tr('admin.models') }}</span>
+        </h3>
+        <div class="right">
+          <form method="post" action="/admin/models/selftest">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn sm primary">{{ tr('admin.selftest') }}</button>
+          </form>
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% for m in models %}
+        <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+          <div class="between">
+            <b class="mono font-mono">{{ m.name }}</b>
+            <span class="badge ACCEPT">{{ 'active' if loop.first else 'registered' }}</span>
+          </div>
+          <div class="small dim mono font-mono" style="margin-top:4px;font-size:11px">SHA-256: {{ m.artifact_sha[:32] }}…</div>
+          <div class="small dim" style="margin-top:2px">{{ 'classes' if lang=='en' else 'শ্রেণি' }}: <span class="mono">{{ m.classes }}</span></div>
+          <div class="small muted" style="margin-top:4px">{{ m.eval_note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <h3 style="display:flex;align-items:center;gap:8px">
+          {{ icons.icon('activity', 16) }}
+          <span>{{ 'Self-test history' if lang=='en' else 'সেলফ-টেস্ট ইতিহাস' }}</span>
+        </h3>
+      </div>
+      <div class="pad-sm">
+        {% for t in tests %}
+        <div class="between" style="padding:8px 0;border-bottom:1px solid var(--line);align-items:center">
+          <span class="badge {{ 'ACCEPT' if t.passed else 'REJECT' }}">{{ 'PASS' if t.passed else 'FAIL' }}</span>
+          <span class="small dim mono font-mono" style="flex:1;margin-left:10px">{{ t.detail }}</span>
+          <span class="small dim font-mono" style="font-size:11px">{{ t.created_at[:16] }}</span>
+        </div>
+        {% else %}
+        <div class="empty">{{ tr('common.none') }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">
+      <h3 style="display:flex;align-items:center;gap:8px">
+        {{ icons.icon('check-circle', 16) }}
+        <span>{{ tr('admin.activate') }}</span>
+      </h3>
+    </div>
+    <div class="pad">
+      <p class="small muted" style="margin-bottom:14px;line-height:1.5">
+        {{ 'Activation is append-only and requires a passing self-test. Model files are immutable; old decisions keep their original model version.' if lang=='en' else 'সক্রিয়করণ শুধু যোগ হয় এবং সফল সেলফ-টেস্ট দরকার। মডেল ফাইল অপরিবর্তনীয়; পুরনো সিদ্ধান্ত নিজের মডেল সংস্করণ রাখে।' }}
+      </p>
+      <form method="post" action="/admin/models/activate">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="field">
+          <label>{{ tr('common.reason') }} <span class="req">*</span></label>
+          <textarea name="reason" minlength="20" required placeholder="{{ 'Reason for model activation (minimum 20 characters)...' if lang=='en' else 'মডেল সক্রিয়করণের কারণ (কমপক্ষে ২০ অক্ষর)...' }}"></textarea>
+        </div>
+        <button class="btn primary">{{ tr('admin.activate') }}</button>
+      </form>
+      <div class="note warn" style="margin-top:14px">
+        {{ 'No model upload endpoint exists. A checkpoint is placed on the host by the operator and hash-verified before loading.' if lang=='en' else 'মডেল আপলোড এন্ডপয়েন্ট নেই। অপারেটর হোস্টে চেকপয়েন্ট রাখেন এবং লোডের আগে হ্যাশ যাচাই হয়।' }}
+      </div>
+      <div class="list" style="margin-top:14px">
+        {% for a in activations %}
+        <li>
+          <span class="badge ghost">{{ a.action }}</span>
+          <div class="grow">
+            <div class="small">{{ a.reason }}</div>
+            <div class="small dim font-mono" style="font-size:11px">{{ a.actor }} · {{ a.created_at[:16] }}</div>
+          </div>
+        </li>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
