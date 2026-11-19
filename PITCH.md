@@ -92,7 +92,7 @@ report.
 
 ### 2:40–3:00 — Close
 
-**VO:** "Thirty-six deterministic tests, fifteen reason codes, one invariant.
+**VO:** "Thirty-six deterministic engine tests in a suite of seventy-nine.
 The AI proposes. The human confirms. The rule decides. Lotline — quality you can
 defend."
 
@@ -124,12 +124,15 @@ proposal on `LT-2026-019`).
 ## Q&A cheat sheet
 
 **"Is the model accurate?"**
-Unknown off the staged set, and we say so on screen. It is an unsupervised
-anomaly detector trained on clean synthetic knit only, evaluated on staged
-panels: 100 % localisation in the staged smoke test at IoU ≥ 0.05, with 1
-false-positive view in 20 clean views. That threshold is a smoke test, not the
-detector's 0.5 IoU evaluation. Factory precision/recall must be measured before
-any production claim — that is the next milestone, not a slide.
+Precisely, and on one domain only. The trained detector scores **mAP@0.5 0.95 on
+42 held-out BDFD9 test photos** and **0.75 on 68 validation photos**. Every photo
+comes from the same four Bangladeshi factories, so neither number is a
+new-factory estimate. Only **one** clean image is in that test set, so we do not
+quote a false-positive rate. Calibration was fitted on validation and **rejected**
+because ECE rose 0.106 → 0.118; runtime scores are raw, not probabilities. The
+deployed demo runs the unsupervised numpy baseline unless the ONNX artifact is
+shipped, and `/readyz` says which one is scoring. A human confirms every box
+before the engine sees it, so no accuracy number can approve a lot.
 
 **"What stops the AI approving a bad lot?"**
 Architecture. The engine cannot import a model; a test parses its AST to prove

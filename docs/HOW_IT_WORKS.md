@@ -376,7 +376,7 @@ flowchart LR
 ```
 
 ### What the Detector Actually Is
-- **Architecture:** The default system detector is `ae-knit-v1` (`app/services/vision.py`), an on-device unsupervised patch autoencoder ($23 \to 12 \to 23$, `tanh` activation) trained using the Adam optimizer exclusively on clean, synthetic knit patches. It contains no defect labels in its training regime. A Faster R-CNN MobileNetV3 option (`frcnn-mnv3-v1` in `app/services/detector.py`) is also integrated and activated when `LOTLINE_DETECTOR=onnx` is configured.
+- **Architecture:** Two paths, both in-process on CPU. (a) `ae-knit-v1` (`app/services/vision.py`) is the unsupervised patch autoencoder ($23 \to 12 \to 23$, `tanh`) trained only on clean synthetic knit; it produced the seeded demo history. (b) `frcnn-mnv3-v2` (`app/services/detector.py`) is supervised: a COCO-pretrained Faster R-CNN with MobileNetV3-Large FPN, four fabric-defect classes, trained on BDFD9 (CC BY 4.0) plus staged panels, and it serves new uploads when the ONNX artifact is present (`LOTLINE_DETECTOR=auto|onnx`). Numbers are in `docs/MODEL_CARD.md`: mAP@0.5 0.9474 on 42 held-out test photos, 0.7479 on 68 validation photos, all from the same four factories. `det_v1` is retired and must not be quoted.
 - **Execution Environment:** The model executes completely in-process on the local CPU (~0.4 seconds per image). No cloud services or external network roundtrips are involved.
 - **Uncalibrated Anomaly Scores:** Defect bounding boxes are clustered from reconstruction error against a held-out clean threshold. Scores are raw distances, not calibrated probabilities.
 
@@ -665,6 +665,7 @@ docker run -p 8077:8077 lotline
 ### Honest Limitations
 1. **Procedural Staged Data Only:** All demo images are synthetically generated knit texture panels. The system has not been calibrated or verified on real factory floor camera streams.
 2. **Unsupervised Autoencoder Baseline:** `ae-knit-v1` operates on reconstruction anomaly thresholds; it is not a production-grade multi-defect deep convolutional detector.
+- **Same-Factory Evaluation:** `frcnn-mnv3-v2` is scored on BDFD9's own held-out split from the same four factories as training. No cross-factory or finished-garment claim is made, and the calibration fit was rejected (ECE 0.106 → 0.118), so runtime scores stay raw.
 3. **Absence of Network & Database Isolation:** In the demo environment, all services run inside a single process/container against SQLite. No physical network segregation exists between the API, detector, and database.
 
 ### Future Work
