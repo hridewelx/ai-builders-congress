@@ -81,3 +81,11 @@ def test_a_defect_the_model_cannot_name_can_still_be_recorded():
         for row in db.q("SELECT id FROM prediction WHERE id > ?", (watermark,)):
             db.x("DELETE FROM audit_event WHERE entity='prediction' AND entity_id=?", (str(row["id"]),))
             db.x("DELETE FROM prediction WHERE id=?", (row["id"],))
+
+
+def test_the_approximate_mapping_does_not_over_claim_its_name():
+    """`needle_line` learns from Vertical LineMark, so the label must not promise a cause."""
+    html = _client("inspector").get("/review/55").text
+    assert "line mark (approx.)" in html
+    assert "approximate mapping" in html
+    assert "Vertical LineMark" in html

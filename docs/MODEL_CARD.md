@@ -77,6 +77,7 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 
 - It does not assign severity, count defects, or decide a lot.
 - It does not detect skipped stitch or shade band; those stay human-entered.
+- The `needle_line` class is learned from BDFD9's `Vertical LineMark`. That mapping is approximate, so the interface calls it "line mark (approx.)" and the reviewer can change the type.
 - It is closed-set over four classes: an unknown defect type is recorded by a human as `other`, never invented by the model.
 - Critical non-visual checks are outside its scope.
 

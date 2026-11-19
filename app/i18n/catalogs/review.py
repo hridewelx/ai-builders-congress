@@ -7,6 +7,8 @@ CATALOG: dict[str, tuple[str, str]] = {
     "rev.queue_empty": ("Every view is reviewed.", "সব ভিউ পর্যালোচিত।"),
     "rev.proposals": ("Detector proposals", "ডিটেক্টর প্রস্তাব"),
     "rev.no_proposals": ("No proposals. This is not a pass — review the photo.", "কোনো প্রস্তাব নেই। এটি পাস নয় — ছবিটি দেখুন।"),
+    "rev.approx_mapping": ("\"line mark\" is learned from BDFD9's Vertical LineMark — an approximate mapping, so correct the type if it is wrong.",
+                           "\"লাইন মার্ক\" শেখা হয়েছে BDFD9-এর Vertical LineMark থেকে — এটি আনুমানিক ম্যাপিং, তাই ধরন ভুল হলে ঠিক করে দিন।"),
     "rev.manual_classes": ("skipped stitch and shade band have no public labels yet, so a human enters them — the detector never proposes them.",
                             "স্কিপড স্টিচ ও শেড ব্যান্ডের জন্য এখনো পাবলিক লেবেল নেই, তাই মানুষ সেগুলো লিখে দেয় — ডিটেক্টর কখনো প্রস্তাব দেয় না।"),
     "rev.other_class": ("anything the detector cannot name goes here; it stays a human observation.",

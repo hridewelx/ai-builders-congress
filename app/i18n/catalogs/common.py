@@ -110,7 +110,7 @@ CATALOG: dict[str, tuple[str, str]] = {
     "type.hole": ("hole", "ছিদ্র"),
     "type.dropped_stitch": ("dropped stitch", "ড্রপড স্টিচ"),
     "type.skipped_stitch": ("skipped stitch", "স্কিপড স্টিচ"),
-    "type.needle_line": ("needle line", "নিডল লাইন"),
+    "type.needle_line": ("line mark (approx.)", "লাইন মার্ক (আনুমানিক)"),
     "type.oil_stain": ("oil stain", "তেলের দাগ"),
     "type.shade_band": ("shade band", "শেড ব্যান্ড"),
     "type.other": ("other", "অন্যান্য"),
