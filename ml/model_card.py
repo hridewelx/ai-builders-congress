@@ -165,6 +165,8 @@ def markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
     lines += ["", "## What this model does not do", "",
               "- It does not assign severity, count defects, or decide a lot.",
               "- It does not detect skipped stitch or shade band; those stay human-entered.",
+              "- It is closed-set over four classes: an unknown defect type is recorded by a "
+              "human as `other`, never invented by the model.",
               "- Critical non-visual checks are outside its scope."]
     if card:
         lines += ["", f"Architecture: `{card.get('architecture')}` · code licence: {card.get('code_license')}"]

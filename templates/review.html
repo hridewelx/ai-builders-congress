@@ -254,11 +254,12 @@
           <div class="grid cols-3" style="gap:10px;margin-bottom:10px">
             <div class="field" style="margin:0">
               <label for="add-type">{{ tr('rev.type') }}</label>
-              <select id="add-type" name="defect_type" required>
+              <select id="add-type" name="defect_type" required aria-describedby="add-type-note">
                 {% for t in ['hole','dropped_stitch','skipped_stitch','needle_line','oil_stain','shade_band','other'] %}
                 <option value="{{ t }}">{{ tr('type.' ~ t) }}</option>
                 {% endfor %}
               </select>
+              <p id="add-type-note" class="small dim" style="margin:4px 0 0">{{ tr('rev.manual_classes') }} {{ tr('rev.other_class') }}</p>
             </div>
 
             <div class="field" style="margin:0">

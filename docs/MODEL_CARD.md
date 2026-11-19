@@ -77,6 +77,7 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 
 - It does not assign severity, count defects, or decide a lot.
 - It does not detect skipped stitch or shade band; those stay human-entered.
+- It is closed-set over four classes: an unknown defect type is recorded by a human as `other`, never invented by the model.
 - Critical non-visual checks are outside its scope.
 
 Architecture: `fasterrcnn_mobilenet_v3_large_fpn` · code licence: BSD-3-Clause (torchvision)
