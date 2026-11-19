@@ -36,9 +36,17 @@
     <div class="auth-card">
       <div class="between" style="margin-bottom:18px">
         <span class="pill"><span class="dot" aria-hidden="true"></span>{{ 'Demo build · staged data' if lang=='en' else 'ডেমো বিল্ড · স্টেজ করা ডেটা' }}</span>
-        <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next=/login" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
-          {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
-        </a>
+        <span class="auth-controls">
+          <button class="theme-toggle" type="button" data-theme-toggle
+                  aria-pressed="false" aria-label="{{ 'Switch to dark theme' if lang=='en' else 'ডার্ক থিমে যান' }}"
+                  title="{{ 'Switch to dark theme' if lang=='en' else 'ডার্ক থিমে যান' }}">
+            <span class="icon-sun">{{ icons.icon('sun', 16) }}</span>
+            <span class="icon-moon">{{ icons.icon('moon', 16) }}</span>
+          </button>
+          <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next=/login" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
+            {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
+          </a>
+        </span>
       </div>
 
       <h2 id="signin-title">{{ tr('login.title') }}</h2>

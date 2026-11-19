@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1220">
+  <script src="/static/theme.js"></script>
   <title>{{ code }} · Lotline</title>
   <link rel="stylesheet" href="/static/app.css">
 </head>
@@ -22,6 +24,9 @@
         <h2 style="margin:14px 0 8px">{{ friendly.get(message, message) }}</h2>
         <p class="muted small">{{ tr('app.tagline') }}</p>
         <div class="btnrow" style="justify-content:center">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch theme" title="Switch theme">
+            <span class="icon-sun">☀</span><span class="icon-moon">☾</span>
+          </button>
           <a class="btn primary" href="/">{{ tr('nav.dashboard') }}</a>
           <a class="btn ghost" href="/login">{{ tr('login.title') }}</a>
         </div>

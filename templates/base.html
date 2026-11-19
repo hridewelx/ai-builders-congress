@@ -16,6 +16,7 @@
   <link rel="preload" href="/static/fonts/noto-sans-bengali-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/static/fonts/noto-sans-bengali-600-normal.woff2" as="font" type="font/woff2" crossorigin>
   {% endif %}
+  <script src="/static/theme.js"></script>
   <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
@@ -109,6 +110,12 @@
         <div class="sub">{% block subheading %}{% endblock %}</div>
       </div>
       <div class="top-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle
+                aria-pressed="false" aria-label="{{ 'Switch to dark theme' if lang=='en' else 'ডার্ক থিমে যান' }}"
+                title="{{ 'Switch to dark theme' if lang=='en' else 'ডার্ক থিমে যান' }}">
+          <span class="icon-sun">{{ icons.icon('sun', 16) }}</span>
+          <span class="icon-moon">{{ icons.icon('moon', 16) }}</span>
+        </button>
         <span class="top-demo">{{ ui.demo_tag(tr('lot.demo_data'), 'demo') }}</span>
         <a class="lang-link" href="/lang/{{ 'bn' if lang=='en' else 'en' }}?next={{ request.url.path }}" aria-label="{{ 'Switch to Bangla' if lang=='en' else 'Switch to English' }}">
           {{ icons.icon('languages', 15) }}<span>{{ 'বাংলা' if lang=='en' else 'English' }}</span>
