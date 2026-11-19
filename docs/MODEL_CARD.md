@@ -47,9 +47,10 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 | ONNX runtime | 0.7475 | 0.7412 | 0.7326 | 85 |
 | ONNX + review-queue cap | 0.7326 | 0.7683 | 0.7326 | 82 |
 
-- Checkpoint `det_v2b.pt` (sha256 9b430c4c9786e3ee) -> ONNX `det_v2.onnx` (sha256 11863b97e42817a7)
+- Checkpoint `det_v2b.pt` (sha256 9b430c4c9786e3ee) -> ONNX `det_v2.onnx` (sha256 867b7e629b94eba7)
 - mAP delta PyTorch -> ONNX: 0.0004 (tolerance 0.01) · review-queue cap cost: 0.0149 mAP
 - Parity result: PASS
+- The graph is exported with `allowzero=1` on every Reshape, so a frame with no proposals returns empty tensors instead of raising; the runtime reports an empty result, not a caught crash.
 
 ## Split integrity
 

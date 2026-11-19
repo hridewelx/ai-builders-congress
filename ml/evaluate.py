@@ -286,7 +286,10 @@ def model_card_markdown(metrics: dict, checkpoint: dict, calibration: dict | Non
                   f"(sha256 {parity['onnx_sha256']})",
                   f"- mAP delta PyTorch -> ONNX: {parity['map_delta']} (tolerance 0.01) · "
                   f"review-queue cap cost: {parity['ui_cap_cost']} mAP",
-                  f"- Parity result: {'PASS' if parity['passed'] else 'FAIL'}"]
+                  f"- Parity result: {'PASS' if parity['passed'] else 'FAIL'}",
+                  "- The graph is exported with `allowzero=1` on every Reshape, so a frame "
+                  "with no proposals returns empty tensors instead of raising; the runtime "
+                  "reports an empty result, not a caught crash."]
     if integrity and metrics.get("split") == "test":
         lines += ["", "## Split integrity", "",
                   f"- Duplicate rule: {integrity['rule']}",

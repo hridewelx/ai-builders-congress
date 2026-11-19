@@ -31,6 +31,39 @@ class SingleImageModel:
         return _Wrapper()
 
 
+def allow_empty_reshape(path: Path) -> int:
+    """Let the graph reshape tensors that have zero elements.
+
+    A perfectly clean frame produces no proposals, and then the ROI head reshapes
+    a zero-length tensor. ONNX Reshape defaults to ``allowzero=0``, where a 0 in
+    the target shape means "copy this dimension from the input"; with a zero-size
+    input that is contradictory and ONNX Runtime raises. Setting ``allowzero=1``
+    makes the 0 mean an actual empty dimension, which is exactly what the frame
+    is. Without this the app had to catch the crash and call it "no proposals";
+    with it, an empty result is a normal result.
+
+    Returns the number of nodes patched.
+    """
+    import onnx
+
+    model = onnx.load(str(path))
+    patched = 0
+    for node in model.graph.node:
+        if node.op_type != "Reshape":
+            continue
+        existing = [attr for attr in node.attribute if attr.name == "allowzero"]
+        if existing:
+            if existing[0].i != 1:
+                existing[0].i = 1
+                patched += 1
+        else:
+            node.attribute.append(onnx.helper.make_attribute("allowzero", 1))
+            patched += 1
+    if patched:
+        onnx.save(model, str(path))
+    return patched
+
+
 def export(checkpoint_path: Path, out_path: Path, size: int = 640, opset: int = 17,
            image_path: Path | None = None) -> dict:
     import torch
@@ -76,7 +109,9 @@ def export(checkpoint_path: Path, out_path: Path, size: int = 640, opset: int = 
         do_constant_folding=True,
     )
 
+    reshapes = allow_empty_reshape(out_path)
     report = {"onnx_path": str(out_path), "size": size, "opset": opset,
+              "empty_reshape_patch": {"nodes": reshapes, "allowzero": 1},
               "classes": CLASSES, "parity": None, "parity_image": report_image,
               "checkpoint": str(checkpoint_path),
               "checkpoint_sha256": sha256_file(checkpoint_path)[:16],

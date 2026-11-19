@@ -1,8 +1,9 @@
 """ONNX backend edge cases: clean fabric must return no proposals, not an error.
 
-The exported graph raises an ONNX Runtime reshape error when the ROI head sees a
-zero-row tensor (a perfectly flat image). The detector converts exactly that
-failure into "no proposals"; anything else must surface as a real error.
+The ROI head reshapes a zero-length tensor when a frame has no proposals. The
+export sets `allowzero=1` so that reshape is legal and the graph returns empty
+tensors; the detector no longer catches the crash, so any other failure surfaces
+as a real error instead of looking like a clean frame.
 """
 from __future__ import annotations
 
@@ -26,6 +27,7 @@ def onnx_backend(monkeypatch):
 
 
 def test_clean_flat_image_returns_no_proposals(onnx_backend):
+    """A featureless frame is a normal empty result, not a caught exception."""
     flat = np.full((640, 640, 3), 128, dtype=np.uint8)
     result = detector.detect(flat)
     assert result["proposals"] == []
@@ -59,16 +61,6 @@ def test_readyz_does_not_claim_trained_weights_when_missing(monkeypatch):
     assert payload["detector"] == "numpy"
     assert payload["model"] is None
     assert payload["weights_loaded"] is False
-
-
-def test_only_the_typed_reshape_error_means_no_proposals():
-    """A message that merely resembles the reshape error must not be swallowed."""
-    from onnxruntime.capi import onnxruntime_pybind11_state as ort_state
-
-    generic = RuntimeError("Reshape node failed: zero elements")
-    assert detector._is_empty_roi_failure(generic) is False
-    typed = ort_state.Fail("Non-zero status code returned while running Reshape node.")
-    assert detector._is_empty_roi_failure(typed) is True
 
 
 def test_other_onnx_failures_are_not_masked(monkeypatch):
