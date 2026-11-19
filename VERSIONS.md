@@ -1,54 +1,47 @@
-# VERSIONS — Lotline frontend build
+# VERSIONS — what actually ships
 
-**Last updated:** 18 November 2026 (Phase 0)
-**Rule:** every dependency is pinned to an exact version. Existing ranges are recorded as debt; they are not changed in Phase 0.
+Every dependency is pinned to an exact version in `requirements.txt`. This file
+records what those pins are and why; it is not a second source of truth.
 
-> **Plan-mode note:** staged at `C:\Users\Jitu\.opencode\plan\VERSIONS.md`; not yet in the repo. Copy to `D:\ai-builders-congress\VERSIONS.md` when the build agent starts.
+**Last verified:** 19 November 2026 against Python 3.14.6 locally and Python 3.12
+in the container and in CI.
 
-## Runtime (backend — not modified)
+## Runtime (the demo)
 
-| Component | Declared | Verified in this environment | Notes |
+| Component | Pin | Licence | Notes |
 |---|---|---|---|
-| Python | 3.11 target | 3.11.9 | `pyproject.toml` target `py311` |
-| FastAPI | `0.163.2` (pinned) | **not installed** | Server cannot start until `pip install -r requirements.txt` |
-| Uvicorn | `0.51.0` (pinned) | **not installed** | — |
-| Jinja2 | `>=3.1` | 3.1.6 | range = existing debt; propose pin `3.1.6` |
-| python-multipart | `>=0.0.9` | not verified | range = existing debt |
-| argon2-cffi | `>=25.1.0` | not verified | range = existing debt |
-| fpdf2 | `>=2.8` | not verified | range = existing debt |
-| Pillow | `>=12.0` | 12.2.0 | range = existing debt |
-| numpy | `>=2.3` | 2.4.4 | range = existing debt |
-| pytest | `>=8.0` | not verified | dev only |
-| httpx | `>=0.27` | 0.28.1 | dev only |
-| SQLite | stdlib | Python 3.11.9 bundled | WAL mode |
+| Python | 3.12 in the image, 3.14 locally | PSF-2.0 | No 3.12-only syntax; both verified |
+| FastAPI | `0.163.2` | MIT | — |
+| Uvicorn | `0.51.0` | BSD-3-Clause | Single process, `--proxy-headers` behind a proxy |
+| Jinja2 | `3.1.6` | BSD-3-Clause | Server-rendered only |
+| python-multipart | `0.0.32` | Apache-2.0 | Upload parsing |
+| argon2-cffi | `25.1.0` | MIT | Password hashing (Argon2id) |
+| fpdf2 | `2.9.0` | LGPL-3.0 | PDF only; no fonts shipped, system DejaVu or ASCII fallback |
+| Pillow | `12.2.0` | MIT-CMU | Image decode, EXIF rotation, thumbnails |
+| numpy | `2.5.0` | BSD-3-Clause | The fallback detector, and the ONNX input tensor |
+| onnxruntime | `1.32.0` | MIT | Optional; the trained detector loads only if the artifact is present |
+| pytest | `9.1.1` | MIT | Tests only |
+| httpx | `0.28.1` | BSD-3-Clause | Test client only |
+| SQLite | stdlib | Public domain | WAL mode, single writer |
 
-## Frontend runtime
+## Training only (never in the runtime image)
 
-| Component | Version | License | Notes |
+| Component | Pin | Licence | Notes |
 |---|---|---|---|
-| Jinja2 templates | n/a (server-rendered) | — | No client framework, no build step |
-| `static/app.css` | project file | — | Replaced in Phase 1 |
-| `static/app.js` | project file | — | Vanilla JS; no dependency |
-| Inter | **5.3.0** (`@fontsource/inter` package; woff2 subset) | OFL-1.1 | Self-hosted; no Google Fonts/CDN request |
-| Lucide icons | **1.75.0** (`lucide-static`) | ISC | Vendor only the SVG paths used; no icon font/CDN |
-| Playwright | **1.65.1** (`@playwright/test`) | Apache-2.0 | **Dev/test only**; not shipped to the browser |
+| torch / torchvision | `2.11.0+cu128` / `0.26.0+cu128` | BSD-3-Clause | `requirements-ml.txt`, GPU box only |
+| onnx / onnxscript | `1.23.2` / current | Apache-2.0 / MIT | Export path |
+
+## Frontend
+
+| Component | Version | Licence | Notes |
+|---|---|---|---|
+| Templates | — | project | Server-rendered; no build step |
+| `static/app.css`, `static/app.js` | — | project | Hand-written; no framework |
+| Inter | v4 woff2 subset | OFL-1.1 | Self-hosted in `static/fonts/`; no CDN |
+| Icons | inline SVG paths | ISC (Lucide) | Committed as a Jinja macro; no icon font |
 
 ## Explicitly not used
 
-- React, React DOM, Vite, TypeScript, Tailwind CSS, shadcn/ui, Recharts, Konva, npm runtime bundles.
+- React, Vite, TypeScript, Tailwind, any npm runtime bundle.
 - Any CDN, analytics, external font, or third-party script.
 - `localStorage` / `sessionStorage` for tokens or sensitive data.
-
-## Pin policy
-
-- New runtime assets (fonts/icons) are committed as files with the exact source version above.
-- Playwright is installed only for Phase 5 verification; it is not part of the demo runtime.
-- The existing `requirements.txt` ranges (Jinja2, python-multipart, argon2-cffi, fpdf2, Pillow, numpy, pytest, httpx) should be pinned to the verified versions before submission. That is a dependency-file change, not application logic; owner approval is requested because the backend is frozen.
-- No dependency is added without a one-line justification in `PROGRESS.md`.
-
-## Security notes tied to versions
-
-- Session cookie: existing `ll_session`; Security v0.4 SES-02 asks for `__Host-` + `Secure` + `HttpOnly` + `SameSite=Strict`. Frontend cannot change the server cookie.
-- CSRF: existing per-session token in forms; the server also sets a readable `ll_csrf` cookie. The new UI will not read that cookie; it will render the token into forms/meta only.
-- No CSP header currently exists. A restrictive `<meta http-equiv="Content-Security-Policy">` can be added in `base.html`; header-level policies (frame-ancestors, HSTS) need backend changes.
-- No request-ID middleware; error pages cannot show a real request ID.
