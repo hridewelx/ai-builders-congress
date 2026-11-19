@@ -9,6 +9,10 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+# One name for the trained detector, read by the export, the card and the app.
+MODEL_NAME = "frcnn-mnv3-v2"
+MODEL_VERSION = "det_v2"
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get("LOTLINE_DATA", ROOT / "data"))
 RAW = DATA / "raw"

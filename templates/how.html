@@ -171,6 +171,33 @@
             <th scope="row" class="dim-col">{{ 'Live training' if lang=='en' else 'লাইভ প্রশিক্ষণ' }}</th>
             <td class="val-col">{{ card.get('live_training', '—') }}</td>
           </tr>
+          {% set ev = card.get('live_evaluation') or {} %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live test score' if lang=='en' else 'লাইভ টেস্ট স্কোর' }}</th>
+            <td class="val-col">
+              {% if ev.get('map50') is not none %}
+                mAP@0.5 <strong>{{ ev.get('map50') }}</strong> · {{ ev.get('images') }} {{ 'held-out photos' if lang=='en' else 'হেল্ড-আউট ছবি' }}
+                ({{ ev.get('split') }}) · P {{ ev.get('precision') }} · R {{ ev.get('recall') }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Review threshold' if lang=='en' else 'রিভিউ থ্রেশহোল্ড' }}</th>
+            <td class="val-col">
+              {% if card.get('live_threshold') is not none %}
+                <strong>{{ card.get('live_threshold') }}</strong> — {{ 'chosen on validation, never on the test split' if lang=='en' else 'ভ্যালিডেশনে নির্বাচিত, টেস্ট স্প্লিটে কখনো নয়' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Runtime parity' if lang=='en' else 'রানটাইম পারিটি' }}</th>
+            <td class="val-col">
+              {% set par = card.get('live_parity') or {} %}
+              {% if par.get('delta') is not none %}
+                PyTorch → ONNX: {{ par.get('delta') }} mAP {{ 'on validation' if lang=='en' else 'ভ্যালিডেশনে' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.calibration') }}</th>
             <td class="val-col text-warning-contrast">{{ card.get('calibration', 'none — raw reconstruction error scores') if lang=='en' else (card.get('calibration') or 'কোনোটি নয় — স্কোর অপরিমাপিত') }}</td>
@@ -195,6 +222,12 @@
               </div>
             </td>
           </tr>
+          {% if card.get('live_sha256') %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Live artifact' if lang=='en' else 'লাইভ আর্টিফ্যাক্ট' }}</th>
+            <td class="val-col font-mono small">{{ card.get('live_sha256') }}</td>
+          </tr>
+          {% endif %}
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.self_test') }}</th>
             <td class="val-col small">{{ card.get('self_test', {}).get('detail', '—') }}</td>

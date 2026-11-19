@@ -21,7 +21,10 @@ from PIL import Image, ImageFilter
 
 from app.services import vision
 
-MODEL_NAME = "frcnn-mnv3-v2"
+try:  # one name for the model, owned by the training package
+    from ml.config import MODEL_NAME, MODEL_VERSION
+except ImportError:  # pragma: no cover - ml/ ships with the repo
+    MODEL_NAME, MODEL_VERSION = "frcnn-mnv3-v2", "det_v2"
 MODEL_DOMAIN = ("BDFD9 factory fabric close-ups plus staged knit panels; "
                 "not finished-garment inspection")
 ONNX_PATH = os.environ.get("LOTLINE_ONNX", "data/models/det_v2.onnx")

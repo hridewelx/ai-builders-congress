@@ -23,7 +23,24 @@ def load_model_card() -> dict:
         card = {}
     from ..services import detector
 
+    # The trained facts (numbers, domains, calibration) come from the card that
+    # ml/model_card.py writes with docs/MODEL_CARD.md. Retping them in the
+    # seeder is how the page and the card drift apart.
+    trained = {}
+    try:
+        with open(os.path.join(MODEL_DIR, "model_card_trained.json"), encoding="utf-8") as fh:
+            trained = json.load(fh)
+    except (OSError, ValueError):
+        trained = {}
+
     live = detector.available()
+    if live and trained:
+        for key in ("live_model", "live_labels", "live_training", "live_domains",
+                    "live_device", "live_calibration", "live_threshold",
+                    "live_evaluation", "live_parity"):
+            if trained.get(key) is not None:
+                card[key] = trained[key]
+        card["live_sha256"] = (trained.get("artifacts") or {}).get("onnx_sha256") or ""
     card.setdefault("live_model", detector.MODEL_NAME if live else "not enabled (numpy baseline)")
     card.setdefault("live_labels", "supervised: BDFD9 factory fabric (CC BY 4.0) plus staged panels"
                     if live else "none")
