@@ -1,0 +1,115 @@
+      {# --- Critical Non-Visual Status Card --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ tr('lot.nonvisual') }}</h2>
+          <div class="right">
+            <span class="badge {{ 'ACCEPT' if lot.critical_nonvisual_status in ('done','not_required') else ('REJECT' if lot.critical_nonvisual_status=='failed' else 'HOLD') }}">
+              <span class="dot"></span>{{ lot.critical_nonvisual_status }}
+            </span>
+          </div>
+        </div>
+        <div class="pad-sm">
+          <p class="small dim" style="margin:0 0 10px">{{ tr('lot.nonvisual_hint') }}</p>
+          {% if lot.nonvisual_note %}
+          <div class="note" style="margin-bottom:10px">{{ lot.nonvisual_note }}</div>
+          {% endif %}
+          <div class="small dim">
+            {{ 'Note: "pending" status blocks an ACCEPT decision (HOLD_CRITICAL_NONVISUAL_PENDING). A "failed" check triggers immediate lot rejection (REJECT_CRITICAL_NONVISUAL_FAILED).' if lang=='en' else '"pending" অবস্থা ACCEPT সিদ্ধান্ত আটকে দেয়। "failed" চেক সাথে সাথে লট বাতিল করে।' }}
+          </div>
+        </div>
+      </div>
+
+      {# --- Supervisor Override Panel --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ 'Supervisor Override' if lang=='en' else 'সুপারভাইজার ওভাররাইড' }}</h2>
+        </div>
+        <div class="pad-sm">
+          {% if not is_supervisor %}
+          <div class="note info">
+            {{ icons.icon('shield', 15) }}
+            <span>{{ 'Only a Supervisor can override a decision (FR-OVR-001). Inspectors and Admins do not have override authority.' if lang=='en' else 'শুধুমাত্র সুপারভাইজার সিদ্ধান্ত ওভাররাইড করতে পারেন।' }}</span>
+          </div>
+          {% elif decision.outcome in ('HOLD', 'ESCALATE') %}
+          <div class="note warn">
+            {{ icons.icon('alert-triangle', 15) }}
+            <span>{{ 'HOLD and ESCALATE decisions cannot be overridden (PRD §9). The sample must be completed, or buyer clauses mapped, before an override is permitted.' if lang=='en' else 'HOLD এবং ESCALATE সিদ্ধান্ত ওভাররাইড করা যায় না। নমুনা সম্পূর্ণ করুন।' }}</span>
+          </div>
+          {% elif decision.primary_reason == 'REJECT_CRITICAL_NONVISUAL_FAILED' %}
+          <div class="note bad">
+            {{ icons.icon('shield-alert', 15) }}
+            <span>{{ 'Decisions caused by a failed critical non-visual check cannot be overridden (OV-10).' if lang=='en' else 'ব্যর্থ ক্রিটিক্যাল নন-ভিজ্যুয়াল চেকের সিদ্ধান্ত ওভাররাইড করা যায় না।' }}</span>
+          </div>
+          {% elif override %}
+          <div class="note">
+            {{ icons.icon('info', 15) }}
+            <span>{{ 'An override is already registered for this decision. To record a subsequent change, reopen the lot with an audit reason and compute a new decision.' if lang=='en' else 'এই সিদ্ধান্তের জন্য একটি ওভাররাইড ইতিমধ্যে বিদ্যমান।' }}</span>
+          </div>
+          {% else %}
+          {# --- Active Override Form --- #}
+          <form method="post" action="/decisions/{{ decision.id }}/override" class="stack" style="gap:12px" id="overrideForm">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+
+            <div class="field" style="margin:0">
+              <label for="override-disposition">{{ 'Target Disposition' if lang=='en' else 'কাঙ্ক্ষিত সিদ্ধান্ত' }} <span class="req">*</span></label>
+              <select id="override-disposition" name="disposition" required>
+                {% if decision.outcome == 'REJECT' %}
+                <option value="OVERRIDE_ACCEPT">{{ tr('dec.override_accept') }} ({{ 'High-Risk — requires 2nd Supervisor' if lang=='en' else 'উচ্চ ঝুঁকি' }})</option>
+                <option value="OVERRIDE_REJECT">{{ tr('dec.override_reject') }} ({{ 'Stricter — effective immediately' if lang=='en' else 'অবিলম্বে কার্যকর' }})</option>
+                {% else %}
+                <option value="OVERRIDE_REJECT">{{ tr('dec.override_reject') }} ({{ 'Stricter — effective immediately' if lang=='en' else 'অবিলম্বে কার্যকর' }})</option>
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="field" style="margin:0">
+              <label for="override-reason">{{ tr('dec.override_reason') }} <span class="req">*</span></label>
+              <textarea id="override-reason" name="reason" minlength="20" rows="3" required
+                        placeholder="{{ 'Explain why human judgment differs from the deterministic engine rule (20 characters minimum).' if lang=='en' else 'কেন মানবিক বিবেচনা ইঞ্জিনের নিয়মের চেয়ে ভিন্ন তা লিখুন (কমপক্ষে ২০ অক্ষর)।' }}"></textarea>
+              <div class="hint" id="charCounter">0 / 20 {{ 'characters minimum' if lang=='en' else 'অক্ষর আবশ্যক' }}</div>
+            </div>
+
+            {% if decision.outcome == 'REJECT' %}
+            <div class="note warn" id="highRiskNotice" style="font-size:12px">
+              {{ icons.icon('shield-alert', 14) }}
+              <span>{{ 'High-risk override policy: Overriding REJECT to ACCEPT requires approval by a different active Supervisor. The lot status remains unapproved until confirmed.' if lang=='en' else 'উচ্চ ঝুঁকি: REJECT থেকে ACCEPT করতে দ্বিতীয় সুপারভাইজারের অনুমোদন প্রয়োজন।' }}</span>
+            </div>
+            <div class="note ok" id="immediateNotice" style="font-size:12px;display:none">
+              {{ icons.icon('check-circle', 14) }}
+              <span>{{ 'Stricter override policy: Overriding to REJECT is immediately effective upon submission.' if lang=='en' else 'কঠোর নীতি: REJECT ওভাররাইড দাখিলের সাথে সাথেই কার্যকর হয়।' }}</span>
+            </div>
+            {% endif %}
+
+            <button class="btn primary sm" type="submit" id="submitOverrideBtn" disabled>{{ icons.icon('check', 14) }}<span>{{ 'Submit Override' if lang=='en' else 'ওভাররাইড দাখিল' }}</span></button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      {# --- Decision Sequence History --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ tr('dec.history') }}</h2>
+          <div class="right"><span class="small dim">{{ history|length }} {{ 'records' if lang=='en' else 'রেকর্ড' }}</span></div>
+        </div>
+        <div class="pad-sm">
+          {% if history %}
+          <div class="list" style="margin:0">
+            {% for h in history %}
+            <li>
+              <span class="badge {{ h.outcome }}">{{ tr('out.' ~ h.outcome) }}</span>
+              <div class="grow">
+                <div class="small bold">#{{ h.sequence }} · {{ h.decided_by }}</div>
+                <div class="small dim">{{ h.created_at }} · {{ h.counts.critical }}C / {{ h.counts.major }}M / {{ h.counts.minor }}m</div>
+              </div>
+            </li>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="small dim">{{ 'No earlier decisions.' if lang=='en' else 'পূর্ববর্তী সিদ্ধান্ত নেই।' }}</div>
+          {% endif %}
+          <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">
+            <a class="btn sm ghost" href="/lots/{{ lot.id }}/report">{{ icons.icon('file-text', 14) }}<span>{{ tr('lot.report') }} →</span></a>
+          </div>
+        </div>
+      </div>

@@ -1,0 +1,38 @@
+<div class="card">
+  <div class="card-h">
+    <h2>{{ tr('dec.none') }}</h2>
+    <div class="right"><span class="badge badge-warning">{{ 'Decision needed' if lang=='en' else 'সিদ্ধান্ত দরকার' }}</span></div>
+  </div>
+  <div class="pad">
+    <div class="grid cols-3" style="margin-bottom:16px">
+      <div class="kpi">
+        <div class="lbl">{{ tr('lot.plan') }}</div>
+        <div class="n" style="font-size:18px">{{ 'Set (n=' ~ plan.n ~ ')' if plan else 'Missing' }}</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">{{ tr('common.units') }}</div>
+        <div class="n" style="font-size:20px">{{ progress.units }} / {{ progress.required_units or '—' }}</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
+        <div class="n" style="font-size:20px">{{ progress.reviewed }} / {{ progress.views }}</div>
+      </div>
+    </div>
+
+    {% if can_write %}
+    <form method="post" action="/lots/{{ lot.id }}/decisions">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field" style="margin-bottom:12px">
+        <label for="compute-note">{{ tr('common.notes') }} <span class="dim">({{ tr('common.optional') }})</span></label>
+        <input id="compute-note" name="note" placeholder="{{ 'e.g. Initial lot acceptance computation' if lang=='en' else 'নোট লিখুন' }}">
+      </div>
+      <button class="btn primary" type="submit">{{ icons.icon('cpu', 16) }}<span>{{ tr('dec.compute') }}</span></button>
+    </form>
+    {% else %}
+    <div class="note info">
+      {{ icons.icon('shield', 15) }}
+      <span>{{ 'A Supervisor or Inspector with write permissions can compute the decision.' if lang=='en' else 'সুপারভাইজার বা ক্ষমতাপ্রাপ্ত ইন্সপেক্টর সিদ্ধান্ত গণনা করতে পারেন।' }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>

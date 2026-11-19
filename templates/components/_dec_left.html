@@ -1,0 +1,102 @@
+      {# --- Defect Counts & Class Limits --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ tr('dec.counts') }}</h2>
+          <div class="right">
+            <span class="chip" title="{{ 'Counting mode' if lang=='en' else 'গণনার পদ্ধতি' }}">{{ decision.plan_snapshot.counting_mode if decision.plan_snapshot else '—' }}</span>
+          </div>
+        </div>
+        <div class="tblwrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ 'Defect Class' if lang=='en' else 'ত্রুটি শ্রেণি' }}</th>
+                <th class="num">{{ tr('dec.count') }}</th>
+                <th class="num">Ac</th>
+                <th class="num">Re</th>
+                <th class="right">{{ tr('dec.result') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in ['critical','major','minor'] %}
+              {% set lim = decision.class_limits[c] if c in decision.class_limits else None %}
+              <tr>
+                <td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
+                <td class="num bold mono">{{ decision.counts[c] }}</td>
+                <td class="num dim mono">{{ lim.ac if lim else '—' }}</td>
+                <td class="num dim mono">{{ lim.re if lim else '—' }}</td>
+                <td class="right">
+                  {% if lim %}
+                    {% if decision.counts[c] < lim.re %}
+                    <span class="badge badge-success">PASS</span>
+                    {% else %}
+                    <span class="badge badge-danger">FAIL</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="dim">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="pad-sm">
+          <div class="note" style="font-size:12px;margin:0">
+            {{ 'Deterministic rule: Only human-confirmed defects count. AI proposals never count. Multi-defect garments count per the sampling plan counting mode.' if lang=='en' else 'নির্ধারক নিয়ম: শুধুমাত্র মানুষ-নিশ্চিত ত্রুটি গণনা হয়। এআই প্রস্তাব কখনো গণনা হয় না।' }}
+          </div>
+        </div>
+      </div>
+
+      {# --- Reason Codes Breakdown (PRD §9.4 with bilingual Next Step) --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ tr('common.reasons') }}</h2>
+          <div class="right"><span class="mono small dim">{{ decision.engine_version }}</span></div>
+        </div>
+        <div class="pad-sm">
+          <div class="reason-grid">
+            {% for r in decision.reasons %}
+            <div class="reason-row">
+              <div class="reason-row-head">
+                <span class="mono">{{ r }}</span>
+                <b>{{ reasons.reason_title(r, lang) }}</b>
+              </div>
+              <p>{{ reasons.reason_text(r, lang) }}</p>
+              <div class="reason-row-next">
+                <span>{{ 'Next step' if lang=='en' else 'পরের ধাপ' }}:</span> {{ reasons.reason_next(r, lang) }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# --- Completeness & Evidence Integrity --- #}
+      <div class="card">
+        <div class="card-h">
+          <h2>{{ tr('dec.completeness') }}</h2>
+          <div class="right">{{ ui.ai_illustrative() }}</div>
+        </div>
+        <div class="pad-sm">
+          <div class="grid cols-3" style="gap:10px;margin-bottom:12px">
+            <div class="kpi" style="padding:10px">
+              <div class="lbl">{{ tr('common.units') }}</div>
+              <div class="n" style="font-size:18px">{{ decision.completeness.units_present }} / {{ decision.completeness.required_units }}</div>
+            </div>
+            <div class="kpi" style="padding:10px">
+              <div class="lbl">{{ 'Pending views' if lang=='en' else 'বাকি ভিউ' }}</div>
+              <div class="n" style="font-size:18px">{{ decision.completeness.views_pending }}</div>
+            </div>
+            <div class="kpi" style="padding:10px">
+              <div class="lbl">{{ 'Evidence errors' if lang=='en' else 'প্রমাণ ত্রুটি' }}</div>
+              <div class="n" style="font-size:18px">{{ decision.completeness.evidence_bad }}</div>
+            </div>
+          </div>
+
+          <div class="small dim" style="margin-top:8px">
+            <div><b>{{ 'Plan Assumption' if lang=='en' else 'প্ল্যান অনুমান' }}:</b> Normal inspection · Single sampling · General Level II (ISO 2859-1)</div>
+            <div style="margin-top:4px"><b>{{ 'Snapshot SHA-256' if lang=='en' else 'স্ন্যাপশট SHA-256' }}:</b> <span class="mono">{{ decision.snapshot_hash }}</span></div>
+          </div>
+        </div>
+      </div>

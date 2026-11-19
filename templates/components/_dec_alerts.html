@@ -1,0 +1,39 @@
+{# --- Alerts / Feedback Banners --- #}
+{% if ok == 'saved' %}
+<div class="toast is-success is-visible" role="status" style="margin-bottom:14px;position:static">
+  <span class="toast-icon">{{ icons.icon('circle-check', 18) }}</span>
+  <span>{{ 'Decision / override saved successfully.' if lang=='en' else 'সিদ্ধান্ত বা ওভাররাইড সফলভাবে সংরক্ষিত হয়েছে।' }}</span>
+</div>
+{% elif err == 'self_approval' %}
+<div class="error-state" role="alert" style="margin-bottom:14px">
+  <span class="error-icon">{{ icons.icon('shield-alert', 24) }}</span>
+  <div>
+    <b>{{ 'Self-Approval Refused (FR-OVR-003, BRL-19)' if lang=='en' else 'স্ব-অনুমোদন প্রত্যাখ্যাত' }}</b>
+    <p>{{ 'You cannot approve your own override. High-risk overrides (ACCEPT over system REJECT) require explicit approval by a different active Supervisor.' if lang=='en' else 'আপনি নিজের ওভাররাইড অনুমোদন করতে পারবেন না। উচ্চ-ঝুঁকির ওভাররাইডের জন্য ভিন্ন একজন সক্রিয় সুপারভাইজারের অনুমোদন আবশ্যক।' }}</p>
+  </div>
+</div>
+{% elif err == 'reason_short' %}
+<div class="error-state" role="alert" style="margin-bottom:14px">
+  <span class="error-icon">{{ icons.icon('alert-octagon', 24) }}</span>
+  <div>
+    <b>{{ 'Reason Too Short' if lang=='en' else 'কারণ অত্যন্ত সংক্ষিপ্ত' }}</b>
+    <p>{{ 'An override reason must be at least 20 characters of substantive explanation.' if lang=='en' else 'ওভাররাইডের জন্য কমপক্ষে ২০ অক্ষরের স্পষ্ট কারণ লিখতে হবে।' }}</p>
+  </div>
+</div>
+{% elif err == 'override_not_allowed' %}
+<div class="error-state" role="alert" style="margin-bottom:14px">
+  <span class="error-icon">{{ icons.icon('shield-alert', 24) }}</span>
+  <div>
+    <b>{{ 'Override Not Allowed' if lang=='en' else 'ওভাররাইড অনুমোদিত নয়' }}</b>
+    <p>{{ 'Only ACCEPT or REJECT outcomes are overridable. HOLD, ESCALATE, and decisions caused by failed critical non-visual checks cannot be overridden.' if lang=='en' else 'শুধু ACCEPT বা REJECT ওভাররাইড করা যায়। HOLD, ESCALATE এবং ব্যর্থ নন-ভিজ্যুয়াল চেকের সিদ্ধান্ত ওভাররাইড করা যায় না।' }}</p>
+  </div>
+</div>
+{% elif err == 'already_overridden' %}
+<div class="error-state" role="alert" style="margin-bottom:14px">
+  <span class="error-icon">{{ icons.icon('info', 24) }}</span>
+  <div>
+    <b>{{ 'Already Overridden' if lang=='en' else 'ইতিমধ্যে ওভাররাইড করা হয়েছে' }}</b>
+    <p>{{ 'This decision has already been overridden. To record a different outcome, reopen the lot and compute a new decision.' if lang=='en' else 'এই সিদ্ধান্তটি ইতিমধ্যে ওভাররাইড করা হয়েছে।' }}</p>
+  </div>
+</div>
+{% endif %}

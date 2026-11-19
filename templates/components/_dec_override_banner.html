@@ -1,0 +1,65 @@
+  {# --- Override & Approval Banner Card (if override exists) --- #}
+  {% if override %}
+  <div class="card" style="border:1.5px solid {% if override.status=='pending_approval' %}var(--amber-line){% else %}var(--green-line){% endif %}">
+    <div class="card-h">
+      <h2>{{ tr('dec.override') }}</h2>
+      <div class="right">
+        {% if override.status == 'pending_approval' %}
+        <span class="badge badge-warning"><span class="dot"></span>{{ 'HIGH RISK · PENDING APPROVAL' if lang=='en' else 'উচ্চ ঝুঁকি · অনুমোদন বাকি' }}</span>
+        {% else %}
+        <span class="badge badge-success"><span class="dot"></span>{{ 'EFFECTIVE' if lang=='en' else 'কার্যকর' }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="pad-sm">
+      <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <span class="small"><b>{{ 'Overriding Supervisor' if lang=='en' else 'ওভাররাইডকারী সুপারভাইজার' }}:</b> {{ override.supervisor }}</span>
+        <span class="small dim">· {{ override.created_at }}</span>
+        <span class="badge badge-neutral">Target: {{ override.final_disposition|replace('OVERRIDE_', '') }}</span>
+      </div>
+
+      <div class="note" style="margin-bottom:10px;background:var(--bg)">
+        <b>{{ 'Reason for human judgment' if lang=='en' else 'মানব বিচারের কারণ' }}:</b>
+        <p style="margin:4px 0 0;font-style:italic">"{{ override.reason }}"</p>
+      </div>
+
+      {% if override.status == 'pending_approval' %}
+        <div class="note warn" style="margin-bottom:10px">
+          {{ icons.icon('shield-alert', 15) }}
+          <span>{{ 'High-Risk Override: A deterministic REJECT was overridden to ACCEPT. This override remains non-effective and does NOT alter the lot disposition until approved by a DIFFERENT active Supervisor (FR-OVR-003, FR-OVR-007).' if lang=='en' else 'উচ্চ-ঝুঁকির ওভাররাইড: অন্য একজন সক্রিয় সুপারভাইজার অনুমোদন না করা পর্যন্ত চূড়ান্ত সিদ্ধান্ত পরিবর্তন হবে না।' }}</span>
+        </div>
+
+        {# Second Supervisor Action Form #}
+        {% if is_supervisor and override.supervisor_id != user.id %}
+        <div style="background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px;margin-top:8px">
+          <div class="small bold" style="margin-bottom:8px">{{ 'Second Supervisor Action' if lang=='en' else 'দ্বিতীয় সুপারভাইজারের সিদ্ধান্ত' }}:</div>
+          <form method="post" action="/overrides/{{ override.id }}/approval" class="row" style="gap:8px">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <button class="btn primary sm" name="decision" value="approved" type="submit">
+              {{ icons.icon('check', 14) }}<span>{{ 'Approve override' if lang=='en' else 'ওভাররাইড অনুমোদন' }}</span>
+            </button>
+            <button class="btn danger sm" name="decision" value="refused" type="submit">
+              {{ icons.icon('x', 14) }}<span>{{ 'Refuse override' if lang=='en' else 'ওভাররাইড প্রত্যাখ্যান' }}</span>
+            </button>
+          </form>
+        </div>
+        {% elif is_supervisor and override.supervisor_id == user.id %}
+        <div class="note info">
+          {{ icons.icon('lock', 14) }}
+          <span>{{ 'Self-approval forbidden (FR-OVR-003): You initiated this override. A different active Supervisor (e.g. Farhan or Ayesha) must sign in to review and approve.' if lang=='en' else 'স্ব-অনুমোদন নিষিদ্ধ: আপনি এই ওভাররাইড শুরু করেছেন। ভিন্ন একজন সুপারভাইজারকে অনুমোদন করতে হবে।' }}</span>
+        </div>
+        {% else %}
+        <div class="small dim">
+          {{ 'Awaiting review and approval by a Supervisor.' if lang=='en' else 'সুপারভাইজারের অনুমোদনের অপেক্ষায়।' }}
+        </div>
+        {% endif %}
+
+      {% elif override.approval %}
+        <div class="note {{ 'ok' if override.approval.decision=='approved' else 'bad' }}">
+          {{ icons.icon('check-circle' if override.approval.decision=='approved' else 'x-circle', 15) }}
+          <span><b>{{ 'Approved' if override.approval.decision=='approved' else 'Refused' }}</b> {{ 'by' if lang=='en' else 'দ্বারা' }} {{ override.approval.approver }} · {{ override.approval.created_at }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}

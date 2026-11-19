@@ -1,0 +1,55 @@
+  <div class="card" style="border-left:5px solid {% if decision.outcome=='ACCEPT' %}var(--green){% elif decision.outcome=='REJECT' %}var(--red){% elif decision.outcome=='HOLD' %}var(--amber){% else %}var(--blue){% endif %};padding:18px">
+    <div class="between" style="flex-wrap:wrap;gap:14px">
+      <div style="min-width:240px">
+        <div class="row" style="gap:8px;align-items:center;margin-bottom:4px">
+          <span class="small dim" style="letter-spacing:0.08em;text-transform:uppercase;font-weight:700">
+            {{ 'System recommendation' if lang=='en' else 'সিস্টেমের সুপারিশ' }} · #{{ decision.sequence }}
+          </span>
+          <span class="small dim">({{ decision.created_at }})</span>
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin-top:6px">
+          {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
+          {% if decision.manual_inspection %}
+          <span class="badge badge-warning" title="{{ 'Includes manual inspection results' if lang=='en' else 'ম্যানুয়াল ফলাফল অন্তর্ভুক্ত' }}">{{ tr('dec.manual') }}</span>
+          {% endif %}
+        </div>
+        <p class="small dim" style="margin:8px 0 0">
+          <b>{{ 'Primary reason' if lang=='en' else 'প্রধান কারণ' }}:</b>
+          <span class="mono">{{ decision.primary_reason }}</span> — {{ reasons.reason_title(decision.primary_reason, lang) }}
+        </p>
+      </div>
+
+      {# --- Final Disposition Display (PRD Two-Line Rule) --- #}
+      <div style="text-align:right;min-width:200px">
+        <div class="small dim" style="letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-bottom:4px">
+          {{ 'Final disposition' if lang=='en' else 'চূড়ান্ত সিদ্ধান্ত' }}
+        </div>
+        <div style="margin-top:4px">
+          {{ ui.decision_badge(final, tr('out.' ~ final)) }}
+        </div>
+        {% if override %}
+          {% if override.status == 'pending_approval' %}
+          <div class="small bold" style="color:var(--amber-ink);margin-top:6px">
+            {{ icons.icon('clock', 12) }} {{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}
+          </div>
+          {% else %}
+          <div class="small dim" style="margin-top:6px">
+            {{ icons.icon('check', 12) }} {{ tr('dec.overridden') }} ({{ 'effective' if lang=='en' else 'কার্যকর' }})
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if can_write %}
+    <div style="border-top:1px dashed var(--line);margin-top:14px;padding-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <form method="post" action="/lots/{{ lot.id }}/decisions" style="margin:0">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn sm subtle" type="submit">
+          {{ icons.icon('refresh-cw', 14) }}<span>{{ 'Recompute decision' if lang=='en' else 'পুনরায় গণনা' }}</span>
+        </button>
+      </form>
+      <span class="small dim">{{ 'Appends a new immutable decision row. Earlier rows are preserved in audit.' if lang=='en' else 'নতুন অপরিবর্তনীয় সারি যোগ হয়। আগের সব সারি অডিটে সংরক্ষিত থাকে।' }}</span>
+    </div>
+    {% endif %}
+  </div>
