@@ -29,4 +29,15 @@ def healthz():
 def readyz():
     db.one("SELECT 1")
     backend = detector.active_backend()
-    return JSONResponse({"ready": True, "detector": backend, "model": detector.MODEL_NAME})
+    trained = backend == "onnx"
+    # Report only what is actually scoring. A deployed build without the ONNX
+    # package must not look like the trained network is live.
+    return JSONResponse({
+        "ready": True,
+        "detector": backend,
+        "model": detector.MODEL_NAME if trained else None,
+        "weights_loaded": trained,
+        "threshold": detector.DEFAULT_THRESHOLD,
+        "note": "trained detector is serving" if trained else
+                "numpy baseline is serving; no trained weights in this build",
+    })

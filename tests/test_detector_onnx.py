@@ -46,3 +46,16 @@ def test_missing_artifact_falls_back_to_numpy(monkeypatch):
     monkeypatch.setenv("LOTLINE_DETECTOR", "auto")
     monkeypatch.setattr(detector, "ONNX_PATH", "data/models/does-not-exist.onnx")
     assert detector.active_backend() == "numpy"
+
+
+def test_readyz_does_not_claim_trained_weights_when_missing(monkeypatch):
+    """A hosted build without the ONNX file must not report a live trained model."""
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    monkeypatch.setattr(detector, "active_backend", lambda: "numpy")
+    payload = TestClient(app).get("/readyz").json()
+    assert payload["detector"] == "numpy"
+    assert payload["model"] is None
+    assert payload["weights_loaded"] is False
