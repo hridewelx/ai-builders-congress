@@ -124,7 +124,7 @@ export function LotsPage() {
                         <Link to={`/lots/${card.id}`} style={{ fontWeight: 700, color: "var(--text)", fontSize: 14, letterSpacing: "-0.015em" }}>{card.lot_code}</Link>
                         <div className="small dim" style={{ marginTop: 2, fontSize: 11.5 }}>{card.color}</div>
                       </td>
-                      <td><span style={{ fontWeight: 600, color: "#334155" }}>{card.buyer_name}</span></td>
+                      <td><span className="ink-soft" style={{ fontWeight: 600 }}>{card.buyer_name}</span></td>
                       <td className="muted" style={{ fontSize: 13 }}>{card.product_name}</td>
                       <td className="num mono" style={{ fontWeight: 600 }}>{num(card.lot_size, lang)}</td>
                       <td style={{ minWidth: 160 }}>

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "../lib/session";
 import { DemoTag, Dialog, Icon, IconButton } from "./ui";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV_GROUPS = [
   { key: "main", label: "" },
@@ -162,6 +163,7 @@ export function AppShell({
             <div className="sub">{subtitle}</div>
           </div>
           <div className="top-actions">
+            <ThemeToggle />
             <span className="top-demo"><DemoTag label={t("lot.demo_data")} /></span>
             <button className="lang-link" type="button" onClick={changeLang} aria-label="Switch language">
               <Icon name="languages" size={15} />

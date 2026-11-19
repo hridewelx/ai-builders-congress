@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "../lib/api";
 import { useSession } from "../lib/session";
 import { Icon } from "../components/ui";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 export function LoginPage() {
   const { authenticated, lang, t, login, demoLogin, setLang } = useSession();
@@ -95,10 +96,13 @@ export function LoginPage() {
         <div className="auth-card">
           <div className="between" style={{ marginBottom: 18 }}>
             <span className="pill"><span className="dot" aria-hidden="true" />{lang === "en" ? "Demo build · staged data" : "ডেমো বিল্ড · স্টেজ করা ডেটা"}</span>
-            <button className="lang-link" type="button" onClick={() => setLang(lang === "en" ? "bn" : "en")}>
-              <Icon name="languages" size={15} />
-              <span>{lang === "en" ? "বাংলা" : "English"}</span>
-            </button>
+            <span className="auth-controls">
+              <ThemeToggle />
+              <button className="lang-link" type="button" onClick={() => setLang(lang === "en" ? "bn" : "en")}>
+                <Icon name="languages" size={15} />
+                <span>{lang === "en" ? "বাংলা" : "English"}</span>
+              </button>
+            </span>
           </div>
 
           <h2 id="signin-title">{t("login.title")}</h2>

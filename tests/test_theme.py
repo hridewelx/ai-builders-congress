@@ -212,3 +212,41 @@ def test_theme_script_never_stores_anything_but_a_theme():
     stored_keys = set(re.findall(r"localStorage\.setItem\(\s*[A-Z_]+", script))
     assert stored_keys == {"localStorage.setItem(STORAGE_KEY"}
     assert "document.cookie" not in script
+
+
+# --------------------------------------------------------------------------
+# 4. the React shell uses the same chooser, not a second one
+# --------------------------------------------------------------------------
+FRONTEND = Path("frontend")
+
+
+def test_spa_resolves_the_theme_before_its_stylesheet():
+    index = (FRONTEND / "index.html").read_text(encoding="utf-8")
+    assert index.index("/static/theme.js") < index.index("/static/app.css")
+
+
+@pytest.mark.parametrize(
+    "page",
+    ["frontend/src/components/AppShell.tsx", "frontend/src/pages/LoginPage.tsx"],
+)
+def test_spa_pages_render_the_shared_toggle(page):
+    source = Path(page).read_text(encoding="utf-8")
+    assert "ThemeToggle" in source
+    assert "<ThemeToggle />" in source
+
+
+def test_spa_toggle_prevents_the_double_flip():
+    """Both the delegated listener and React must not toggle on one click."""
+    script = Path("static/theme.js").read_text(encoding="utf-8")
+    assert "event.defaultPrevented" in script
+    component = (FRONTEND / "src/components/ThemeToggle.tsx").read_text(encoding="utf-8")
+    assert "preventDefault()" in component
+    assert 'window.LotlineTheme?.set' in component
+
+
+def test_spa_has_no_hardcoded_page_colours():
+    offenders = []
+    for path in (FRONTEND / "src").rglob("*.tsx"):
+        source = path.read_text(encoding="utf-8")
+        offenders += [f"{path}:{m}" for m in re.findall(r'color:\s*"#[0-9a-fA-F]{6}"', source)]
+    assert offenders == []

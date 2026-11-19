@@ -2420,6 +2420,8 @@ textarea { min-height: 84px; resize: vertical; }
 /* in-progress keeps the navy disc, so its label stays white */
 :root[data-theme="dark"] .pipeline-step.is-in-progress .pipeline-dot { color: #ffffff; }
 :root[data-theme="dark"] .btn.danger { background: #b91c1c; border-color: #b91c1c; }
+:root[data-theme="dark"] .box.crit .tag,
+:root[data-theme="dark"] .box.major .tag { color: #0b1220; }
 
 :root[data-theme="dark"] ::selection { background: rgba(163, 230, 53, 0.3); color: #ffffff; }
 :root[data-theme="dark"] hr { border-color: var(--line); }

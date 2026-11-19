@@ -63,7 +63,13 @@
     }
   }
 
+  /* Pages that render their own button (the React shell) handle the click and
+     call preventDefault, so this delegated listener must stand down or the
+     theme flips twice and appears not to work at all. */
   document.addEventListener("click", function (event) {
+    if (event.defaultPrevented) {
+      return;
+    }
     var button = event.target.closest ? event.target.closest("[data-theme-toggle]") : null;
     if (!button) {
       return;
