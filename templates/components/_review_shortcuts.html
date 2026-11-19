@@ -1,0 +1,26 @@
+{# --- Keyboard Shortcuts Dialog --- #}
+<dialog class="dialog dialog-sm" id="shortcutsDialog" aria-labelledby="shortcutsDialog-title">
+  <div class="dialog-head">
+    <h2 id="shortcutsDialog-title">{{ 'Review Keyboard Shortcuts' if lang=='en' else 'কিবোর্ড শর্টকাট' }}</h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close">{{ icons.icon('x', 18) }}</button>
+  </div>
+  <div class="dialog-body">
+    <table class="table" style="font-size:12.5px;margin:0">
+      <thead>
+        <tr><th>{{ 'Key' if lang=='en' else 'কী' }}</th><th>{{ 'Action' if lang=='en' else 'কাজ' }}</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><kbd>+</kbd> / <kbd>=</kbd></td><td>{{ 'Zoom in' if lang=='en' else 'জুম ইন' }}</td></tr>
+        <tr><td><kbd>-</kbd> / <kbd>_</kbd></td><td>{{ 'Zoom out' if lang=='en' else 'জুম আউট' }}</td></tr>
+        <tr><td><kbd>0</kbd></td><td>{{ 'Reset zoom & pan' if lang=='en' else 'জুম রিসেট' }}</td></tr>
+        <tr><td><kbd>C</kbd></td><td>{{ 'Open confirm form for selected proposal' if lang=='en' else 'নির্বাচিত প্রস্তাব নিশ্চিত করণ ফর্ম' }}</td></tr>
+        <tr><td><kbd>X</kbd> / <kbd>R</kbd></td><td>{{ 'Reject selected proposal' if lang=='en' else 'প্রস্তাব বাতিল' }}</td></tr>
+        <tr><td><kbd>]</kbd> / <kbd>N</kbd></td><td>{{ 'Next view in queue' if lang=='en' else 'পরের ভিউ' }}</td></tr>
+        <tr><td><kbd>[</kbd></td><td>{{ 'Return to review queue' if lang=='en' else 'তালিকায় ফিরে যান' }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="dialog-actions">
+    <button class="btn sm primary" type="button" data-dialog-close>{{ 'Got it' if lang=='en' else 'বুঝেছি' }}</button>
+  </div>
+</dialog>

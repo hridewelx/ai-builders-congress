@@ -1,0 +1,133 @@
+  {# --- Right Column: Live Plan & Evidence Preview --- #}
+  <div class="stack">
+    <div class="card plan-preview-card" id="planPreviewCard"
+         data-lotsize="{{ lot.lot_size }}"
+         data-units-present="{{ evidence_summary.units_present if evidence_summary else (progress.units if progress else 0) }}"
+         data-required-units="{{ evidence_summary.required_units if evidence_summary else (progress.required_units if progress else 0) }}"
+         data-nonvisual-status="{{ lot.critical_nonvisual_status }}"
+         data-crit-defects="{{ evidence_summary.counts.critical if evidence_summary else 0 }}"
+         data-maj-defects="{{ evidence_summary.counts.major if evidence_summary else 0 }}"
+         data-min-defects="{{ evidence_summary.counts.minor if evidence_summary else 0 }}"
+         data-lang="{{ lang }}">
+      <div class="card-h">
+        <h2>{{ 'Live Plan & Evidence Preview' if lang=='en' else 'লাইভ প্ল্যান ও প্রমাণের পূর্বরূপ' }}</h2>
+        <div class="right">
+          {% if plan %}
+          <span class="badge badge-success" id="previewValidationBadge">{{ 'Valid single sampling' if lang=='en' else 'বৈধ সিঙ্গেল-স্যাম্পলিং' }}</span>
+          {% else %}
+          <span class="badge badge-danger" id="previewValidationBadge">{{ 'Not set' if lang=='en' else 'সেট করা হয়নি' }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        {# Metric Row: Sample vs Lot Size #}
+        {% set plan_cov_pct = ((plan.n / lot.lot_size * 100)|round|int) if (plan and lot.lot_size) else 0 %}
+        <div class="plan-preview-metric mb-3">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <span class="dim small">{{ 'Sample Coverage' if lang=='en' else 'নমুনা কভারেজ' }}</span>
+            <span class="metric-val mono bold" id="previewCoverage">
+              {% if plan %}{{ plan.n|num }} / {{ lot.lot_size|num_grouped }} ({{ plan_cov_pct|num }}%){% else %}--{% endif %}
+            </span>
+          </div>
+          <div class="progress-bar-track mt-1"><div class="progress-bar-fill {{ 'is-100' if (plan and plan.n >= lot.lot_size) }}" id="previewCoverageBar" style="width:{{ plan_cov_pct }}%"></div></div>
+          <div class="small dim mt-1" id="previewCoverageHint">
+            {% if plan %}
+              {{ ('লটের আকার ' ~ lot.lot_size|num_grouped ~ ' ইউনিটের মধ্যে ' ~ plan.n|num ~ ' ইউনিটের নমুনা') if lang=='bn' else ('Sample of ' ~ plan.n ~ ' garments from lot size ' ~ lot.lot_size) }}
+            {% else %}
+              {{ 'Sample size n vs Lot size' if lang=='en' else 'স্যাম্পল সাইজ n বনাম লট সাইজ' }}
+            {% endif %}
+          </div>
+        </div>
+
+        {# Limits Summary Table #}
+        <div class="preview-limits-box mb-3">
+          <div class="dim small bold mb-1">{{ 'Configured Class Limits' if lang=='en' else 'শ্রেণিভিত্তিক সীমা' }}</div>
+          <table class="table sm m-0" id="previewLimitsTable">
+            <tbody>
+              <tr>
+                <td class="dim">{{ tr('plan.critical') }}</td>
+                <td class="right mono bold" id="previewCrit">
+                  {% if plan %}Ac: {{ plan.critical_ac|num }} / Re: {{ plan.critical_re|num }}{% else %}--{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td class="dim">{{ tr('plan.major') }}</td>
+                <td class="right mono bold" id="previewMaj">
+                  {% if plan %}Ac: {{ plan.major_ac|num }} / Re: {{ plan.major_re|num }}{% else %}--{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td class="dim">{{ tr('plan.minor') }}</td>
+                <td class="right mono bold" id="previewMin">
+                  {% if plan %}Ac: {{ plan.minor_ac|num }} / Re: {{ plan.minor_re|num }}{% else %}--{% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {# Mode & Source Labels #}
+        <div class="preview-info-list small mb-3">
+          <div class="preview-info-item">
+            <span class="dim">{{ tr('plan.mode') }}:</span>
+            <span class="bold ms-1" id="previewMode">
+              {% if plan %}
+                {{ tr('plan.mode_highest') if plan.counting_mode == 'highest_class_only' else tr('plan.mode_every') }}
+              {% else %}--{% endif %}
+            </span>
+          </div>
+          <div class="preview-info-item mt-1">
+            <span class="dim">{{ 'Decision label' if lang=='en' else 'সিদ্ধান্তের লেবেল' }}:</span>
+            {% if plan and plan.is_demo %}
+            <span class="badge badge-warning ms-1" id="previewSourceLabel">{{ 'Unauthorized demo assumption' if lang=='en' else 'অননুমোদিত ডেমো অনুমান' }}</span>
+            {% elif plan and plan.source_edition %}
+            <span class="badge badge-neutral ms-1" id="previewSourceLabel">{{ plan.source_edition }}</span>
+            {% else %}
+            <span class="badge badge-neutral ms-1" id="previewSourceLabel">{{ 'Unauthorized assumption' if lang=='en' else 'অননুমোদিত অনুমান' }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Decision Forecast Given Current Evidence #}
+        {% set f_class = 'forecast-accept' if (decision and decision.outcome == 'ACCEPT') else ('forecast-reject' if (decision and decision.outcome == 'REJECT') else 'forecast-hold') %}
+        <div class="preview-forecast-box p-3 rounded {{ f_class }}" id="previewForecastBox">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span id="previewForecastIcon">{{ icons.icon('shield-alert', 16) }}</span>
+            <strong id="previewForecastTitle">
+              {% if not plan %}
+                {{ 'HOLD Forecast (Plan Not Set)' if lang=='en' else 'HOLD পূর্বাভাস (প্ল্যান সেট করা হয়নি)' }}
+              {% elif decision %}
+                {{ ('Predicted Decision: ' ~ tr('out.' ~ decision.outcome)) if lang=='en' else ('অনুমিত সিদ্ধান্ত: ' ~ tr('out.' ~ decision.outcome)) }}
+              {% else %}
+                {{ 'HOLD Forecast (No Evidence)' if lang=='en' else 'HOLD পূর্বাভাস (প্রমাণ নেই)' }}
+              {% endif %}
+            </strong>
+          </div>
+          <p class="small mb-0" id="previewForecastDesc">
+            {% if not plan %}
+              {{ 'No sampling plan is configured — decision engine will return HOLD_PLAN_MISSING.' if lang=='en' else 'কোনো স্যাম্পলিং প্ল্যান সেট করা হয়নি — সিদ্ধান্ত গণনা HOLD_PLAN_MISSING রিটার্ন করবে।' }}
+            {% elif decision %}
+              {{ (reason(decision.primary_reason) if reason else decision.primary_reason) }}
+            {% else %}
+              {{ '0 garments registered — will remain HOLD after saving: no evidence.' if lang=='en' else '০ গার্মেন্ট নিবন্ধিত — সংরক্ষণের পরও HOLD থাকবে: প্রমাণ নেই।' }}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {# --- Regulatory / Report Compliance Notice --- #}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ 'Audit & Report Compliance' if lang=='en' else 'অডিট ও রিপোর্ট নীতি' }}</h2>
+      </div>
+      <div class="pad-sm small dim">
+        <ul class="plan-compliance-list">
+          <li>{{ 'Plans are entered explicitly by a Supervisor; Lotline never suggests or guesses a plan.' if lang=='en' else 'সুপারভাইজার সরাসরি প্ল্যান লিখবেন; Lotline কখনো অনুমান করে না।' }}</li>
+          <li>{{ 'Sampling plan assumption label is embedded permanently in the decision snapshot and PDF certificate.' if lang=='en' else 'স্যাম্পলিং প্ল্যানের অনুমানের লেবেল সিদ্ধান্তে ও সার্টিফিকেটে স্থায়ীভাবে যুক্ত হয়।' }}</li>
+          <li>{{ 'Counting mode strictly determines how multi-defect garments count toward limits.' if lang=='en' else 'গণনার পদ্ধতি নির্ধারণ করে একাধিক ত্রুটিযুক্ত গার্মেন্ট কীভাবে সীমা প্রভাবিত করে।' }}</li>
+          <li>{{ 'Once a decision is computed, the lot plan is locked to preserve evidence integrity.' if lang=='en' else 'সিদ্ধান্ত নেওয়া হলে প্রমাণের নির্ভরযোগ্যতা রক্ষায় প্ল্যান লক হয়ে যায়।' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>

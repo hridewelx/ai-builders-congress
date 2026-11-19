@@ -1,0 +1,60 @@
+    {# --- Finish Image / Close View Card --- #}
+    {% if can_write %}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ 'Finish image review' if lang=='en' else 'ভিউ পর্যালোচনা শেষ করুন' }}</h2>
+      </div>
+      <div class="pad-sm">
+        {% set confirmed = preds|selectattr('review_state','equalto','confirmed')|list %}
+        {% set unanswered = preds|selectattr('review_state','equalto','proposed')|list %}
+
+        {% if unanswered %}
+        <div class="note warn" style="margin-bottom:12px" role="alert">
+          <b>{{ unanswered|length }} {{ 'proposal(s) still open' if lang=='en' else 'প্রস্তাব এখনও খোলা' }}</b> —
+          {{ 'Answer each one (confirm or reject) before you close the view. The engine refuses to guess.' if lang=='en' else 'ভিউ বন্ধ করার আগে প্রতিটি প্রস্তাব নিশ্চিত বা বাতিল করুন। ইঞ্জিন অনুমান করে না।' }}
+        </div>
+        {% endif %}
+
+        {% if status in ('failed', 'not_inferred') %}
+        <div class="note" style="margin-bottom:12px">
+          {{ icons.icon('info', 14) }}
+          <span>{{ 'Manual review mode: this view will be recorded as inspected by hand.' if lang=='en' else 'ম্যানুয়াল মোড: এই ভিউটি হাতে পরিদর্শন হিসেবে রেকর্ড হবে।' }}</span>
+        </div>
+        {% endif %}
+
+        <form method="post" action="/review/{{ image.id }}/state" class="stack" style="gap:10px">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+
+          <div class="field">
+            <label for="close-note">{{ tr('common.notes') }} <span class="dim">({{ tr('common.optional') }})</span></label>
+            <input id="close-note" name="note" value="{{ review.note if review else '' }}" placeholder="{{ 'e.g. Inspected under standard light' if lang=='en' else 'নোট লিখুন' }}">
+          </div>
+
+          <div class="btnrow" style="gap:8px;flex-wrap:wrap">
+            <button class="btn primary" name="state" value="confirmed_defects" type="submit"
+                    {{ 'disabled' if not confirmed or unanswered }}
+                    title="{{ 'Answer all proposals first' if unanswered else ('No defects confirmed' if not confirmed else '') }}">
+              {{ icons.icon('check-circle', 16) }}
+              <span>{{ 'Defects confirmed' if lang=='en' else 'ত্রুটি নিশ্চিত' }} ({{ confirmed|length }})</span>
+            </button>
+
+            <button class="btn {{ 'subtle' if not confirmed and not unanswered else 'ghost' }}" name="state" value="reviewed_clean" type="submit"
+                    {{ 'disabled' if confirmed or unanswered }}
+                    title="{{ 'Answer all proposals first' if unanswered else ('Cannot mark clean: defects are confirmed' if confirmed else '') }}">
+              {{ icons.icon('check', 16) }}
+              <span>{{ tr('rev.clean') }}</span>
+            </button>
+
+            <button class="btn danger" name="state" value="needs_retake" type="submit">
+              {{ icons.icon('camera', 16) }}
+              <span>{{ tr('rev.retake') }}</span>
+            </button>
+          </div>
+        </form>
+
+        <div class="small dim" style="margin-top:10px">
+          {{ tr('rev.severity_server') }}
+        </div>
+      </div>
+    </div>
+    {% endif %}

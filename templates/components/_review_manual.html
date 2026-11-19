@@ -1,0 +1,61 @@
+    {# --- Manual Defect Placement Card --- #}
+    {% if can_write %}
+    <div class="card" id="manualAddCard">
+      <div class="card-h">
+        <h2>{{ tr('rev.add') }}</h2>
+        <div class="right"><span class="small dim">{{ 'Click photo to position box' if lang=='en' else 'ছবিতে ক্লিক করে অবস্থান দিন' }}</span></div>
+      </div>
+      <div class="pad-sm">
+        <form method="post" action="/review/{{ image.id }}/add" id="addForm">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <input type="hidden" name="cx" id="cx" value="0.5">
+          <input type="hidden" name="cy" id="cy" value="0.5">
+
+          <div class="grid cols-3" style="gap:10px;margin-bottom:10px">
+            <div class="field" style="margin:0">
+              <label for="add-type">{{ tr('rev.type') }}</label>
+              <select id="add-type" name="defect_type" required aria-describedby="add-type-note">
+                {% for t in ['hole','dropped_stitch','skipped_stitch','needle_line','oil_stain','shade_band','other'] %}
+                <option value="{{ t }}">{{ tr('type.' ~ t) }}</option>
+                {% endfor %}
+              </select>
+              <p id="add-type-note" class="small dim" style="margin:4px 0 0">{{ tr('rev.manual_classes') }} {{ tr('rev.approx_mapping') }} {{ tr('rev.other_class') }}</p>
+            </div>
+
+            <div class="field" style="margin:0">
+              <label for="add-zone">{{ tr('rev.zone') }}</label>
+              <select id="add-zone" name="zone" required>
+                {% for z in zones %}
+                <option value="{{ z }}">{{ 'Zone' if lang=='en' else 'জোন' }} {{ z }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field" style="margin:0">
+              <label for="add-band">{{ tr('rev.size_band') }} <span class="dim">({{ tr('common.optional') }})</span></label>
+              <input id="add-band" name="size_band" placeholder="e.g. XL">
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:10px">
+            <label class="check" style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+              <input type="checkbox" name="second_opinion" value="1" style="width:auto;margin:0">
+              <span>{{ 'Possible critical — request second opinion from Supervisor' if lang=='en' else 'সম্ভাব্য ক্রিটিক্যাল — দ্বিতীয় মত চাওয়া হচ্ছে' }}</span>
+            </label>
+          </div>
+
+          <div class="field" style="margin-bottom:10px">
+            <label for="add-note">{{ tr('common.notes') }} <span class="dim">({{ tr('common.optional') }})</span></label>
+            <input id="add-note" name="note" placeholder="{{ 'e.g. Discovered during visual pass near collar' if lang=='en' else 'নোট লিখুন' }}">
+          </div>
+
+          <div class="note info" style="margin-bottom:12px">
+            {{ icons.icon('shield-alert', 14) }}
+            <span>{{ tr('rev.severity_server') }}</span>
+          </div>
+
+          <button class="btn primary sm" type="submit">{{ icons.icon('plus', 14) }}<span>{{ tr('common.save') }}</span></button>
+        </form>
+      </div>
+    </div>
+    {% endif %}

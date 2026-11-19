@@ -1,0 +1,11 @@
+    {# --- Navigation Card --- #}
+    <div class="card">
+      <div class="card-h"><h2>{{ 'Navigation' if lang=='en' else 'নেভিগেশন' }}</h2></div>
+      <div class="pad-sm btnrow" style="gap:8px;flex-wrap:wrap">
+        <a class="btn sm ghost" href="/lots/{{ lot.id }}/review">{{ icons.icon('arrow-left', 14) }}<span>{{ tr('rev.queue') }}</span></a>
+        {% if next_item %}
+        <a class="btn sm primary" href="/review/{{ next_item.view.image.id }}"><span>{{ 'Next photo' if lang=='en' else 'পরের ছবি' }}</span>{{ icons.icon('arrow-right', 14) }}</a>
+        {% endif %}
+        <a class="btn sm ghost" href="/lots/{{ lot.id }}">{{ icons.icon('grid', 14) }}<span>{{ tr('lot.overview') }}</span></a>
+      </div>
+    </div>

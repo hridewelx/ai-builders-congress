@@ -1,0 +1,95 @@
+{# --- Canonical Pipeline Stepper (Gate: Sampling Plan + 4 Real-Data Steps) --- #}
+{% set all_views = units|map(attribute='views')|sum(start=[]) if units else [] %}
+{% set images_with_photo = all_views|selectattr('image')|list %}
+{% set pending_inferred = images_with_photo|selectattr('inference_status','equalto','pending')|list %}
+{% set ok_inferred = images_with_photo|selectattr('inference_status','equalto','ok')|list %}
+{% set manual_inferred = images_with_photo|selectattr('inference_status','in',['failed','not_inferred'])|list %}
+
+{# Gate: Sampling Plan #}
+{% if plan %}
+  {% set gate_state = 'done' %}
+  {% set gate_val = ('v' ~ plan.version|num ~ ' · n=' ~ plan.n|num) %}
+  {% set gate_title = '' %}
+{% else %}
+  {% set gate_state = 'blocked' %}
+  {% set gate_val = ('No sampling plan' if lang=='en' else 'স্যাম্পলিং প্ল্যান নেই') %}
+  {% set gate_title = 'HOLD_PLAN_MISSING' %}
+{% endif %}
+
+{# Step 1: Photo Capture #}
+{% set total_needed_views = progress.views if (progress and progress.views) else (plan.n * 2 if plan else lot.lot_size * 2) %}
+{% if not images_with_photo %}
+  {% set cap_state = 'not-started' %}
+  {% set cap_val = ('0 / ' ~ total_needed_views|num ~ ' photos') if lang=='en' else ('০ / ' ~ total_needed_views|num ~ ' ছবি') %}
+{% elif images_with_photo|length >= total_needed_views and total_needed_views > 0 %}
+  {% set cap_state = 'done' %}
+  {% set cap_val = (images_with_photo|length|num ~ ' / ' ~ total_needed_views|num ~ ' photos') if lang=='en' else (images_with_photo|length|num ~ ' / ' ~ total_needed_views|num ~ ' ছবি') %}
+{% else %}
+  {% set cap_state = 'in-progress' %}
+  {% set cap_val = (images_with_photo|length|num ~ ' / ' ~ total_needed_views|num ~ ' photos') if lang=='en' else (images_with_photo|length|num ~ ' / ' ~ total_needed_views|num ~ ' ছবি') %}
+{% endif %}
+
+{# Step 2: AI Proposals / Detection #}
+{% if not images_with_photo %}
+  {% set ai_state = 'not-started' %}
+  {% set ai_val = tr('pipe.awaiting_photos') %}
+{% elif pending_inferred %}
+  {% set ai_state = 'in-progress' %}
+  {% set ai_val = (pending_inferred|length|num ~ ' queued') if lang=='en' else (pending_inferred|length|num ~ ' প্রক্রিয়াধীন') %}
+{% else %}
+  {% set ai_state = 'done' %}
+  {% set ai_val = (ok_inferred|length|num ~ ' ok · ' ~ manual_inferred|length|num ~ ' manual') if lang=='en' else (ok_inferred|length|num ~ ' সফল · ' ~ manual_inferred|length|num ~ ' ম্যানুয়াল') %}
+{% endif %}
+
+{# Step 3: Human Review #}
+{% set rev_views = progress.reviewed if progress else 0 %}
+{% set total_views_to_rev = progress.views if progress else total_needed_views %}
+{% if not images_with_photo or total_views_to_rev == 0 %}
+  {% set rev_state = 'not-started' %}
+  {% set rev_val = tr('pipe.awaiting_photos') %}
+{% elif rev_views == total_views_to_rev and total_views_to_rev > 0 %}
+  {% set rev_state = 'done' %}
+  {% set rev_val = (rev_views|num ~ ' / ' ~ total_views_to_rev|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
+{% else %}
+  {% set rev_state = 'in-progress' %}
+  {% set rev_val = (rev_views|num ~ ' / ' ~ total_views_to_rev|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
+{% endif %}
+
+{# Step 4: Decision Engine #}
+{% if not plan %}
+  {% set dec_state = 'blocked' %}
+  {% set dec_val = ('No sampling plan' if lang=='en' else 'স্যাম্পলিং প্ল্যান নেই') %}
+  {% set dec_title = 'HOLD_PLAN_MISSING' %}
+{% elif lot.status == 'decided' %}
+  {% set dec_state = 'done' %}
+  {% set dec_val = tr('out.' ~ decision.outcome) if decision else ('Decided' if lang=='en' else 'সিদ্ধান্ত হয়েছে') %}
+  {% set dec_title = decision.primary_reason if decision else '' %}
+{% elif decision %}
+  {% if decision.outcome == 'HOLD' %}
+    {% set dec_state = 'blocked' %}
+    {% set dec_val = reason(decision.primary_reason) if reason else decision.primary_reason %}
+    {% set dec_title = decision.primary_reason %}
+  {% elif decision.outcome == 'ESCALATE' %}
+    {% set dec_state = 'in-progress' %}
+    {% set dec_val = tr('out.ESCALATE') %}
+    {% set dec_title = decision.primary_reason %}
+  {% else %}
+    {% set dec_state = 'done' %}
+    {% set dec_val = tr('out.' ~ decision.outcome) %}
+    {% set dec_title = decision.primary_reason %}
+  {% endif %}
+{% else %}
+  {% set dec_state = 'not-started' %}
+  {% set dec_val = tr('pipe.ready_to_compute') if rev_state == 'done' else tr('pipe.awaiting_review') %}
+  {% set dec_title = '' %}
+{% endif %}
+
+{% set pipe_steps = [
+  {'label': ('Gate: Sampling Plan' if lang=='en' else 'গেট: স্যাম্পলিং প্ল্যান'), 'value': gate_val, 'title': gate_title, 'state': gate_state},
+  {'label': ('1. Photo Capture' if lang=='en' else '১. ছবি ধারণ'), 'value': cap_val, 'state': cap_state},
+  {'label': ('2. AI Proposals' if lang=='en' else '২. এআই প্রস্তাব'), 'value': ai_val, 'state': ai_state},
+  {'label': ('3. Human Review' if lang=='en' else '৩. মানুষ নিশ্চিত করে'), 'value': rev_val, 'state': rev_state},
+  {'label': ('4. Decision Engine' if lang=='en' else '৪. ইঞ্জিনের সিদ্ধান্ত'), 'value': dec_val, 'title': dec_title, 'state': dec_state}
+] %}
+
+{{ ui.pipeline_stepper(pipe_steps) }}

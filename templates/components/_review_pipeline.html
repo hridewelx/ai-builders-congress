@@ -1,0 +1,118 @@
+{# --- Pipeline Stepper --- #}
+{% if status == 'ok' %}
+  {% set ai_state = 'done' %}
+  {% set ai_val = 'Inferred (' ~ preds|length ~ ' proposals)' if lang=='en' else 'ইনফারেন্স হয়েছে (' ~ preds|length ~ ' প্রস্তাব)' %}
+{% elif status in ('failed', 'not_inferred') %}
+  {% set ai_state = 'active' %}
+  {% set ai_val = 'Manual review' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা' %}
+{% elif status == 'pending' %}
+  {% set ai_state = 'active' %}
+  {% set ai_val = 'Queued' if lang=='en' else 'প্রক্রিয়াধীন' %}
+{% else %}
+  {% set ai_state = 'pending' %}
+  {% set ai_val = 'Not inferred' if lang=='en' else 'ইনফারেন্স হয়নি' %}
+{% endif %}
+
+{% if review and review.state in ('confirmed_defects', 'reviewed_clean') %}
+  {% set rev_state = 'done' %}
+  {% set rev_val = review.state|replace('_', ' ')|capitalize %}
+{% elif review and review.state == 'needs_retake' %}
+  {% set rev_state = 'failed' %}
+  {% set rev_val = tr('rev.retake') %}
+{% else %}
+  {% set rev_state = 'active' %}
+  {% set rev_val = 'In review' if lang=='en' else 'পর্যালোচনাধীন' %}
+{% endif %}
+
+{% set pipe_steps = [
+  {'label': '1. AI Detection' if lang=='en' else '১. এআই শনাক্তকরণ', 'value': ai_val, 'state': ai_state},
+  {'label': '2. Human Review' if lang=='en' else '২. মানুষ পর্যালোচনা', 'value': rev_val, 'state': rev_state},
+  {'label': '3. Decision Engine' if lang=='en' else '৩. নির্ধারক ইঞ্জিন', 'value': (tr('common.status') ~ ': ' ~ lot.status), 'state': ('done' if lot.status=='decided' else 'pending')}
+] %}
+
+{{ ui.pipeline_stepper(pipe_steps) }}
+
+{# --- Image Progress Header & Action Bar --- #}
+<div class="card" style="margin-bottom:14px">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div class="row" style="gap:10px;align-items:center">
+      <span class="badge badge-neutral bold" style="font-size:13px">{{ view.garment_code }}</span>
+      <span class="badge badge-lime">{{ tr('cap.' ~ view.side) }}</span>
+      {% if review %}
+        {% if review.state == 'confirmed_defects' %}
+        <span class="badge badge-danger"><span class="dot"></span>{{ 'Defects confirmed' if lang=='en' else 'ত্রুটি নিশ্চিত' }}</span>
+        {% elif review.state == 'reviewed_clean' %}
+        <span class="badge badge-success"><span class="dot"></span>{{ 'Reviewed clean' if lang=='en' else 'পরিষ্কার পর্যালোচিত' }}</span>
+        {% elif review.state == 'needs_retake' %}
+        <span class="badge badge-warning"><span class="dot"></span>{{ tr('rev.retake') }}</span>
+        {% endif %}
+      {% else %}
+        <span class="badge badge-pending"><span class="dot"></span>{{ 'Unreviewed' if lang=='en' else 'পর্যালোচনা হয়নি' }}</span>
+      {% endif %}
+    </div>
+
+    <div class="row" style="gap:8px;align-items:center">
+      <button class="btn sm ghost" type="button" data-dialog-open="shortcutsDialog" title="{{ 'Keyboard shortcuts' if lang=='en' else 'কিবোর্ড শর্টকাট' }}">
+        {{ icons.icon('command', 14) }}<span>{{ 'Shortcuts' if lang=='en' else 'শর্টকাট' }}</span>
+      </button>
+      <a class="btn sm ghost" href="/lots/{{ lot.id }}/review">{{ icons.icon('list', 14) }}<span>{{ tr('rev.queue') }}</span></a>
+      {% if next_item %}
+      <a class="btn sm primary" href="/review/{{ next_item.view.image.id }}">
+        <span>{{ 'Next photo' if lang=='en' else 'পরের ছবি' }}</span>{{ icons.icon('chevron-right', 14) }}
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# --- Top KPI Summary Bar --- #}
+<div class="grid cols-4" style="margin-bottom:14px">
+  <div class="kpi">
+    <div class="lbl">{{ 'Detector' if lang=='en' else 'ডিটেক্টর' }}</div>
+    <div style="margin-top:8px">
+      {% if status == 'ok' %}
+      <span class="badge badge-success"><span class="dot"></span>{{ 'Inferred' if lang=='en' else 'ইনফারেন্স সম্পন্ন' }}</span>
+      {% elif status in ('failed', 'not_inferred') %}
+      <span class="badge badge-warning" title="{{ 'Detector unavailable. Manual inspection is active.' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা সক্রিয়' }}"><span class="dot"></span>{{ 'Manual review' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা' }}</span>
+      {% elif status == 'pending' %}
+      <span class="badge badge-pending"><span class="dot"></span>{{ 'Queued' if lang=='en' else 'প্রক্রিয়াধীন' }}</span>
+      {% else %}
+      <span class="badge badge-neutral">{{ tr('cap.not_inferred') }}</span>
+      {% endif %}
+    </div>
+    {% if job and job.model_version %}<div class="meta" style="margin-top:4px">{{ job.model_version }}</div>{% endif %}
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">{{ 'Proposals' if lang=='en' else 'প্রস্তাব' }}</div>
+    <div class="n">{{ preds|length }}</div>
+    <div class="meta" style="margin-top:4px">
+      {{ preds|selectattr('review_state','equalto','confirmed')|list|length }} {{ 'confirmed' if lang=='en' else 'নিশ্চিত' }} ·
+      {{ preds|selectattr('review_state','equalto','rejected')|list|length }} {{ 'rejected' if lang=='en' else 'বাতিল' }}
+    </div>
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">{{ 'Review state' if lang=='en' else 'পর্যালোচনা অবস্থা' }}</div>
+    <div style="margin-top:8px">
+      {% if review %}
+        {% if review.state == 'confirmed_defects' %}
+        <span class="badge badge-danger"><span class="dot"></span>{{ 'Confirmed defects' if lang=='en' else 'ত্রুটি নিশ্চিত' }}</span>
+        {% elif review.state == 'reviewed_clean' %}
+        <span class="badge badge-success"><span class="dot"></span>{{ 'Clean (no defects)' if lang=='en' else 'পরিষ্কার' }}</span>
+        {% elif review.state == 'needs_retake' %}
+        <span class="badge badge-warning"><span class="dot"></span>{{ tr('rev.retake') }}</span>
+        {% endif %}
+      {% else %}
+      <span class="badge badge-pending"><span class="dot"></span>{{ 'Pending review' if lang=='en' else 'পর্যালোচনা বাকি' }}</span>
+      {% endif %}
+    </div>
+    {% if review and review.reviewer %}<div class="meta" style="margin-top:4px">{{ review.reviewer }}</div>{% endif %}
+  </div>
+
+  <div class="kpi">
+    <div class="lbl">{{ 'Evidence (working copy)' if lang=='en' else 'প্রমাণ (ওয়ার্কিং কপি)' }}</div>
+    <div class="small mono dim" style="margin-top:9px">{{ image.sha256_working[:18] }}…</div>
+    <div class="meta" style="margin-top:4px">{{ image.width }}×{{ image.height }} px · {{ (image.bytes/1024)|round(0)|int }} KB</div>
+  </div>
+</div>

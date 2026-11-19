@@ -1,0 +1,38 @@
+{# --- Alerts / Feedback --- #}
+{% if ok == 'saved' %}
+<div class="toast is-success is-visible plan-success-banner mb-3" role="status">
+  <span class="toast-icon">{{ icons.icon('circle-check', 22) }}</span>
+  <div class="plan-success-copy">
+    <strong>{{ 'Sampling plan saved successfully.' if lang=='en' else 'স্যাম্পলিং প্ল্যান সফলভাবে সংরক্ষিত হয়েছে।' }}</strong>
+    <p class="small dim mb-0">
+      {{ 'Plan version v' ~ (plan.version if plan else 1)|num ~ ' is active and audit-logged. You can now proceed to garment review or compute decision.' if lang=='en' else 'প্ল্যান সংস্করণ v' ~ (plan.version if plan else 1)|num ~ ' সক্রিয় করা হয়েছে এবং অডিট লগে সংরক্ষিত হয়েছে। এখন গার্মেন্ট পর্যালোচনা বা সিদ্ধান্ত গণনা করতে পারেন।' }}
+    </p>
+  </div>
+  <div class="plan-success-cta">
+    <a href="/lots/{{ lot.id }}/decision" class="btn primary sm">
+      {{ icons.icon('clipboard-check', 14) }}
+      <span>{{ 'Compute Decision' if lang=='en' else 'সিদ্ধান্ত গণনা করুন' }}</span>
+    </a>
+  </div>
+</div>
+{% elif errors %}
+<div class="error-state plan-error-summary mb-3" role="alert" id="errorSummary" tabindex="-1">
+  <span class="error-icon">{{ icons.icon('alert-octagon', 24) }}</span>
+  <div>
+    <b>{{ 'Validation Error: Please correct the following issues' if lang=='en' else 'যাচাইকরণ ত্রুটি: অনুগ্রহ করে নিচের বিষয়গুলো সংশোধন করুন' }}</b>
+    <ul class="error-list">
+      {% for field, msg in errors.items() %}
+      <li>{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% elif err == 'invalid' %}
+<div class="error-state plan-error-summary mb-3" role="alert" id="errorSummary" tabindex="-1">
+  <span class="error-icon">{{ icons.icon('alert-octagon', 24) }}</span>
+  <div>
+    <b>{{ 'Invalid Sampling Plan' if lang=='en' else 'অবৈধ স্যাম্পলিং প্ল্যান' }}</b>
+    <p>{{ tr('plan.invalid') }}</p>
+  </div>
+</div>
+{% endif %}

@@ -1,0 +1,37 @@
+{# --- Error & Banner States --- #}
+{% if err == 'review_first' %}
+<div class="note warn" style="margin-bottom:14px" role="alert">
+  <b>{{ 'Open proposals remaining' if lang=='en' else 'উন্মুক্ত প্রস্তাব রয়েছে' }}</b>:
+  {{ 'Please confirm or reject every proposal before closing this view. The decision engine requires explicit confirmation.' if lang=='en' else 'ভিউ বন্ধ করার আগে প্রতিটি প্রস্তাব নিশ্চিত বা বাতিল করুন। নির্ধারক ইঞ্জিন সুনির্দিষ্ট নিশ্চিতকরণ দাবি করে।' }}
+</div>
+{% elif err == 'no_defects' %}
+<div class="note warn" style="margin-bottom:14px" role="alert">
+  {{ 'Cannot mark "Confirmed defects" with zero confirmed proposals. If clean, select "Reviewed clean".' if lang=='en' else 'কোনো ত্রুটি নিশ্চিত না করে "ত্রুটি নিশ্চিত" চিহ্নিত করা যাবে না।' }}
+</div>
+{% elif err == 'has_defects' %}
+<div class="note warn" style="margin-bottom:14px" role="alert">
+  {{ 'Cannot mark "Reviewed clean" while defects are confirmed. Reject or delete confirmed defects first.' if lang=='en' else 'ত্রুটি নিশ্চিত থাকা অবস্থায় "পরিষ্কার" চিহ্নিত করা যাবে না।' }}
+</div>
+{% endif %}
+
+{% if job and job.status == 'failed' %}
+<div class="error-state" style="margin-bottom:14px" role="alert">
+  <span class="error-icon" aria-hidden="true">{{ icons.icon('alert-octagon', 24) }}</span>
+  <div>
+    <b>{{ tr('cap.not_inferred') }}</b>
+    <p>{{ 'Zero proposals is not a pass. The detector was unavailable or failed; manual review is active and valid. Review the photo by hand, click the garment to add defects, and mark the view.' if lang=='en' else 'শূন্য প্রস্তাব মানে পাস নয়। ডিটেক্টর অনুপলব্ধ ছিল; ম্যানুয়াল পর্যালোচনা সক্রিয়। হাতে ছবি দেখে চিহ্নিত করুন।' }}</p>
+    {% if job.error %}<div class="mono small" style="margin-bottom:9px;color:var(--text-sec)">{{ job.error }}</div>{% endif %}
+    {% if can_write %}
+    <form method="post" action="/images/{{ image.id }}/infer" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="btn sm" type="submit">{{ icons.icon('refresh-cw', 14) }}<span>{{ tr('cap.infer') }}</span></button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% elif not preds %}
+<div class="note warn" style="margin-bottom:14px">
+  <b>{{ tr('rev.no_proposals') }}</b>
+  <p class="small dim" style="margin:3px 0 0">{{ 'Zero proposals is not a pass. Inspect the photo carefully. If you find defects, click the photo to place a box.' if lang=='en' else 'শূন্য প্রস্তাব মানে পাস নয়। ছবিটি সতর্কভাবে দেখুন। ত্রুটি থাকলে ক্লিক করে বক্স বসান।' }}</p>
+</div>
+{% endif %}
