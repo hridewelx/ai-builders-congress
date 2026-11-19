@@ -65,6 +65,18 @@ STAGES: dict[str, dict] = {
         "steps": [["-m", "ml.export_onnx"], ["-m", "ml.verify_runtime", "--split", "val"]],
         "outputs": ["data/models/det_v2.onnx", "data/models/runtime_parity_v2.json"],
     },
+    "external_eval": {
+        "about": ("score a second factory's consented photos as their own domain; "
+                  "run it only after ml.import_consented has produced the dataset"),
+        "steps": [["-m", "ml.evaluate", "--data", "data/dataset/ext_v1", "--split", "test",
+                   "--out", "data/models/eval_external.json",
+                   "--card", "data/models/EXTERNAL_CARD.md",
+                   "--card-json", "data/models/model_card_external.json",
+                   "--parity", "data/models/no-parity-for-this-domain.json",
+                   "--integrity", "data/models/no-integrity-for-this-domain.json",
+                   "--leakage", "data/models/no-leakage-for-this-domain.json"]],
+        "outputs": ["data/models/eval_external.json"],
+    },
     "package": {
         "about": "zip the artifacts with a manifest a host can verify",
         "steps": [["scripts/package_model.py"]],
