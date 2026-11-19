@@ -53,9 +53,12 @@
     <div class="pad-sm">
       <table class="table" style="font-size:12.5px">
         <tbody>
-          <tr><td class="dim">Model</td><td class="right mono">{{ card.get('model', 'ae-knit-v1') }}</td></tr>
-          <tr><td class="dim">Training data</td><td class="right">{{ card.get('training', '—') }}</td></tr>
-          <tr><td class="dim">Labels used</td><td class="right">none (unsupervised)</td></tr>
+          <tr><td class="dim">Seeded history</td><td class="right mono">{{ card.get('model', 'ae-knit-v1') }}</td></tr>
+          <tr><td class="dim">Labels (seeded)</td><td class="right">{{ card.get('labels', 'none (unsupervised)') }}</td></tr>
+          <tr><td class="dim">Seeded training</td><td class="right">{{ card.get('training', '—') }}</td></tr>
+          <tr><td class="dim">Live uploads</td><td class="right mono">{{ card.get('live_model', 'same as seeded') }}</td></tr>
+          <tr><td class="dim">Labels (live)</td><td class="right">{{ card.get('live_labels', 'none') }}</td></tr>
+          <tr><td class="dim">Live training</td><td class="right">{{ card.get('live_training', '—') }}</td></tr>
           <tr><td class="dim">Calibration</td><td class="right" style="color:var(--amber)">{{ card.get('calibration', 'none') }}</td></tr>
           <tr><td class="dim">Evaluation domain</td><td class="right">{{ card.get('domains', '—') }}</td></tr>
           <tr><td class="dim">Runtime</td><td class="right">{{ card.get('device', '—') }}</td></tr>

@@ -126,9 +126,10 @@ proposal on `LT-2026-019`).
 **"Is the model accurate?"**
 Unknown off the staged set, and we say so on screen. It is an unsupervised
 anomaly detector trained on clean synthetic knit only, evaluated on staged
-panels: 100 % localisation at IoU ≥ 0.05 with 1 false-positive view in 20 clean
-views. Factory precision/recall must be measured before any production claim —
-that is the next milestone, not a slide.
+panels: 100 % localisation in the staged smoke test at IoU ≥ 0.05, with 1
+false-positive view in 20 clean views. That threshold is a smoke test, not the
+detector's 0.5 IoU evaluation. Factory precision/recall must be measured before
+any production claim — that is the next milestone, not a slide.
 
 **"What stops the AI approving a bad lot?"**
 Architecture. The engine cannot import a model; a test parses its AST to prove
@@ -179,8 +180,9 @@ append-only audit log. Bangla and English. CPU only.
 uncalibrated, staged-data evaluation, no fabricated AQL table. (5) Bangla-first
 for the 4M-worker RMG inspection workforce.
 
-**Traction evidence in the build.** Six seeded lots covering five distinct
-outcomes; 70 staged photos; 32 model proposals; 31 human review decisions;
+**Traction evidence in the build.** Six seeded lots covering four distinct
+outcomes (ACCEPT, REJECT, HOLD, ESCALATE) and six reason codes; 70 staged photos;
+32 baseline model proposals; 30 reviewed predictions (4 confirmed, 26 rejected);
 180+ audit events; 36 deterministic engine tests passing in 40 ms; working PDF.
 
 **Market.** Bangladesh RMG: 4,000+ factories, 4M+ workers, ~80 % of export
