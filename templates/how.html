@@ -198,6 +198,17 @@
               {% else %}—{% endif %}
             </td>
           </tr>
+          {% set rel = card.get('live_reliability') or {} %}
+          <tr>
+            <th scope="row" class="dim-col">{{ 'Score reliability' if lang=='en' else 'স্কোর নির্ভরযোগ্যতা' }}</th>
+            <td class="val-col">
+              {% if rel.get('ece') is not none %}
+                ECE <strong>{{ rel.get('ece') }}</strong> {{ 'on' if lang=='en' else '' }} {{ rel.get('detections') }} {{ 'validation detections' if lang=='en' else 'ভ্যালিডেশন ডিটেকশন' }}
+                {% if rel.get('top_band') %} · {{ rel['top_band']['bin'] }}: {{ rel['top_band']['measured_precision'] }} {{ 'matched' if lang=='en' else 'মিলেছে' }}{% endif %}
+                — {{ 'a score is a ranking, not a probability' if lang=='en' else 'স্কোর একটি র‍্যাঙ্কিং, সম্ভাবনা নয়' }}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
           <tr>
             <th scope="row" class="dim-col">{{ tr('how.calibration') }}</th>
             <td class="val-col text-warning-contrast">{{ card.get('calibration', 'none — raw reconstruction error scores') if lang=='en' else (card.get('calibration') or 'কোনোটি নয় — স্কোর অপরিমাপিত') }}</td>

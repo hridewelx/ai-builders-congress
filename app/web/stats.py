@@ -37,7 +37,7 @@ def load_model_card() -> dict:
     if live and trained:
         for key in ("live_model", "live_labels", "live_training", "live_domains",
                     "live_device", "live_calibration", "live_threshold",
-                    "live_evaluation", "live_parity"):
+                    "live_evaluation", "live_parity", "live_reliability"):
             if trained.get(key) is not None:
                 card[key] = trained[key]
         card["live_sha256"] = (trained.get("artifacts") or {}).get("onnx_sha256") or ""

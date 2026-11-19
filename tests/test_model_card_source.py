@@ -86,3 +86,23 @@ def test_without_the_generated_card_the_page_still_renders(monkeypatch, tmp_path
     monkeypatch.setattr(detector, "available", lambda: False)
     merged = stats.load_model_card()
     assert merged["live_model"] == "not enabled (numpy baseline)"
+
+
+def test_reliability_reaches_the_page(monkeypatch, tmp_path, artefacts):
+    """The page must say a score is a ranking, with the measured ECE behind it."""
+    metrics, parity, checkpoint = artefacts
+    reliability = {"ece": 0.1346, "detections": 85, "split": "val",
+                   "bins": [{"bin": "0.95-1.00", "count": 39, "mean_score": 0.9769,
+                             "measured_precision": 0.9487, "gap": -0.0282}]}
+    card = model_card.json_card(metrics, checkpoint, _calibration(), parity,
+                                reliability=reliability)
+    assert card["live_reliability"]["ece"] == 0.1346
+    assert card["live_reliability"]["top_band"]["bin"] == "0.95-1.00"
+
+    (tmp_path / "model_card_trained.json").write_text(
+        json.dumps(card, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "model_card.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(stats, "MODEL_DIR", str(tmp_path))
+    monkeypatch.setattr(detector, "available", lambda: True)
+    merged = stats.load_model_card()
+    assert merged["live_reliability"]["detections"] == 85

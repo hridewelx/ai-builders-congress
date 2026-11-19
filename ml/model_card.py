@@ -194,7 +194,8 @@ def markdown(metrics: dict, checkpoint: dict, calibration: dict | None = None,
 
 
 def json_card(metrics: dict, checkpoint: dict, calibration: dict | None = None,
-              parity: dict | None = None, operating_point: dict | None = None) -> dict:
+              parity: dict | None = None, operating_point: dict | None = None,
+              reliability: dict | None = None) -> dict:
     """The same facts as the markdown, in the shape the explainer page reads.
 
     The page shows two rows: the model behind the seeded demo history, and the
@@ -249,6 +250,12 @@ def json_card(metrics: dict, checkpoint: dict, calibration: dict | None = None,
             "source": "bdfd9" if headline else "pooled",
             "pooled_diagnostic": {"map50": metrics.get("map50"), "images": metrics.get("images")},
         },
+        "live_reliability": ({"ece": reliability.get("ece"),
+                              "detections": reliability.get("detections"),
+                              "split": reliability.get("split"),
+                              "top_band": next((row for row in reversed(reliability.get("bins", []))
+                                                if row.get("count")), None)}
+                             if reliability else None),
         "live_parity": {"map50": (parity.get("onnx_raw") or {}).get("map50"),
                         "delta": parity.get("map_delta"), "split": parity.get("split")},
         "artifacts": {"onnx_sha256": parity.get("onnx_sha256"),
@@ -269,7 +276,7 @@ def write(out_md: Path, out_json: Path, metrics: dict, checkpoint: dict,
                     operating_point=operating_point, reliability=reliability)
     out_md.parent.mkdir(parents=True, exist_ok=True)
     out_md.write_text(text, encoding="utf-8")
-    card = json_card(metrics, checkpoint, calibration, parity, operating_point)
+    card = json_card(metrics, checkpoint, calibration, parity, operating_point, reliability)
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(card, indent=2, ensure_ascii=False), encoding="utf-8")
     return card
