@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get("LOTLINE_DATA", ROOT / "data"))
 RAW = DATA / "raw"
-DET = DATA / "dataset" / "det_v1"
+DET = DATA / "dataset" / "det_v2"
 MODELS = DATA / "models"
 
 # Version-1 detector classes. Skipped stitch, shade band and everything else is

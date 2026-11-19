@@ -3,12 +3,12 @@
 Responsibilities:
   * read YOLO folders (images/ + labels/ pairs) and Lotline's annotation JSONL
   * map each source's class names onto the four v1 detector classes
-  * de-duplicate by SHA-256 and by perceptual hash, keeping copies in one split
-  * split by image group, never by file name
-  * write a canonical folder, a data.yaml and a manifest with licence metadata
+  * de-duplicate by SHA-256 and by perceptual hash; never absorb test into train
+  * preserve each source's train/valid/test; split only unassigned images by group
+  * write train/val/test folders, a data.yaml and a manifest with licence metadata
 
 Usage:
-    python -m ml.data prepare --source data/raw/bdfd9 --name bdfd9 --licence "CC BY 4.0"
+    python -m ml.data prepare --source data/raw/bdfd9/BDFD9 --name bdfd9 --licence "CC BY 4.0"
     python -m ml.data prepare --source data/dataset/v1 --name staged
 """
 from __future__ import annotations
@@ -39,7 +39,7 @@ class Record:
     group: str = ""
     sha256: str = ""
     phash: str = ""
-    split: str = "train"
+    split: str = ""
     duplicates: list[str] = field(default_factory=list)
 
 
@@ -124,7 +124,11 @@ def read_yolo(root: Path, source: str, names: list[str]) -> list[Record]:
                     boxes.append((CLASS_TO_ID[mapped], x1, y1, x2, y2))
         if raw_labels and not boxes:
             continue  # annotated with out-of-scope classes only; never teach it as clean
-        records.append(Record(path=img, boxes=boxes, source=source))
+        parts = [part.lower() for part in img.relative_to(root).parts]
+        source_split = ("test" if "test" in parts else
+                        "val" if "valid" in parts or "val" in parts else
+                        "train" if "train" in parts else "")
+        records.append(Record(path=img, boxes=boxes, source=source, split=source_split))
     return records
 
 
@@ -143,7 +147,16 @@ def read_jsonl(root: Path, source: str) -> list[Record]:
                 continue
             x1, y1, x2, y2 = defect["box"]
             boxes.append((CLASS_TO_ID[mapped], x1 * width, y1 * height, x2 * width, y2 * height))
-        records.append(Record(path=path, boxes=boxes, source=source, group=str(row["seed"] // 1000 * 1000)))
+        split = str(row.get("split", "")).strip().lower()
+        if split in {"valid", "validation"}:
+            split = "val"
+        if split not in {"train", "val", "test"}:
+            parts = [part.lower() for part in Path(row["file"]).parts]
+            split = ("test" if "test" in parts else
+                     "val" if "valid" in parts or "val" in parts else
+                     "train" if "train" in parts else "")
+        records.append(Record(path=path, boxes=boxes, source=source, split=split,
+                              group=str(row["seed"] // 1000 * 1000)))
     return records
 
 
@@ -189,20 +202,66 @@ def dedupe(records: list[Record]) -> tuple[list[Record], int]:
     return kept, dropped
 
 
-def split_records(records: list[Record], val_fraction: float = VAL_FRACTION, seed: int = SEED) -> None:
-    """Assign whole duplicate groups to train or val, stratified by class presence."""
+def dedupe_preserving_test(records: list[Record]) -> tuple[list[Record], int]:
+    """Dedupe within splits and drop train/val copies of test images.
+
+    Test records are deduped first. Any train/val image that is an exact or
+    near-duplicate of a test image is then dropped. That keeps the official
+    test split isolated instead of letting dedupe absorb it into training.
+    """
+    test_records = [record for record in records if record.split == "test"]
+    other_records = [record for record in records if record.split != "test"]
+    test_kept, test_dropped = dedupe(test_records)
+    other_kept, other_dropped = dedupe(other_records)
+
+    test_sha = {record.sha256 for record in test_kept}
+    test_hashes = [(record.phash, record) for record in test_kept]
+    kept_other: list[Record] = []
+    cross_dropped = 0
+    for record in other_kept:
+        duplicate = record.sha256 in test_sha
+        if not duplicate:
+            duplicate = any(
+                hamming(record.phash, phash) <= 2 and pixel_mae(record.path, other.path) <= 1.5
+                for phash, other in test_hashes)
+        if duplicate:
+            cross_dropped += 1
+            continue
+        kept_other.append(record)
+    return test_kept + kept_other, test_dropped + other_dropped + cross_dropped
+
+
+def split_records(records: list[Record], val_fraction: float = VAL_FRACTION, seed: int = SEED,
+                  preserve_splits: bool = True) -> None:
+    """Assign whole duplicate groups to train/val/test.
+
+    With ``preserve_splits`` (the default), each source's own train/valid/test
+    folders are kept. Only records without a source split are assigned by the
+    grouped 80/20 rule. This is what keeps BDFD9's official test set out of
+    training.
+    """
     random.seed(seed)
-    groups: dict[str, list[Record]] = defaultdict(list)
     for record in records:
-        groups[record.group].append(record)
+        value = record.split.strip().lower()
+        if value in {"valid", "validation"}:
+            record.split = "val"
+        elif value in {"train", "val", "test"}:
+            record.split = value
+        else:
+            record.split = ""
+
+    unassigned = records if not preserve_splits else [record for record in records if not record.split]
+    groups: dict[str, list[Record]] = defaultdict(list)
+    for record in unassigned:
+        groups[record.group or record.phash or str(record.path)].append(record)
     ordered = sorted(groups.values(), key=lambda g: (-len(g), g[0].group))
     random.shuffle(ordered)
-    total = len(records)
+    total = len(unassigned)
     val_target = max(1, int(total * val_fraction))
     val_count = 0
     val_classes: Counter[int] = Counter()
     total_classes: Counter[int] = Counter()
-    for record in records:
+    for record in unassigned:
         for box in record.boxes:
             total_classes[box[0]] += 1
     for group in ordered:
@@ -224,7 +283,7 @@ def export(records: list[Record], out: Path, source_meta: dict) -> dict:
     """Write images/, labels/, data.yaml and manifest.json."""
     if out.exists():
         shutil.rmtree(out)
-    for split in ("train", "val"):
+    for split in ("train", "val", "test"):
         (out / "images" / split).mkdir(parents=True)
         (out / "labels" / split).mkdir(parents=True)
     counts: Counter[str] = Counter()
@@ -243,22 +302,24 @@ def export(records: list[Record], out: Path, source_meta: dict) -> dict:
         (out / "labels" / record.split / f"{name}.txt").write_text("\n".join(lines), encoding="utf-8")
         counts[record.split] += 1
     (out / "data.yaml").write_text(
-        "path: .\ntrain: images/train\nval: images/val\n"
+        "path: .\ntrain: images/train\nval: images/val\ntest: images/test\n"
         f"nc: {len(CLASSES)}\nnames: {CLASSES}\n", encoding="utf-8")
     manifest = {
         **source_meta,
         "classes": CLASSES,
         "images": dict(counts),
+        "splits": {split: counts.get(split, 0) for split in ("train", "val", "test")},
         "boxes_per_class": {CLASSES[c - 1]: n for c, n in sorted(boxes_per_class.items())},
         "duplicates_removed": sum(len(r.duplicates) for r in records),
         "annotations": "YOLO normalised cx cy w h",
+        "split_policy": "source train/valid/test preserved; test isolated from train/val",
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return manifest
 
 
 def prepare(source: Path, name: str, out: Path, names: list[str] | None, licence: str,
-            val_fraction: float) -> None:
+            val_fraction: float, resplit: bool = False) -> None:
     if (source / "annotations.jsonl").exists():
         records = read_jsonl(source, name)
         names = names or CLASSES
@@ -268,8 +329,12 @@ def prepare(source: Path, name: str, out: Path, names: list[str] | None, licence
             raise SystemExit("could not find class names; pass --names")
         records = read_yolo(source, name, found)
     before = len(records)
-    records, dropped = dedupe(records)
-    split_records(records, val_fraction)
+    if resplit:
+        records, dropped = dedupe(records)
+        split_records(records, val_fraction, preserve_splits=False)
+    else:
+        records, dropped = dedupe_preserving_test(records)
+        split_records(records, val_fraction, preserve_splits=True)
     manifest = export(records, out, {
         "source": name,
         "source_path": str(source),
@@ -278,7 +343,8 @@ def prepare(source: Path, name: str, out: Path, names: list[str] | None, licence
         "images_after_dedupe": len(records),
     })
     print(f"{name}: {before} -> {len(records)} images ({dropped} duplicates), "
-          f"train {manifest['images'].get('train', 0)} / val {manifest['images'].get('val', 0)}")
+          f"train {manifest['images'].get('train', 0)} / val {manifest['images'].get('val', 0)} "
+          f"/ test {manifest['images'].get('test', 0)}")
     print(f"boxes: {manifest['boxes_per_class']}")
     print(f"written -> {out}")
 
@@ -293,16 +359,21 @@ def main() -> None:
     p.add_argument("--names", nargs="*", default=None)
     p.add_argument("--licence", default="unknown")
     p.add_argument("--val-fraction", type=float, default=VAL_FRACTION)
+    p.add_argument("--resplit", action="store_true",
+                   help="ignore source train/valid/test folders and re-split 80/20")
 
     b = sub.add_parser("build", help="several sources, one canonical dataset")
     b.add_argument("--source", action="append", required=True, metavar="NAME=PATH")
     b.add_argument("--licence", action="append", default=[])
     b.add_argument("--out", type=Path, default=DET)
     b.add_argument("--val-fraction", type=float, default=VAL_FRACTION)
+    b.add_argument("--resplit", action="store_true",
+                   help="ignore source train/valid/test folders and re-split 80/20")
     args = parser.parse_args()
 
     if args.cmd == "prepare":
-        prepare(args.source, args.name, args.out, args.names, args.licence, args.val_fraction)
+        prepare(args.source, args.name, args.out, args.names, args.licence,
+                args.val_fraction, args.resplit)
         return
 
     records: list[Record] = []
@@ -324,15 +395,20 @@ def main() -> None:
         records.extend(found)
 
     before = len(records)
-    records, dropped = dedupe(records)
-    split_records(records, args.val_fraction)
+    if args.resplit:
+        records, dropped = dedupe(records)
+        split_records(records, args.val_fraction, preserve_splits=False)
+    else:
+        records, dropped = dedupe_preserving_test(records)
+        split_records(records, args.val_fraction, preserve_splits=True)
     manifest = export(records, args.out, {
         "sources": sources,
         "images_before_dedupe": before,
         "images_after_dedupe": len(records),
     })
     print(f"combined: {before} -> {len(records)} images ({dropped} duplicates)")
-    print(f"train {manifest['images'].get('train', 0)} / val {manifest['images'].get('val', 0)}")
+    print(f"train {manifest['images'].get('train', 0)} / val {manifest['images'].get('val', 0)} "
+          f"/ test {manifest['images'].get('test', 0)}")
     print(f"boxes: {manifest['boxes_per_class']}")
     print(f"written -> {args.out}")
 
