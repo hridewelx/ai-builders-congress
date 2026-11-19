@@ -1,0 +1,55 @@
+{# Step 1: AI Detection #}
+{% if not images_with_photo %}
+  {% set ai_state = 'not-started' %}
+  {% set ai_val = '0 photos' if lang=='en' else '০ ছবি' %}
+{% elif pending_inferred %}
+  {% set ai_state = 'in-progress' %}
+  {% set ai_val = (pending_inferred|length|num ~ ' queued') if lang=='en' else (pending_inferred|length|num ~ ' প্রক্রিয়াধীন') %}
+{% else %}
+  {% set ai_state = 'done' %}
+  {% set ai_val = (ok_inferred|length|num ~ ' ok · ' ~ manual_inferred|length|num ~ ' manual') if lang=='en' else (ok_inferred|length|num ~ ' সফল · ' ~ manual_inferred|length|num ~ ' ম্যানুয়াল') %}
+{% endif %}
+
+{# Step 2: Human Review #}
+{% if not images_with_photo or progress.views == 0 %}
+  {% set rev_state = 'not-started' %}
+  {% set rev_val = tr('pipe.awaiting_photos') %}
+{% elif progress.reviewed == progress.views and progress.views > 0 %}
+  {% set rev_state = 'done' %}
+  {% set rev_val = (progress.reviewed|num ~ ' / ' ~ progress.views|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
+{% else %}
+  {% set rev_state = 'in-progress' %}
+  {% set rev_val = (progress.reviewed|num ~ ' / ' ~ progress.views|num ~ ' ' ~ ('reviewed' if lang=='en' else 'পর্যালোচিত')) %}
+{% endif %}
+
+{# Step 3: Decision Engine #}
+{% set missing_plan = (not plan_d) or (decision and 'HOLD_PLAN_MISSING' in decision.reasons) %}
+{% if missing_plan %}
+  {% set dec_state = 'blocked' %}
+  {% set dec_val = tr('pipe.blocked_no_plan') %}
+{% elif ai_state != 'done' or rev_state != 'done' %}
+  {% if decision %}
+    {% set dec_state = 'in-progress' %}
+    {% set dec_val = ('In progress: ' ~ tr('out.' ~ decision.outcome)) if lang=='en' else ('চলমান: ' ~ tr('out.' ~ decision.outcome)) %}
+  {% else %}
+    {% set dec_state = 'not-started' %}
+    {% set dec_val = tr('pipe.awaiting_review') %}
+  {% endif %}
+{% elif lot.status == 'decided' %}
+  {% set dec_state = 'done' %}
+  {% set dec_val = tr('out.' ~ (final or decision.outcome)) %}
+{% elif decision %}
+  {% set dec_state = 'done' %}
+  {% set dec_val = tr('out.' ~ (final or decision.outcome)) %}
+{% else %}
+  {% set dec_state = 'in-progress' %}
+  {% set dec_val = tr('pipe.ready_to_compute') %}
+{% endif %}
+
+{% set pipe_steps = [
+  {'label': tr('pipe.ai_detection'), 'value': ai_val, 'state': ai_state},
+  {'label': tr('pipe.human_review'), 'value': rev_val, 'state': rev_state},
+  {'label': tr('pipe.decision_engine'), 'value': dec_val, 'state': dec_state}
+] %}
+
+{{ ui.pipeline_stepper(pipe_steps) }}

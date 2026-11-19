@@ -1,0 +1,119 @@
+    {# --- Units & Views List --- #}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ tr('common.units') }}</h2>
+        <div class="right">
+          <span class="small dim">{{ units|length|num }} {{ tr('common.units')|lower }}</span>
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% if units %}
+        <div class="grid garment-units-grid">
+          {% for u in units %}
+          <div class="unit garment-unit-card">
+            <div class="garment-unit-head">
+              <b>{{ u.garment_code }}</b>
+              <span class="small dim">{{ u.views|length|num }} {% if lang=='en' %}{{ 'views' if u.views|length!=1 else 'view' }}{% else %}ভিউ{% endif %}</span>
+            </div>
+            <div class="views garment-views-row">
+              {% for v in u.views %}
+                {% if v.image %}
+                  {% set st = v.review_state %}
+                  {% set inf = v.inference_status %}
+                  <a class="vchip {{ 'done' if st in ('confirmed_defects','reviewed_clean') else ('bad' if st=='needs_retake' else 'pending') }}"
+                     href="/review/{{ v.image.id }}"
+                     title="{{ 'Review photo' if lang=='en' else 'ছবি পর্যালোচনা' }}">
+                    {{ tr('cap.' ~ v.side) }}
+                    {% if st == 'confirmed_defects' %}
+                      ● {{ v.predictions|selectattr('review_state','equalto','confirmed')|list|length|num }}
+                    {% elif st == 'reviewed_clean' %}
+                      ✓
+                    {% elif st == 'needs_retake' %}
+                      !
+                    {% elif inf in ('failed','not_inferred') %}
+                      [M]
+                    {% endif %}
+                  </a>
+                {% else %}
+                  <a class="vchip none" href="/lots/{{ lot.id }}/capture" title="{{ 'Upload photo' if lang=='en' else 'ছবি আপলোড' }}">
+                    {{ tr('cap.' ~ v.side) }} · —
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        {{ ui.empty_state(tr('lot.no_units'), tr('lot.no_units_body'), action_label=tr('cap.upload'), action_href='/lots/' ~ lot.id ~ '/capture', icon_name='camera') }}
+        {% endif %}
+      </div>
+      {% if lot.status == 'decided' %}
+      <div class="pad-sm"><div class="note info">{{ tr('lot.locked') }}</div></div>
+      {% endif %}
+    </div>
+
+    {# --- Decision Summary Card --- #}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ tr('dec.title') }}</h2>
+        <div class="right">
+          {% if user.role != 'admin' %}
+          <a class="link-quiet" href="/lots/{{ lot.id }}/decision">{{ tr('common.open') }} →</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% if decision %}
+        <div class="dec-summary-row">
+          <div>
+            <div class="small dim" style="margin-bottom:2px">{{ 'Recommendation' if lang=='en' else 'সুপারিশ' }}</div>
+            {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
+          </div>
+          <div>
+            <div class="small dim" style="margin-bottom:2px">{{ tr('dec.final_disposition' if lot.status == 'decided' else 'dec.current_decision') }}</div>
+            {{ ui.decision_badge(final, tr('out.' ~ final)) }}
+          </div>
+          <span class="small dim" style="margin-left:auto">#{{ decision.sequence|num }} · {{ decision.created_at|dt_local }}</span>
+          {% if override %}
+            {% if override.is_effective %}
+            {{ ui.badge(tr('dec.overridden'), 'pending', dot=False) }}
+            {% else %}
+            <span class="badge badge-warning"><span class="dot" aria-hidden="true"></span>{{ 'Approval pending' if lang=='en' else 'অনুমোদন বাকি' }}</span>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <div class="reason-grid mt-6">
+          {% for r in (decision.reasons|fromjson) %}
+          <div class="reason-row">
+            <div class="reason-row-head">
+              <span class="mono">{{ r }}</span>
+              <b>{{ reasons.reason_title(r, lang) }}</b>
+            </div>
+            <p>{{ reasons.reason_text(r, lang) }}</p>
+            <div class="reason-row-next"><span>{{ 'Next step' if lang=='en' else 'পরের ধাপ' }}:</span> {{ reasons.reason_next(r, lang) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty dec-empty-box">
+          <b>{{ tr('dec.none') }}</b>
+          <p class="small dim" style="margin:6px 0 12px">{{ tr('dec.compute') }}</p>
+          {% if can_write %}
+            {% if not plan_d %}
+              <button class="btn sm primary disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ tr('dec.compute') }}</button>
+            {% elif not images_with_photo %}
+              <button class="btn sm primary disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ tr('dec.compute') }}</button>
+            {% else %}
+              <form method="post" action="/lots/{{ lot.id }}/decisions">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <button class="btn sm primary" type="submit">{{ tr('dec.compute') }}</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>

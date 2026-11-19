@@ -1,0 +1,19 @@
+    {# --- History / Audit Timeline --- #}
+    <div class="card" id="history">
+      <div class="card-h">
+        <h2>{{ tr('lot.timeline') }}</h2>
+        <div class="right"><span class="small dim">{{ audit|length|num }} {{ 'events' if lang=='en' else 'টি ইভেন্ট' }}</span></div>
+      </div>
+      <div class="pad-sm">
+        {% set timeline_items = [] %}
+        {% for a in audit[:12] %}
+          {% set _ = timeline_items.append({
+            'key': a.action,
+            'title': event_label(a.action),
+            'actor': a.actor_label or ('User #' ~ a.actor_id|string),
+            'datetime': a.at
+          }) %}
+        {% endfor %}
+        {{ ui.timeline(timeline_items) }}
+      </div>
+    </div>

@@ -1,0 +1,72 @@
+{# --- Top KPI Summary Grid --- #}
+<div class="grid cols-4 kpi-grid kpi-grid-lot">
+  <div class="kpi {{ 'accent' if lot.status=='open' }}">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('common.status') }}</div>
+      {% if lot.status == 'decided' %}
+        <span class="kpi-badge">v{{ lot.version }}</span>
+      {% endif %}
+    </div>
+    <div class="kpi-row-status">
+      {{ ui.status_badge(lot.status) }}
+    </div>
+    <div class="meta"><span class="kpi-hint">{{ 'Lot size' if lang=='en' else 'লট সাইজ' }}: <b>{{ lot.lot_size|num_grouped }}</b> {{ tr('common.pcs') }}</span></div>
+  </div>
+
+  <div class="kpi is-info">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('lot.units_registered') }}</div>
+      <span class="kpi-badge">{{ progress.pct_units|num }}%</span>
+    </div>
+    <div class="n">{{ progress.units|num }}<small> / {{ progress.required_units|num if progress.required_units else '—' }}</small></div>
+    <div class="bar bar-lime">
+      <i style="width:{{ progress.pct_units }}%"></i>
+    </div>
+  </div>
+
+  <div class="kpi is-success">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('lot.views_reviewed') }}</div>
+      <span class="kpi-badge">{{ progress.pct_views|num }}%</span>
+    </div>
+    <div class="n">{{ progress.reviewed|num }}<small> / {{ progress.views|num }}</small></div>
+    <div class="bar bar-lime">
+      <i style="width:{{ progress.pct_views }}%"></i>
+    </div>
+  </div>
+
+  <div class="kpi {{ 'is-warning' if (decision and decision.outcome in ('HOLD','ESCALATE')) else ('is-success' if (decision and decision.outcome=='ACCEPT') else '') }}">
+    <div class="kpi-head">
+      <div class="lbl">{{ tr('common.outcome') }}</div>
+      {% if decision %}
+        <span class="kpi-badge">{{ tr('out.' ~ (final or decision.outcome)) }}</span>
+      {% else %}
+        <span class="kpi-badge">{{ tr('status.pending') }}</span>
+      {% endif %}
+    </div>
+    {% if decision %}
+    <div class="disp-kpi-box">
+      <div class="disp-kpi-row">
+        <span class="dim">{{ 'System recommendation' if lang=='en' else 'সিস্টেম সুপারিশ' }}:</span>
+        {{ ui.decision_badge(decision.outcome, tr('out.' ~ decision.outcome)) }}
+      </div>
+      <div class="disp-kpi-row font-medium">
+        <span class="dim font-bold">{{ tr('dash.final_disposition' if lot.status == 'decided' else 'dash.current_decision') }}</span>
+        {{ ui.decision_badge(final, tr('out.' ~ final)) }}
+      </div>
+      {% if override %}
+        <div class="disp-kpi-sub">
+          {% if override.is_effective %}
+            <span class="badge ghost">{{ tr('dec.overridden') }}</span>
+          {% else %}
+            <span class="badge HOLD"><span class="dot" aria-hidden="true"></span>{{ 'Pending supervisor approval' if lang=='en' else 'সুপারভাইজার অনুমোদন বাকি' }}</span>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="n disp-empty-n">—</div>
+    <div class="meta"><span class="kpi-hint">{{ tr('dec.none') }}</span></div>
+    {% endif %}
+  </div>
+</div>

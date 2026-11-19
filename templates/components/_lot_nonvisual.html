@@ -1,0 +1,41 @@
+    {# --- Critical Non-Visual Check --- #}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ tr('lot.nonvisual') }}</h2>
+        <div class="right">
+          {% set nv_tone = 'ACCEPT' if lot.critical_nonvisual_status in ('done','not_required') else ('REJECT' if lot.critical_nonvisual_status=='failed' else 'HOLD') %}
+          <span class="badge {{ nv_tone }}">
+            <span class="dot" aria-hidden="true"></span>
+            {{ tr('nv.' ~ lot.critical_nonvisual_status) }}
+          </span>
+        </div>
+      </div>
+      <div class="pad-sm">
+        <div class="small dim" style="margin-bottom:9px">{{ tr('lot.nonvisual_hint') }}</div>
+        {% if user.role == 'supervisor' and lot.status != 'decided' %}
+        <form method="post" action="/lots/{{ lot.id }}/nonvisual" class="nv-form">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <div class="field">
+            <label for="nv-status">{{ tr('common.status') }}</label>
+            <select id="nv-status" name="status">
+              {% for s in ['pending','done','not_required','failed'] %}
+              <option value="{{ s }}" {{ 'selected' if lot.critical_nonvisual_status==s }}>{{ tr('nv.' ~ s) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="nv-note">{{ tr('common.notes') }}</label>
+            <input id="nv-note" name="note" value="{{ lot.nonvisual_note or '' }}" placeholder="{{ tr('common.notes') }} ({{ 'required for failed' if lang=='en' else 'failed-এর জন্য আবশ্যক' }})">
+          </div>
+          <button class="btn sm primary">{{ tr('common.save') }}</button>
+        </form>
+        {% elif lot.nonvisual_note %}
+        <div class="note nv-note-box">{{ lot.nonvisual_note }}</div>
+        {% else %}
+        <div class="note nv-note-box">
+          <b>{{ 'Recorded check status' if lang=='en' else 'নথিভুক্ত চেকের অবস্থা' }}:</b> {{ tr('nv.' ~ lot.critical_nonvisual_status) }}
+          <div class="small dim" style="margin-top:3px">{{ tr('lot.supervisor_only_nv') }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>

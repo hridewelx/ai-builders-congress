@@ -1,0 +1,58 @@
+    {# --- Sampling Plan Card --- #}
+    <div class="card">
+      <div class="card-h">
+        <h2>{{ tr('lot.plan') }}</h2>
+        <div class="right">
+          {% if user.role == 'supervisor' and lot.status != 'decided' and plan_d %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/plan">{{ tr('common.open') }}</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="pad-sm">
+        {% if plan_d %}
+        <div class="plan-chips-row">
+          <span class="chip">n = {{ plan_d.n|num }}</span>
+          <span class="chip">{{ plan_d.counting_mode }}</span>
+          {% if plan_d.is_demo %}<span class="badge badge-warning">TEST CONFIGURATION</span>{% endif %}
+        </div>
+        <table class="table plan-table">
+          <thead><tr><th>{{ 'Class' if lang=='en' else 'শ্রেণি' }}</th><th class="num">Ac</th><th class="num">Re</th></tr></thead>
+          <tbody>
+            {% for c in ['critical','major','minor'] %}
+            <tr>
+              <td><span class="badge {{ c }}">{{ tr('plan.' ~ c) }}</span></td>
+              <td class="num">{{ plan_d[c].ac|num }}</td>
+              <td class="num">{{ plan_d[c].re|num }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="note warn plan-note-warn">
+          <b>{{ 'Assumption' if lang=='en' else 'অনুমান' }}:</b> {{ tr('lot.plan_assumption') }}
+          <div class="small dim" style="margin-top:3px">Normal inspection · Single sampling · General Level II (ISO 2859-1 / ANSI ASQ Z1.4)</div>
+        </div>
+        {% else %}
+          {# Role-aware empty state for sampling plan #}
+          {% if user.role == 'supervisor' %}
+          <div class="empty dec-empty-box">
+            <b>{{ tr('lot.plan_missing') }}</b>
+            <p class="small dim" style="margin:6px 0 14px">{{ 'Configure an AQL sampling plan to enable deterministic lot decisions.' if lang=='en' else 'ডিটারমিনিস্টিক সিদ্ধান্ত গণনার জন্য AQL স্যাম্পলিং প্ল্যান কনফিগার করুন।' }}</p>
+            {% if lot.status != 'decided' %}
+            <a class="btn sm primary" href="/lots/{{ lot.id }}/plan">
+              {{ icons.icon('plus', 14) }}
+              <span>{{ tr('lot.create_plan') }}</span>
+            </a>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="note warn" style="display:flex;align-items:flex-start;gap:10px">
+            {{ icons.icon('clock', 18) }}
+            <div>
+              <b>{{ tr('lot.awaiting_supervisor') }}</b>
+              <div class="small dim" style="margin-top:3px">{{ tr('lot.awaiting_supervisor_desc') }}</div>
+            </div>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>

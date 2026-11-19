@@ -1,0 +1,64 @@
+{# --- Control Center Actions Bar & Status Chips --- #}
+<div class="card lot-action-card">
+  <div class="pad-sm lot-action-bar">
+    <div class="lot-chips-row">
+      {% if lot.status == 'decided' %}<span class="badge badge-neutral">v{{ lot.version }}</span>{% endif %}
+      {% if manual_inferred|length > 0 %}
+      <span class="badge badge-warning" title="{{ 'Manual review active: zero proposals is not a pass' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা সক্রিয়' }}"><span class="dot" aria-hidden="true"></span>{{ manual_inferred|length|num }} {{ 'manual review' if lang=='en' else 'ম্যানুয়াল পর্যালোচনা' }}</span>
+      {% endif %}
+      {% if retake_views|length > 0 %}
+      <span class="badge badge-danger"><span class="dot" aria-hidden="true"></span>{{ retake_views|length|num }} {{ 'retake needed' if lang=='en' else 'পুনরায় ছবি দরকার' }}</span>
+      {% endif %}
+      {% if second_opinions|length > 0 %}
+      <span class="badge badge-info"><span class="dot" aria-hidden="true"></span>{{ second_opinions|length|num }} {{ 'second opinion pending' if lang=='en' else 'দ্বিতীয় মত বাকি' }}</span>
+      {% endif %}
+      {% if all_preds|length > 0 %}
+      {{ ui.ai_illustrative() }}
+      {% endif %}
+    </div>
+
+    <div class="lot-cta-row">
+      {% if can_write %}
+        {# Primary CTA State 1: No garments -> Upload is primary, review disabled #}
+        {% if not units %}
+          <a class="btn sm primary" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <button class="btn sm ghost disabled" type="button" disabled title="{{ 'Register garments and upload photos before review' if lang=='en' else 'পর্যালোচনার আগে গার্মেন্ট যোগ ও ছবি আপলোড করুন' }}">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></button>
+          <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+
+        {# Primary CTA State 2: Garments present but unreviewed photos -> Review is primary #}
+        {% elif progress.views == 0 or progress.reviewed < progress.views %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <a class="btn sm primary" href="/lots/{{ lot.id }}/review">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></a>
+          {% if not plan_d %}
+            <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% elif not images_with_photo %}
+            <button class="btn sm subtle disabled" type="button" disabled title="{{ 'Upload garment photos before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে ছবি আপলোড করুন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% else %}
+            <form method="post" action="/lots/{{ lot.id }}/decisions">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button class="btn sm subtle" type="submit">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+            </form>
+          {% endif %}
+
+        {# Primary CTA State 3: All photos reviewed -> Compute decision is primary #}
+        {% else %}
+          <a class="btn sm" href="/lots/{{ lot.id }}/capture">{{ icons.icon('camera', 14) }}<span>{{ tr('cap.upload') }}</span></a>
+          <a class="btn sm" href="/lots/{{ lot.id }}/review">{{ icons.icon('eye', 14) }}<span>{{ tr('lot.review') }}</span></a>
+          {% if not plan_d %}
+            <button class="btn sm primary disabled" type="button" disabled title="{{ 'Sampling plan is required before computing decision' if lang=='en' else 'সিদ্ধান্ত গণনার আগে স্যাম্পলিং প্ল্যান প্রয়োজন' }}">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+          {% else %}
+            <form method="post" action="/lots/{{ lot.id }}/decisions">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <button class="btn sm primary" type="submit">{{ icons.icon('cpu', 14) }}<span>{{ tr('dec.compute') }}</span></button>
+            </form>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+
+      {% if user.role != 'admin' %}
+      <a class="btn sm ghost" href="/lots/{{ lot.id }}/plan">{{ icons.icon('sliders', 14) }}<span>{{ tr('lot.plan') }}</span></a>
+      <a class="btn sm ghost" href="/lots/{{ lot.id }}/report">{{ icons.icon('file-text', 14) }}<span>{{ tr('lot.report') }}</span></a>
+      {% endif %}
+    </div>
+  </div>
+</div>
