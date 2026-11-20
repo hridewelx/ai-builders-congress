@@ -27,6 +27,31 @@ def require_user(request: Request):
     return s
 
 
+def organization_id(s: dict) -> int:
+    return int(s["user"]["organization_id"])
+
+
+def lot_required(s: dict, lot_id: int):
+    """A lot owned by the caller's organisation, or a 404 that reveals nothing."""
+    from ..services import review as service
+    lot = service.lot(lot_id, organization_id(s))
+    if not lot:
+        raise Denied(404, "not_found")
+    return lot
+
+
+def image_required(s: dict, image_id: int):
+    image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
+    if not image or not service_lot_in_org(s, image["lot_id"]):
+        raise Denied(404, "not_found")
+    return image
+
+
+def service_lot_in_org(s: dict, lot_id: int):
+    from ..services import review as service
+    return service.lot(lot_id, organization_id(s))
+
+
 def require_role(request: Request, *roles: str):
     s = require_user(request)
     if s["user"]["role"] not in roles:

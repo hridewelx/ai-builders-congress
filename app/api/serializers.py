@@ -53,10 +53,14 @@ def model_info() -> dict:
     }
 
 
-def catalogs() -> dict:
-    buyers = [clean(row) for row in db.q("SELECT * FROM buyer ORDER BY name")]
-    products = [clean(row) for row in db.q("SELECT * FROM product ORDER BY name")]
-    return {"buyers": buyers, "products": products}
+def catalogs(organization_id: int | None = None) -> dict:
+    if organization_id is None:
+        buyers = db.q("SELECT * FROM buyer ORDER BY name")
+        products = db.q("SELECT * FROM product ORDER BY name")
+    else:
+        buyers = db.q("SELECT * FROM buyer WHERE organization_id=? ORDER BY name", (organization_id,))
+        products = db.q("SELECT * FROM product WHERE organization_id=? ORDER BY name", (organization_id,))
+    return {"buyers": [clean(row) for row in buyers], "products": [clean(row) for row in products]}
 
 
 def lot_card(row) -> dict:
@@ -73,10 +77,16 @@ def lot_card(row) -> dict:
     return data
 
 
-def lot_cards(state: str = "", outcome: str = "", q: str = "") -> list[dict]:
-    rows = db.q("SELECT l.*, b.name AS buyer_name, p.name AS product_name"
-                " FROM lot l JOIN buyer b ON b.id=l.buyer_id"
-                " JOIN product p ON p.id=l.product_id ORDER BY l.id DESC")
+def lot_cards(organization_id: int | None = None, state: str = "", outcome: str = "",
+              q: str = "") -> list[dict]:
+    sql = ("SELECT l.*, b.name AS buyer_name, p.name AS product_name"
+           " FROM lot l JOIN buyer b ON b.id=l.buyer_id"
+           " JOIN product p ON p.id=l.product_id")
+    args: tuple = ()
+    if organization_id is not None:
+        sql += " WHERE l.organization_id=?"
+        args = (organization_id,)
+    rows = db.q(sql + " ORDER BY l.id DESC", args)
     out = []
     for row in rows:
         card = lot_card(row)
@@ -132,9 +142,9 @@ def model_summary(lot_id: int) -> tuple[str, str]:
     return ", ".join(names), "mixed model provenance; inspect the inference jobs for this lot"
 
 
-def report_context(lot_id: int) -> dict:
+def report_context(lot_id: int, organization_id: int | None = None) -> dict:
     """The exact stored decision, shaped for the printable one-page report."""
-    lot = service.lot(lot_id)
+    lot = service.lot(lot_id, organization_id)
     decision = service.latest_decision(lot_id)
     if not lot or not decision:
         return None

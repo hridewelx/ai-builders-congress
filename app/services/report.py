@@ -55,6 +55,15 @@ LANGUAGE_NOTE = "Report language: English. The application interface is availabl
 
 
 class Report(FPDF):
+    def normalize_text(self, text: str) -> str:
+        """Apply the ASCII fallback to every string, including the core-font cells.
+
+        fpdf2 calls this for both ``cell`` and ``multi_cell``; doing the mapping
+        here means a Unicode font is an enhancement, never a requirement.
+        """
+        family = getattr(self, "lotline_family", "Helvetica")
+        return super().normalize_text(_safe(str(text), family))
+
     def header(self):
         self.set_font(self.family if hasattr(self, "family") else "Helvetica", "B", 15)
         self.set_text_color(15, 23, 42)

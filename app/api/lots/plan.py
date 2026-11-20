@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from ...core import db
+from ...core.permissions import can_write_lot
 from ...services import review as service
 from ..deps import check_csrf, current_user, role_required
 from ..serializers import clean, decision_payload, timeline
@@ -14,7 +15,7 @@ router = APIRouter(tags=["lots"])
 @router.get("/lots/{lot_id}")
 def lot_detail(request: Request, lot_id: int):
     session = current_user(request)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     plan = service.active_plan(lot_id)
     progress = service.progress(lot_id)
     units = service.units_with_views(lot_id)
@@ -25,7 +26,6 @@ def lot_detail(request: Request, lot_id: int):
                db.q("SELECT d.*, u.display_name AS decided_by FROM decision d"
                     " JOIN app_user u ON u.id=d.created_by WHERE d.lot_id=?"
                     " ORDER BY d.sequence DESC", (lot_id,))]
-    from ...core.permissions import can_write_lot
     is_admin = session["user"]["role"] == "admin"
     return {
         "lot": clean(lot),
@@ -66,7 +66,7 @@ def evidence_summary(lot_id: int) -> dict:
 @router.get("/lots/{lot_id}/plan")
 def plan_detail(request: Request, lot_id: int):
     session = current_user(request)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     plan = service.active_plan(lot_id)
     row = service.latest_decision(lot_id)
     return {
@@ -88,7 +88,7 @@ def plan_detail(request: Request, lot_id: int):
 async def save_plan(request: Request, lot_id: int):
     session = role_required(current_user(request), "supervisor")
     check_csrf(request, session)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     if lot["status"] == "decided":
         raise HTTPException(status_code=403, detail="locked")
     data = await request.json()
@@ -184,7 +184,7 @@ async def save_plan(request: Request, lot_id: int):
 async def set_nonvisual(request: Request, lot_id: int):
     session = role_required(current_user(request), "supervisor")
     check_csrf(request, session)
-    lot = _lot_or_404(lot_id)
+    lot = _lot_or_404(lot_id, session)
     data = await request.json()
     status = str(data.get("status") or "")
     note = str(data.get("note") or "")

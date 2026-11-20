@@ -10,7 +10,7 @@ from ...core import db
 from ...domain import engine
 from ...services import detector, report, vision
 from ...services import review as service
-from ..deps import Denied, require_user
+from ..deps import Denied, lot_required, require_user
 from ..pages import page
 
 router = APIRouter(tags=["report"])
@@ -33,8 +33,10 @@ def _model_summary(lot_id: int) -> tuple[str, str]:
     return ", ".join(names), "mixed model provenance; inspect the inference jobs for this lot"
 
 
-def _report_ctx(lot_id: int) -> dict:
-    L = service.lot(lot_id)
+def _report_ctx(lot_id: int, s: dict | None = None) -> dict:
+    L = lot_required(s, lot_id) if s is not None else service.lot(lot_id)
+    if not L:
+        raise Denied(404, "not_found")
     d = service.latest_decision(lot_id)
     if not d:
         raise Denied(404, "not_found")
@@ -73,7 +75,7 @@ def report_page(request: Request, lot_id: int):
     s = require_user(request)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
-    rc = _report_ctx(lot_id)
+    rc = _report_ctx(lot_id, s)
     return page(request, "report.html", active="lots", rc=rc, lot=rc["lot"])
 
 
@@ -82,7 +84,7 @@ def report_pdf(request: Request, lot_id: int):
     s = require_user(request)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
-    rc = _report_ctx(lot_id)
+    rc = _report_ctx(lot_id, s)
     data = report.build(rc)
     return Response(data, media_type="application/pdf",
                     headers={"Content-Disposition": f'inline; filename="lotline-{rc["lot_code"]}-decision-{rc["sequence"]}.pdf"',

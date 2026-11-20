@@ -7,11 +7,25 @@ import numpy as np
 from fastapi import APIRouter, HTTPException, Request, Response
 from PIL import Image
 
-from ..core import db
-from ..services import detector
+from ..core import db, metrics
+from ..core.permissions import image_for
+from ..services import detector, inference
 from .deps import current_user
 
 router = APIRouter(tags=["system"])
+
+
+@router.get("/metrics")
+def metrics_endpoint():
+    """Latency, status and error counters for the running process."""
+    payload = metrics.snapshot()
+    payload["inference"] = {
+        "mode": inference.mode(),
+        "queued": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='queued'")["n"],
+        "running": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='running'")["n"],
+        "failed": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='failed'")["n"],
+    }
+    return payload
 
 
 @router.get("/health")
@@ -35,7 +49,7 @@ def image_bytes(request: Request, image_id: int):
     session = current_user(request)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
-    image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
+    image = image_for(session, image_id)
     if not image:
         raise HTTPException(status_code=404, detail="not_found")
     from ..services import review as service
@@ -53,7 +67,7 @@ def image_heat(request: Request, image_id: int):
     session = current_user(request)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
-    image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
+    image = image_for(session, image_id)
     if not image:
         raise HTTPException(status_code=404, detail="not_found")
     from ..services import review as service

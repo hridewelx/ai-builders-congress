@@ -4,8 +4,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from ...core import db
-from ...services import detector
+from ...core import db, metrics
+from ...services import detector, inference
 from ..deps import require_user
 from ..pages import page
 from ..stats import demo_stats, load_model_card
@@ -23,6 +23,19 @@ def how_page(request: Request):
 @router.get("/healthz")
 def healthz():
     return JSONResponse({"ok": True})
+
+
+@router.get("/metrics")
+def metrics_page():
+    """Conventional ops path; the JSON API exposes the same snapshot at /api/metrics."""
+    payload = metrics.snapshot()
+    payload["inference"] = {
+        "mode": inference.mode(),
+        "queued": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='queued'")["n"],
+        "running": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='running'")["n"],
+        "failed": db.one("SELECT COUNT(*) AS n FROM inference_job WHERE status='failed'")["n"],
+    }
+    return JSONResponse(payload)
 
 
 @router.get("/readyz")

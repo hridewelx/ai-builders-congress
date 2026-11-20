@@ -4,18 +4,27 @@ from __future__ import annotations
 import hashlib
 import io
 import os
-import time
 
 import numpy as np
 from fastapi import APIRouter, File, Form, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from ...config import MAX_BYTES, MAX_IMAGE_EDGE, MAX_PIXELS, ZONES
+from ...config import MAX_BYTES, MAX_IMAGE_EDGE, MAX_PIXELS
 from ...core import db
-from ...services import detector, vision
+from ...services import detector, inference
 from ...services import review as service
-from ..deps import Denied, assert_csrf, can_write_lot, ensure_write, require_role, require_user
+from ..deps import (
+    Denied,
+    assert_csrf,
+    can_write_lot,
+    ensure_write,
+    image_required,
+    lot_required,
+    require_role,
+    require_user,
+    service_lot_in_org,
+)
 from ..pages import page
 
 router = APIRouter(tags=["capture"])
@@ -24,9 +33,7 @@ router = APIRouter(tags=["capture"])
 @router.get("/lots/{lot_id}/capture", response_class=HTMLResponse)
 def capture_page(request: Request, lot_id: int):
     s = require_user(request)
-    L = service.lot(lot_id)
-    if not L:
-        raise Denied(404, "not_found")
+    L = lot_required(s, lot_id)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
     return page(request, "capture.html", active="lots", lot=L, units=service.units_with_views(lot_id),
@@ -38,7 +45,7 @@ def capture_page(request: Request, lot_id: int):
 def add_unit(request: Request, lot_id: int, csrf: str = Form(""), garment_code: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    L = service.lot(lot_id)
+    L = lot_required(s, lot_id)
     ensure_write(request, s, L)
     plan = service.active_plan(lot_id)
     required = min(plan["n"], L["lot_size"]) if plan else L["lot_size"]
@@ -60,7 +67,7 @@ async def upload(request: Request, lot_id: int, view_id: int, csrf: str = Form("
                  file: UploadFile = File(...)):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    L = service.lot(lot_id)
+    L = lot_required(s, lot_id)
     ensure_write(request, s, L)
     view = db.one("SELECT v.* FROM unit_view v JOIN sample_unit u ON u.id=v.sample_unit_id"
                   " WHERE v.id=? AND u.lot_id=?", (view_id, lot_id))
@@ -109,54 +116,17 @@ async def upload(request: Request, lot_id: int, view_id: int, csrf: str = Form("
                    im.width, im.height, len(data), s["user"]["id"], db.now()))
     db.audit(s["user"]["id"], s["user"]["display_name"], "image.uploaded", "lot", lot_id,
              after={"image_id": img_id, "view_id": view_id, "bytes": len(data), "sha256": sha_work[:16]})
-    run_inference(img_id, s["user"]["id"], request)
+    inference.enqueue(img_id, s["user"]["id"])
     return RedirectResponse(f"/review/{img_id}?ok=saved", status_code=303)
-
-
-def run_inference(img_id: int, user_id: int, request: Request | None = None) -> str:
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        return "failed"
-    L = service.lot(img["lot_id"])
-    model_name = detector.MODEL_NAME if detector.available() else vision.MODEL_NAME
-    job_id = db.x("INSERT INTO inference_job(image_id,status,model_version,created_at) VALUES (?,?,?,?)",
-                  (img_id, "running", model_name, db.now()))
-    t0 = time.time()
-    try:
-        with Image.open(os.path.join(service.STORE, img["stored_name"])) as im:
-            res = detector.detect(np.array(im.convert("RGB")))
-        for p in res["proposals"]:
-            crit = 0
-            for z in ZONES:
-                c = service.map_clause(L["buyer_id"], p["type"], z, None)
-                if c and c["severity"] == "critical":
-                    crit = 1
-            db.x("INSERT INTO prediction(job_id,image_id,defect_type,score,x1,y1,x2,y2,review_state,"
-                 "provisional_critical,created_at) VALUES (?,?,?,?,?,?,?,?,'proposed',?,?)",
-                 (job_id, img_id, p["type"], p["score"], p["box"][0], p["box"][1], p["box"][2], p["box"][3],
-                  crit, db.now()))
-        actual_model = res.get("model", model_name)
-        db.x("UPDATE inference_job SET status='succeeded', model_version=?, finished_at=?, latency_ms=? WHERE id=?",
-             (actual_model, db.now(), int((time.time() - t0) * 1000), job_id))
-        db.audit(user_id, str(user_id), "inference.succeeded", "image", img_id,
-                 after={"proposals": len(res["proposals"]), "model": actual_model})
-        return "ok"
-    except Exception as exc:
-        db.x("UPDATE inference_job SET status='failed', error=?, finished_at=? WHERE id=?",
-             (str(exc)[:300], db.now(), job_id))
-        db.audit(user_id, str(user_id), "inference.failed", "image", img_id, after={"error": str(exc)[:200]})
-        return "failed"
 
 
 @router.post("/images/{img_id}/infer")
 def infer_again(request: Request, img_id: int, csrf: str = Form("")):
     s = require_role(request, "inspector", "supervisor")
     assert_csrf(request, s, csrf)
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
-    ensure_write(request, s, service.lot(img["lot_id"]))
-    run_inference(img_id, s["user"]["id"], request)
+    img = image_required(s, img_id)
+    ensure_write(request, s, service_lot_in_org(s, img["lot_id"]))
+    inference.enqueue(img_id, s["user"]["id"])
     return RedirectResponse(f"/review/{img_id}?ok=saved", status_code=303)
 
 
@@ -165,9 +135,7 @@ def image_bytes(request: Request, img_id: int):
     s = require_user(request)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
+    img = image_required(s, img_id)
     path = os.path.join(service.STORE, img["stored_name"])
     if not os.path.exists(path):
         raise Denied(404, "not_found")
@@ -182,9 +150,7 @@ def image_heat(request: Request, img_id: int):
     s = require_user(request)
     if s["user"]["role"] == "admin":
         raise Denied(403, "not_allowed")
-    img = db.one("SELECT * FROM image WHERE id=?", (img_id,))
-    if not img:
-        raise Denied(404, "not_found")
+    img = image_required(s, img_id)
     with Image.open(os.path.join(service.STORE, img["stored_name"])) as im:
         res = detector.detect(np.array(im.convert("RGB")))
     return Response(res["heat_png"], media_type="image/jpeg",

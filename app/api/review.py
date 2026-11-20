@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ..config import ZONES
 from ..core import db
+from ..core.permissions import image_for, lot_for
 from ..services import review as service
 from ..services import vision
 from .deps import check_csrf, current_user, role_required
@@ -13,25 +14,31 @@ from .lots import _ensure_write
 router = APIRouter(tags=["review"])
 
 
-def _image_or_404(image_id: int):
-    image = db.one("SELECT * FROM image WHERE id=?", (image_id,))
+def _image_or_404(image_id: int, session: dict):
+    image = image_for(session, image_id)
     if not image:
         raise HTTPException(status_code=404, detail="not_found")
     return image
+
+
+def _prediction_for(session: dict, image_id: int, prediction_id) -> dict:
+    image = _image_or_404(image_id, session)
+    prediction = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?",
+                        (int(prediction_id or 0), image["id"]))
+    if not prediction:
+        raise HTTPException(status_code=404, detail="not_found")
+    return dict(prediction)
 
 
 @router.post("/review/{image_id}/confirm")
 async def confirm(request: Request, image_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    image = _image_or_404(image_id)
-    lot = service.lot(image["lot_id"])
+    image = _image_or_404(image_id, session)
+    lot = lot_for(session, image["lot_id"])
     _ensure_write(request, session, lot)
     data = await request.json()
-    prediction = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?",
-                        (int(data.get("prediction_id") or 0), image_id))
-    if not prediction:
-        raise HTTPException(status_code=404, detail="not_found")
+    prediction = _prediction_for(session, image_id, data.get("prediction_id"))
     defect_type = str(data.get("defect_type") or "")
     zone = str(data.get("zone") or "I")
     if defect_type not in vision.HUMAN_CLASSES or zone not in ZONES:
@@ -55,13 +62,10 @@ async def confirm(request: Request, image_id: int):
 async def reject(request: Request, image_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    image = _image_or_404(image_id)
-    _ensure_write(request, session, service.lot(image["lot_id"]))
+    image = _image_or_404(image_id, session)
+    _ensure_write(request, session, lot_for(session, image["lot_id"]))
     data = await request.json()
-    prediction = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?",
-                        (int(data.get("prediction_id") or 0), image_id))
-    if not prediction:
-        raise HTTPException(status_code=404, detail="not_found")
+    prediction = _prediction_for(session, image_id, data.get("prediction_id"))
     second = None
     if prediction["provisional_critical"]:
         second = "confirmed" if session["user"]["role"] == "supervisor" else "pending"
@@ -79,10 +83,7 @@ async def second_review(request: Request, image_id: int):
     session = role_required(current_user(request), "supervisor")
     check_csrf(request, session)
     data = await request.json()
-    prediction = db.one("SELECT * FROM prediction WHERE id=? AND image_id=?",
-                        (int(data.get("prediction_id") or 0), image_id))
-    if not prediction:
-        raise HTTPException(status_code=404, detail="not_found")
+    prediction = _prediction_for(session, image_id, data.get("prediction_id"))
     if prediction["reviewed_by"] == session["user"]["id"]:
         raise HTTPException(status_code=422, detail="different_reviewer")
     outcome = str(data.get("outcome") or "confirm")
@@ -97,8 +98,8 @@ async def second_review(request: Request, image_id: int):
 async def add_defect(request: Request, image_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    image = _image_or_404(image_id)
-    lot = service.lot(image["lot_id"])
+    image = _image_or_404(image_id, session)
+    lot = lot_for(session, image["lot_id"])
     _ensure_write(request, session, lot)
     data = await request.json()
     defect_type = str(data.get("defect_type") or "")
@@ -139,8 +140,8 @@ async def add_defect(request: Request, image_id: int):
 async def set_state(request: Request, image_id: int):
     session = role_required(current_user(request), "inspector", "supervisor")
     check_csrf(request, session)
-    image = _image_or_404(image_id)
-    lot = service.lot(image["lot_id"])
+    image = _image_or_404(image_id, session)
+    lot = lot_for(session, image["lot_id"])
     _ensure_write(request, session, lot)
     data = await request.json()
     state = str(data.get("state") or "")
@@ -156,8 +157,9 @@ async def set_state(request: Request, image_id: int):
         raise HTTPException(status_code=409, detail="has_defects")
     if open_items:
         raise HTTPException(status_code=409, detail="review_first")
-    db.x("INSERT OR REPLACE INTO view_review(image_id,state,note,reviewed_by,reviewed_at)"
-         " VALUES (?,?,?,?,?)",
+    db.x("INSERT INTO view_review(image_id,state,note,reviewed_by,reviewed_at)"
+         " VALUES (?,?,?,?,?) ON CONFLICT(image_id) DO UPDATE SET state=excluded.state,"
+         " note=excluded.note, reviewed_by=excluded.reviewed_by, reviewed_at=excluded.reviewed_at",
          (image_id, state, note.strip() or None, session["user"]["id"], db.now()))
     db.audit(session["user"]["id"], session["user"]["display_name"], f"view.{state}", "image", image_id)
     return {"ok": True, "retake": state == "needs_retake", "lot_id": lot["id"]}
