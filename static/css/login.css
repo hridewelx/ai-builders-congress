@@ -159,8 +159,8 @@
   box-shadow: var(--focus);
 }
 .login .signin svg { flex: 0 0 auto; }
+.login .signin + .signin { margin-top: 12px; }
 .login .signin-guest {
-  margin-top: 10px;
   border-color: var(--line);
   background: var(--surface);
   color: var(--muted);
