@@ -57,6 +57,26 @@ plan, the counts, the reason codes and the reviewer.
 - No claim exceeds `docs/MODEL_CARD.md`; the leakage probe is published as
   **inconclusive**, with its own train-vs-train control at 54 %.
 
+## Where the video goes (the organisers' own answer)
+
+Read off the Congress FAQ on cloudcampbd.com (Submission Process, 62 questions):
+
+- **The platform hosts no files.** "The platform does not host files or code — everything is
+  submitted as a link to your preferred hosting (GitHub, Drive, Figma, YouTube, etc.)."
+- **Where to submit:** event page → **Team dashboard → Submission**. Only the **team leader**
+  can press *Submit and Lock*; everyone else edits the draft.
+- **YouTube is the video field,** and the link must be **Public or Unlisted** — never Private.
+  It has to play with no login and the thumbnail must load, or the platform marks the link FAIL.
+  A FAIL on YouTube leaves the submission *Incomplete and non-rankable*.
+- **Length:** 180 seconds or shorter; the page checks it and judges watch only the first 3 minutes.
+- **Other links** are checked one by one: **PASS** = reachable without login, **RESTRICTED** =
+  needs access approval (a Judge Access Note is required), **FAIL** = broken, fix before the lock.
+  A private GitHub repo is therefore RESTRICTED, not PASS — public is the clean answer.
+- **Deadline:** Preliminary closes **23:59 BST on 20 November 2026**; Final is **24:00 BST on
+  24 December 2026**. No automatic grace period; the server locks at the deadline.
+- The video is technically *optional* at Preliminary — it is mandatory at Final. Send it anyway:
+  the Participants Guide asks every team for a 3-minute structured pitch.
+
 ## Judge quick path (60 seconds)
 
 1. `https://<app>.onrender.com` → **Continue as guest** — one click, no signup,
