@@ -184,7 +184,7 @@
   display: flex;
 }
 .search-input { padding-left: 32px; width: 100%; }
-.lot-cards-grid { gap: 14px; }
+.lot-cards-grid { gap: 20px; }
 .lot-bar { height: 5px; }
 .lot-progress-meta {
   display: flex;
