@@ -170,6 +170,8 @@
   min-width: 220px;
   max-width: 380px;
 }
+/* Anchor the icon to the input itself, not to any label above it. */
+.search-control { position: relative; }
 /* the search box and the filter pills sit on one line: match their heights */
 .search-wrap input { height: 36px; }
 .search-icon {

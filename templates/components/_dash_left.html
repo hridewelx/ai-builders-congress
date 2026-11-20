@@ -29,12 +29,14 @@
       <div class="lot-toolbar">
         <div class="search-wrap">
           <label for="lotSearchInput" class="sr-only">{{ tr('common.search') }}</label>
-          <span class="search-icon" aria-hidden="true">
-            {{ icons.icon('search', 14) }}
-          </span>
-          <input type="search" id="lotSearchInput" class="input sm search-input"
-                 aria-controls="lotGrid"
-                 placeholder="{{ 'Search lot, buyer, style...' if lang=='en' else 'লট, ক্রেতা, পোশাক খুঁজুন...' }}">
+          <div class="search-control">
+            <span class="search-icon" aria-hidden="true">
+              {{ icons.icon('search', 14) }}
+            </span>
+            <input type="search" id="lotSearchInput" class="input sm search-input"
+                   aria-controls="lotGrid"
+                   placeholder="{{ 'Search lot, buyer, style...' if lang=='en' else 'লট, ক্রেতা, পোশাক খুঁজুন...' }}">
+          </div>
         </div>
         <div id="lotSearchResultsLive" class="sr-only" aria-live="polite"></div>
 
