@@ -5,6 +5,7 @@ python-multipart==0.0.32
 argon2-cffi==25.1.0
 fpdf2==2.9.0
 pillow==12.2.0
+qrcode>=8.0
 numpy==2.5.0
 onnxruntime==1.32.0
 pytest==9.1.1
