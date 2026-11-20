@@ -24,7 +24,7 @@ human confirmations, a deterministic rule, and a signed PDF — in Bangla, on a 
 Garment factories in Bangladesh decide whether a lot ships using random sampling
 and a rule table, but the evidence behind that decision is a paper sheet nobody
 can audit. Lotline keeps the rule and fixes the evidence. Photos are captured on
-the phone an inspector already carries; an on-device model proposes defect boxes;
+the phone an inspector already carries; a server-side model proposes defect boxes;
 an inspector confirms or rejects each proposal in Bangla; and a deterministic
 engine — one pure function, fifteen reason codes — returns ACCEPT, REJECT, HOLD or
 ESCALATE. The AI never approves a lot, and it structurally cannot: the engine has
@@ -72,7 +72,7 @@ plan, the counts, the reason codes and the reviewer.
 | Criterion | Where it shows |
 |---|---|
 | Innovation & AI-native design | Proposal/confirmation boundary enforced by the engine's import graph |
-| Technical excellence | 79 tests, 36 of them on the engine; ONNX parity 0.7479 vs 0.7475 on validation |
+| Technical excellence | 186 tests, 36 of them on the engine; ONNX parity 0.7479 vs 0.7475 on validation |
 | Business value | Paper sheet → auditable record; no new hardware; Bangla-first |
 | Global scalability | Any sampling plan entered from a licensed standard; CPU-only; SQLite → Postgres for a pilot |
 | Responsible AI & presentation | Model card, rejected calibration, inconclusive leakage probe, two-person override approval |

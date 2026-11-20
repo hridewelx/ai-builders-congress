@@ -29,10 +29,9 @@ lot."* Then open **How it works**.
 
 ### 0:30–0:50 — AI proposes
 
-**VO:** "A photo comes in from the inspection table. An on-device autoencoder
-learns what clean knit texture looks like — no defect labels — and flags what
-doesn't fit. Here it found a hole. It gives a box and a type guess. It does not
-give a count, a verdict, or a way to approve."
+**VO:** "A photo comes in from the inspection table. A trained detector on our
+server proposes defect boxes — a box and a type, nothing more. Here it found a
+hole. It does not give a count, a verdict, or a way to approve."
 
 **On screen:** `LT-2026-019` → Review → the red box on the hole; toggle the
 attention map on and off once.
@@ -172,7 +171,7 @@ sees human-confirmed counts and the entered sampling plan.
 value, low evidence, and usually undocumented. Buyers cannot audit it; factories
 cannot defend it.
 
-**Product.** Phone capture → on-device vision proposals → one-tap human review
+**Product.** Phone capture → server-side vision proposals → one-tap human review
 with buyer clause mapping → deterministic ACCEPT/REJECT/HOLD/ESCALATE with a
 canonical reason code → one-page PDF with snapshot hash and signatures →
 append-only audit log. Bangla and English. CPU only.

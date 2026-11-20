@@ -3,7 +3,7 @@
 **AI proposes. Humans confirm. The rule decides.**
 
 Lotline is a working, auditable knitwear **lot-acceptance** system. A photo of a
-garment goes in. An on-device vision model proposes defect boxes. An inspector
+garment goes in. A vision model on the server proposes defect boxes. An inspector
 confirms, corrects or rejects each proposal. A deterministic sampling engine — a
 pure function with no model inside it — then returns **ACCEPT · REJECT · HOLD ·
 ESCALATE**, with the exact reason code and the exact rule that produced it.
@@ -84,7 +84,7 @@ reference implementation; the React app in `frontend/` is the current UI and
 talks only to the JSON API under `/api`.
 
 ```bash
-python -m pytest -q         # 135 tests, ~2 s
+python -m pytest -q         # 186 tests, ~3 s
 python -m ruff check app    # import order, undefined names, dead code
 npm --prefix frontend run build   # tsc -b + vite production build
 ```

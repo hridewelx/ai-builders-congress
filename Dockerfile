@@ -13,10 +13,11 @@ RUN apt-get update \
 RUN pip install -r requirements.txt
 COPY . .
 
-# Optional trained detector. A build without these args still runs (numpy
-# baseline, and /readyz says so); a build with them verifies the checksum and
-# fails closed on any mismatch. Fetch before seeding so the model card records
-# the backend that will actually serve uploads.
+# Optional trained detector. No weights are in the build context, so a build
+# without these args runs the numpy baseline and /readyz says exactly that; a
+# build with them verifies the checksum and fails closed on any mismatch.
+# Fetch before seeding so the model card records the backend that will serve
+# uploads.
 ARG LOTLINE_MODEL_URL=""
 ARG LOTLINE_MODEL_SHA256=""
 RUN if [ -n "$LOTLINE_MODEL_URL" ]; then \

@@ -1,15 +1,30 @@
 # Deploying the Lotline demo
 
-The demo is a single process: FastAPI + SQLite + an in-process model. It needs
-~300 MB RAM (numpy baseline) or ~450 MB with the ONNX detector loaded, and a
+The demo is a single process: FastAPI + SQLite + an in-process model, and a
 writable data directory. No GPU, no external API.
 
-**What actually ships.** `data/` is git-ignored, so the ONNX artifact is *not*
-in the Render build context. A deployed instance therefore runs the numpy
-baseline and reports "staged knit panels only (unsupervised baseline)" in the
-PDF and on `/readyz`. That is honest, not a bug. To run the trained detector on
-a host, ship `det_v2.onnx` (76 MB) with the build and set `LOTLINE_DETECTOR=onnx`
-(see `requirements.txt`, which already pins onnxruntime).
+Measured memory, real weights, this app (Windows, Python 3.14, onnxruntime 1.32,
+one inspector, `/` and `/lots/6` rendered, then one detection):
+
+| backend | RSS | peak |
+| --- | --- | --- |
+| `numpy` baseline | 119 MB | 180 MB |
+| `onnx` after a detection | 284 MB | 308 MB |
+
+Treat 512 MB as the honest floor for the ONNX build: it fits with room for one
+or two reviewers, and it is not a place to run two model processes. Linux
+numbers are usually a little higher than Windows; measure on the host if in
+doubt. The review queue caps at 6 proposals per photo, which is what keeps the
+per-request cost bounded.
+
+**What actually ships.** The image only carries weights when you ask for them:
+`data/models/det_v2.onnx` is git-ignored and excluded from the build context, so
+a plain `docker build` (or Render from the repo) runs the numpy baseline and
+says so on `/readyz` and in the PDF. To serve the trained detector, pass
+`LOTLINE_MODEL_URL` + `LOTLINE_MODEL_SHA256` at build time (the Dockerfile
+verifies both, then sets the detector to `onnx`), or bake the file in yourself.
+Never describe the public URL as "the trained detector" unless `/readyz` says
+`"detector": "onnx"`.
 
 Judges should be able to click a link. Pick one of these.
 
