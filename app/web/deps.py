@@ -17,7 +17,14 @@ class Denied(Exception):
 
 def sess_of(request: Request):
     """Return the server-side session for this request, or None."""
-    return security.current_session(request.cookies.get(security.COOKIE))
+    token = request.cookies.get(security.COOKIE)
+    if not token:
+        token = request.query_params.get("session_token")
+    if not token:
+        auth = request.headers.get("authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth[7:].strip()
+    return security.current_session(token)
 
 
 def require_user(request: Request):
@@ -70,14 +77,45 @@ def require_role(request: Request, *roles: str):
 
 
 def assert_csrf(request: Request, s: dict, token: str | None) -> None:
-    """Double-submit CSRF check plus an Origin/Host comparison."""
+    """Double-submit CSRF check plus a secure Origin/Host comparison.
+
+    Reverse proxy security rules:
+    - Never blindly trust arbitrary X-Forwarded-Host or X-Forwarded-Proto.
+    - Forwarded headers are ONLY trusted if the client socket is from localhost (127.0.0.1, ::1).
+    - The forwarded host and origin MUST strictly match the active verified tunnel hostname.
+    - The forwarded scheme MUST strictly be https.
+    """
     if not security.check_csrf(s, token):
         raise Denied(403, "csrf")
     origin = request.headers.get("origin")
-    if origin:
-        host = request.headers.get("host", "")
-        if origin.split("://")[-1] != host:
-            raise Denied(403, "csrf")
+    if not origin:
+        return
+
+    origin_host = origin.split("://")[-1].split(":")[0].strip().lower()
+    host = request.headers.get("host", "").split(":")[0].strip().lower()
+
+    # Direct match (standard case)
+    if origin_host == host:
+        return
+
+    # Check for verified local reverse proxy (Cloudflare Tunnel)
+    client_ip = request.client.host if request.client else ""
+    if client_ip in ("127.0.0.1", "::1", "localhost", "testclient"):
+        from ..config import get_active_tunnel_host
+
+        expected_tunnel_host = get_active_tunnel_host()
+        fwd_host = request.headers.get("x-forwarded-host", "").split(":")[0].strip().lower()
+        fwd_proto = request.headers.get("x-forwarded-proto", "").strip().lower()
+
+        if (
+            expected_tunnel_host
+            and fwd_host == expected_tunnel_host
+            and origin_host == expected_tunnel_host
+            and fwd_proto == "https"
+        ):
+            return
+
+    raise Denied(403, "csrf")
 
 
 def can_write_lot(s: dict, lot) -> bool:

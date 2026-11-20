@@ -76,6 +76,21 @@ def init() -> None:
                 conn.execute(statement)
         return
     conn.executescript(SCHEMA)
+    # Ensure mobile / Cloudinary columns exist on image table for existing databases
+    try:
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(image)").fetchall()}
+        new_cols = [
+            ("cloudinary_url", "TEXT"),
+            ("cloudinary_public_id", "TEXT"),
+            ("captured_at", "TEXT"),
+            ("inspection_id", "INTEGER"),
+            ("inspector_id", "INTEGER"),
+        ]
+        for col_name, col_type in new_cols:
+            if col_name not in cols:
+                conn.execute(f"ALTER TABLE image ADD COLUMN {col_name} {col_type}")
+    except Exception:
+        pass
 
 
 def q(sql: str, args: tuple = ()) -> list:

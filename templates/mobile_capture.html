@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>{{ 'Mobile Camera Capture' if lang=='en' else 'মোবাইল ক্যামেরা ক্যাপচার' }} · {{ lot.lot_code }}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <style>
+    :root {
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    body.mobile-cam-body {
+      margin: 0;
+      padding: 0;
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    .cam-topbar {
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+    }
+    .cam-lot-badge {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--lime, #bbf7d0);
+      background: rgba(187, 247, 208, 0.12);
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+    }
+    .cam-target-strip {
+      background: #111827;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 15;
+    }
+    .target-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .target-side-badge {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .target-side-badge.back {
+      background: #9333ea;
+    }
+    .viewfinder-wrap {
+      flex: 1;
+      position: relative;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 360px;
+    }
+    #videoPreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .grid-cell {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .frame-guide {
+      position: absolute;
+      top: 10%;
+      bottom: 10%;
+      left: 10%;
+      right: 10%;
+      border: 2px dashed rgba(187, 247, 208, 0.6);
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .frame-guide-text {
+      background: rgba(0, 0, 0, 0.7);
+      color: #f1f5f9;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .flash-effect {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.1s ease-out;
+      z-index: 30;
+    }
+    .flash-effect.active {
+      opacity: 0.85;
+    }
+    .cam-controls {
+      background: #0b0f19;
+      padding: 16px 20px calc(16px + var(--safe-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 20;
+    }
+    .shutter-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 5px solid #3b82f6;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, background-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .shutter-btn:active {
+      transform: scale(0.92);
+      background: #e2e8f0;
+    }
+    .shutter-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      border-color: #64748b;
+    }
+    .shutter-inner {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #2563eb;
+      pointer-events: none;
+    }
+    .status-toast {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 40;
+      white-space: nowrap;
+    }
+    .status-toast.show {
+      display: flex;
+    }
+    .status-toast.success {
+      background: #065f46;
+      border-color: #10b981;
+    }
+    .status-toast.error {
+      background: #991b1b;
+      border-color: #ef4444;
+    }
+    .view-select {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      max-width: 220px;
+    }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="mobile-cam-body">
+
+  {# --- Topbar --- #}
+  <div class="cam-topbar">
+    <a href="/lots/{{ lot.id }}/capture" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">
+      ← {{ 'Gallery' if lang=='en' else 'গ্যালারি' }}
+    </a>
+    <span class="cam-lot-badge">{{ lot.lot_code }}</span>
+    <span style="font-size:12px;color:#94a3b8">
+      {{ progress.units }} / {{ progress.required_units if progress.required_units else lot.lot_size }}
+    </span>
+  </div>
+
+  {# --- Current Target Header --- #}
+  <div class="cam-target-strip">
+    <div class="target-title">
+      <span id="targetGarmentText">{{ next_view.garment_code if next_view else ('All Done' if lang=='en' else 'সম্পূর্ণ') }}</span>
+      <span class="target-side-badge {{ next_view.side if next_view else '' }}" id="targetSideBadge">
+        {{ next_view.side|upper if next_view else 'OK' }}
+      </span>
+    </div>
+
+    {# --- Manual Target Picker --- #}
+    <select id="targetPicker" class="view-select" aria-label="Target view picker">
+      {% for u in units %}
+        {% set outer_first = loop.first %}
+        {% for v in u.views %}
+          <option value="{{ v.id }}" data-garment="{{ u.garment_code }}" data-side="{{ v.side }}"
+                  {% if next_view and next_view.view_id == v.id %}selected{% elif not next_view and outer_first and loop.first %}selected{% endif %}>
+            {{ u.garment_code }} · {{ v.side|capitalize }} {% if v.image %}✓{% endif %}
+          </option>
+        {% endfor %}
+      {% endfor %}
+    </select>
+  </div>
+
+  {# --- Live Viewfinder Area --- #}
+  <div class="viewfinder-wrap">
+    <video id="videoPreview" autoplay playsinline muted></video>
+    <div class="grid-overlay">
+      <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+      <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+      <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+    </div>
+    <div class="frame-guide">
+      <div class="frame-guide-text">
+        {{ 'Align garment panel inside box' if lang=='en' else 'পোশাকের প্যানেল ফ্রেমে রাখুন' }}
+      </div>
+    </div>
+    <div class="flash-effect" id="flashEffect"></div>
+
+    <div class="status-toast" id="statusToast">
+      <span class="spinner" id="toastSpinner"></span>
+      <span id="toastMessage">Uploading...</span>
+    </div>
+  </div>
+
+  <canvas id="captureCanvas" style="display:none"></canvas>
+
+  {# --- Bottom Controls & Shutter --- #}
+  <div class="cam-controls">
+    <div style="display:flex;align-items:center;justify-content:center;gap:30px;width:100%">
+      {# Fallback input if WebRTC camera is unavailable #}
+      <label for="nativeFallbackInput" style="cursor:pointer;color:#94a3b8;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <span>{{ 'Native' if lang=='en' else 'নেটিভ' }}</span>
+      </label>
+      <input type="file" id="nativeFallbackInput" accept="image/*" capture="environment" style="display:none">
+
+      <button class="shutter-btn" id="shutterBtn" type="button" aria-label="Capture photo">
+        <div class="shutter-inner"></div>
+      </button>
+
+      <button id="switchCamBtn" type="button" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        <span>{{ 'Flip' if lang=='en' else 'ঘুরান' }}</span>
+      </button>
+    </div>
+
+    <div style="font-size:12px;color:#64748b;text-align:center">
+      {% if cloudinary_configured %}
+        <span style="color:#10b981">● Cloudinary Direct Sync Active</span>
+      {% else %}
+        <span style="color:#f59e0b">● Local Storage Active</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Strip query token from address bar and history to protect credentials
+      if (window.history && window.history.replaceState && window.location.search.includes("session_token=")) {
+        const cleanParams = new URLSearchParams(window.location.search);
+        cleanParams.delete("session_token");
+        const newSearch = cleanParams.toString();
+        const newUrl = window.location.pathname + (newSearch ? "?" + newSearch : "") + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+
+      const lotId = {{ lot.id }};
+      const csrf = "{{ csrf }}";
+      const video = document.getElementById("videoPreview");
+      const canvas = document.getElementById("captureCanvas");
+      const shutterBtn = document.getElementById("shutterBtn");
+      const flash = document.getElementById("flashEffect");
+      const toast = document.getElementById("statusToast");
+      const toastMsg = document.getElementById("toastMessage");
+      const toastSpin = document.getElementById("toastSpinner");
+      const targetPicker = document.getElementById("targetPicker");
+      const targetGarmentText = document.getElementById("targetGarmentText");
+      const targetSideBadge = document.getElementById("targetSideBadge");
+      const fallbackInput = document.getElementById("nativeFallbackInput");
+      const switchCamBtn = document.getElementById("switchCamBtn");
+
+      let currentStream = null;
+      let facingMode = "environment";
+      let isUploading = false;
+
+      function showToast(msg, type = "info") {
+        toast.className = "status-toast show " + type;
+        toastMsg.textContent = msg;
+        toastSpin.style.display = (type === "info") ? "inline-block" : "none";
+        if (type !== "info") {
+          setTimeout(() => { toast.classList.remove("show"); }, 2800);
+        }
+      }
+
+      function updateTargetUI() {
+        if (!targetPicker.value && targetPicker.options.length > 0) {
+          targetPicker.selectedIndex = 0;
+        }
+        const opt = targetPicker.options[targetPicker.selectedIndex];
+        if (opt) {
+          const g = opt.getAttribute("data-garment");
+          const s = opt.getAttribute("data-side") || "front";
+          targetGarmentText.textContent = g;
+          targetSideBadge.textContent = s.toUpperCase();
+          targetSideBadge.className = "target-side-badge " + s;
+        } else {
+          targetGarmentText.textContent = "No Garment";
+          targetSideBadge.textContent = "ADD";
+          targetSideBadge.className = "target-side-badge";
+        }
+      }
+
+      targetPicker.addEventListener("change", updateTargetUI);
+
+      // --- Start Camera Stream ---
+      async function startCamera() {
+        if (currentStream) {
+          try {
+            currentStream.getTracks().forEach(t => t.stop());
+          } catch (_) {}
+          currentStream = null;
+        }
+        try {
+          const constraints = {
+            video: {
+              facingMode: { ideal: facingMode },
+              width: { ideal: 1920, min: 640 },
+              height: { ideal: 1080, min: 480 }
+            },
+            audio: false
+          };
+
+          let stream = null;
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+          } catch (cErr) {
+            console.warn("Detailed constraints failed, falling back to basic facingMode:", cErr);
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: facingMode },
+              audio: false
+            });
+          }
+
+          currentStream = stream;
+          video.srcObject = currentStream;
+          video.setAttribute("autoplay", "");
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "true");
+          video.muted = true;
+
+          const playVideo = async () => {
+            try {
+              await video.play();
+              console.log("[MobileCamera-HTML] Video playing successfully", {
+                w: video.videoWidth,
+                h: video.videoHeight,
+                state: video.readyState
+              });
+            } catch (pErr) {
+              console.warn("[MobileCamera-HTML] video.play() waiting for user interaction:", pErr);
+            }
+          };
+
+          video.onloadedmetadata = playVideo;
+          video.oncanplay = playVideo;
+          await playVideo();
+
+        } catch (err) {
+          console.warn("Direct camera access failed, falling back to native capture input:", err);
+          showToast("Camera stream blocked. Tap shutter to open camera.", "error");
+        }
+      }
+
+      // Tap on viewfinder or document will resume/play video if paused
+      document.addEventListener("click", () => {
+        if (video && video.srcObject && (video.paused || !video.videoWidth)) {
+          video.play().catch(() => {});
+        }
+      }, { passive: true });
+
+      switchCamBtn.addEventListener("click", () => {
+        facingMode = (facingMode === "environment") ? "user" : "environment";
+        startCamera();
+      });
+
+      function dataUrlToBlob(dataUrl) {
+        const parts = dataUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)[1] || "image/jpeg";
+        const binary = atob(parts[1]);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i);
+        }
+        return new Blob([array], { type: mime });
+      }
+
+      let lastCaptureTime = 0;
+      function handleShutterTrigger(e) {
+        if (e && e.type === "touchend") {
+          e.preventDefault();
+        }
+        const now = Date.now();
+        if (now - lastCaptureTime < 400) return;
+        lastCaptureTime = now;
+        console.log("[MobileCamera-HTML] CAPTURE_CLICKED", { eventType: e ? e.type : "direct" });
+        captureAndUpload();
+      }
+
+      // --- Shutter Snap & Upload ---
+      async function captureAndUpload() {
+        if (isUploading) {
+          console.warn("[MobileCamera-HTML] CAPTURE_IGNORED_UPLOADING");
+          return;
+        }
+        let viewId = targetPicker.value;
+        if (!viewId && targetPicker.options.length > 0) {
+          targetPicker.selectedIndex = 0;
+          viewId = targetPicker.value;
+          updateTargetUI();
+        }
+        if (!viewId) {
+          showToast("No inspection view available. Please add garments first.", "error");
+          return;
+        }
+
+        console.log("[MobileCamera-HTML] VIDEO_READY", {
+          readyState: video.readyState,
+          videoWidth: video.videoWidth,
+          videoHeight: video.videoHeight
+        });
+
+        // If video stream is not playing yet, try playing and wait up to 1 second
+        if (video.paused || !video.videoWidth || !video.videoHeight || video.readyState < 2) {
+          try {
+            await video.play();
+          } catch (_) {}
+          let waited = 0;
+          while ((!video.videoWidth || !video.videoHeight) && waited < 900) {
+            await new Promise(r => setTimeout(r, 100));
+            waited += 100;
+          }
+        }
+
+        // Try getting image through ImageCapture API (hardware camera snapshot) first!
+        let capturedBlob = null;
+        if (window.ImageCapture && currentStream) {
+          const videoTrack = currentStream.getVideoTracks()[0];
+          if (videoTrack && videoTrack.readyState === "live") {
+            try {
+              const imageCapture = new ImageCapture(videoTrack);
+              capturedBlob = await imageCapture.takePhoto();
+              console.log("[MobileCamera-HTML] Captured via ImageCapture hardware API", capturedBlob.size);
+            } catch (icErr) {
+              console.warn("[MobileCamera-HTML] ImageCapture takePhoto failed, falling back to canvas:", icErr);
+            }
+          }
+        }
+
+        // If ImageCapture wasn't used, check if canvas can grab from video element
+        if (!capturedBlob) {
+          if (!video.videoWidth || !video.videoHeight) {
+            console.warn("[MobileCamera-HTML] Video feed has no frames, triggering native camera fallback");
+            const fallback = document.getElementById("nativeFallbackInput");
+            if (fallback) {
+              showToast("Opening device camera...", "info");
+              fallback.click();
+              return;
+            }
+            showToast("Camera feed initializing, please wait...", "error");
+            return;
+          }
+        }
+
+        isUploading = true;
+        shutterBtn.disabled = true;
+
+        // Visual flash & haptic feedback
+        flash.classList.add("active");
+        setTimeout(() => flash.classList.remove("active"), 120);
+        if (navigator.vibrate) {
+          try { navigator.vibrate(60); } catch (_) {}
+        }
+
+        showToast("Processing & Uploading...", "info");
+
+        if (capturedBlob) {
+          await processUpload(capturedBlob, viewId);
+          return;
+        }
+
+        // Grab frame from video onto canvas
+        const w = video.videoWidth || 1280;
+        const h = video.videoHeight || 720;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        try {
+          ctx.drawImage(video, 0, 0, w, h);
+          console.log("[MobileCamera-HTML] CANVAS_DRAW_SUCCESS", { canvasWidth: w, canvasHeight: h });
+        } catch (drawErr) {
+          console.error("[MobileCamera-HTML] CANVAS_DRAW_FAILED", drawErr);
+          showToast("Failed to grab video frame.", "error");
+          isUploading = false;
+          shutterBtn.disabled = false;
+          return;
+        }
+
+        const handleBlob = async function (blob) {
+          let finalBlob = blob;
+          if (!finalBlob) {
+            console.warn("[MobileCamera-HTML] canvas.toBlob returned null, using dataUrl fallback");
+            try {
+              const du = canvas.toDataURL("image/jpeg", 0.90);
+              finalBlob = dataUrlToBlob(du);
+            } catch (fbErr) {
+              console.error("[MobileCamera-HTML] dataUrl fallback failed:", fbErr);
+            }
+          }
+          if (!finalBlob) {
+            showToast("Frame capture failed.", "error");
+            isUploading = false;
+            shutterBtn.disabled = false;
+            return;
+          }
+          console.log("[MobileCamera-HTML] IMAGE_BLOB_CREATED", { size: finalBlob.size, type: finalBlob.type });
+          await processUpload(finalBlob, viewId);
+        };
+
+        try {
+          canvas.toBlob(handleBlob, "image/jpeg", 0.90);
+        } catch (toBlobErr) {
+          console.warn("[MobileCamera-HTML] toBlob threw exception, attempting synchronous fallback:", toBlobErr);
+          try {
+            const du = canvas.toDataURL("image/jpeg", 0.90);
+            const fbBlob = dataUrlToBlob(du);
+            await handleBlob(fbBlob);
+          } catch (err) {
+            console.error("[MobileCamera-HTML] Synchronous fallback also failed:", err);
+            showToast("Frame capture exception.", "error");
+            isUploading = false;
+            shutterBtn.disabled = false;
+          }
+        }
+      }
+
+      // --- Fallback input upload ---
+      fallbackInput.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const viewId = targetPicker.value;
+        isUploading = true;
+        shutterBtn.disabled = true;
+        showToast("Uploading selected image...", "info");
+        await processUpload(file, viewId);
+        fallbackInput.value = "";
+      });
+
+      // --- Upload Processing with Cloudinary or Direct Backend ---
+      async function processUpload(imageFileOrBlob, viewId) {
+        try {
+          // Check if direct Cloudinary upload signing is available
+          let signResp = null;
+          try {
+            const r = await fetch(`/lots/${lotId}/views/${viewId}/cloudinary-sign`);
+            if (r.ok) signResp = await r.json();
+          } catch (e) {
+            console.log("Could not obtain Cloudinary signature:", e);
+          }
+
+          let uploadResult = null;
+
+          if (signResp && signResp.configured) {
+            // Direct Cloudinary Upload
+            showToast("Uploading to Cloudinary...", "info");
+            const fd = new FormData();
+            fd.append("file", imageFileOrBlob, "capture.jpg");
+            fd.append("api_key", signResp.api_key);
+            fd.append("timestamp", signResp.timestamp);
+            fd.append("signature", signResp.signature);
+            fd.append("folder", signResp.folder);
+            fd.append("tags", signResp.tags);
+
+            const cldRes = await fetch(signResp.upload_url, { method: "POST", body: fd });
+            if (!cldRes.ok) throw new Error("Cloudinary upload failed with HTTP " + cldRes.status);
+            const cldJson = await cldRes.json();
+
+            // Register Cloudinary receipt with Lotline backend
+            showToast("Registering & Running AI Detection...", "info");
+            const regRes = await fetch(`/lots/${lotId}/views/${viewId}/register-cloudinary`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                public_id: cldJson.public_id,
+                secure_url: cldJson.secure_url,
+                width: cldJson.width,
+                height: cldJson.height,
+                bytes: cldJson.bytes,
+                captured_at: new Date().toISOString()
+              })
+            });
+            if (!regRes.ok) throw new Error("Lotline registration failed.");
+            uploadResult = await regRes.json();
+          } else {
+            // Server-side Direct/Fallback Upload
+            showToast("Uploading to Lotline...", "info");
+            const fd = new FormData();
+            fd.append("file", imageFileOrBlob, "mobile_cam.jpg");
+            fd.append("captured_at", new Date().toISOString());
+            fd.append("csrf", csrf);
+
+            const srvRes = await fetch(`/lots/${lotId}/views/${viewId}/mobile-upload`, {
+              method: "POST",
+              body: fd
+            });
+            if (!srvRes.ok) throw new Error("Server upload failed with HTTP " + srvRes.status);
+            uploadResult = await srvRes.json();
+          }
+
+          // Success handling & auto-advance
+          showToast("Saved & Inferred! ✓", "success");
+          handleUploadSuccess(uploadResult, viewId);
+
+        } catch (err) {
+          console.error("Upload failed:", err);
+          showToast("Upload failed: " + err.message, "error");
+        } finally {
+          isUploading = false;
+          shutterBtn.disabled = false;
+        }
+      }
+
+      function handleUploadSuccess(result, viewId) {
+        // Mark current option as completed in select
+        const currentOpt = targetPicker.querySelector(`option[value="${viewId}"]`);
+        if (currentOpt && !currentOpt.textContent.includes("✓")) {
+          currentOpt.textContent = currentOpt.textContent + " ✓";
+        }
+
+        // Auto-advance to next view
+        if (result && result.next_view) {
+          const nextVal = String(result.next_view.view_id);
+          targetPicker.value = nextVal;
+          updateTargetUI();
+        } else if (result && result.lot_complete) {
+          targetGarmentText.textContent = "All Views Complete!";
+          targetSideBadge.textContent = "DONE";
+          targetSideBadge.className = "target-side-badge";
+          setTimeout(() => {
+            if (confirm("All garment views captured! Return to gallery review?")) {
+              window.location.href = `/lots/${lotId}/capture`;
+            }
+          }, 600);
+        }
+      }
+
+      shutterBtn.addEventListener("touchend", handleShutterTrigger);
+      shutterBtn.addEventListener("click", handleShutterTrigger);
+
+      // Initialize
+      updateTargetUI();
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        startCamera();
+      } else {
+        showToast("WebRTC camera not available. Use native upload.", "error");
+      }
+    })();
+  </script>
+</body>
+</html>
+

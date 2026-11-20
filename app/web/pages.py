@@ -40,6 +40,44 @@ templates.env.filters["num_grouped"] = num_grouped_filter
 templates.env.filters["dt_local"] = dt_local_filter
 
 
+def get_lan_ip() -> str:
+    """Return local LAN IP so mobile devices on Wi-Fi can reach the server."""
+    try:
+        import socket
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+def get_public_base_url(request: Request | None = None) -> tuple[str, bool]:
+    """Resolve the public base URL for mobile QR pairing.
+
+    Returns:
+        (base_url, is_tunnel):
+        - If active verified HTTPS tunnel: (tunnel_url, True)
+        - Otherwise fallback to LAN: (http://<lan_ip>:8077, False)
+    """
+    from ..config import get_active_tunnel_url
+
+    tunnel = get_active_tunnel_url()
+    if tunnel:
+        return (tunnel, True)
+
+    lan_ip = get_lan_ip()
+    if lan_ip and lan_ip != "127.0.0.1":
+        return (f"http://{lan_ip}:8077", False)
+
+    if request and request.headers.get("host"):
+        return (f"http://{request.headers.get('host')}", False)
+
+    return ("http://localhost:8077", False)
+
+
 def lang_of(request: Request) -> str:
     """Resolve the UI language from the cookie, defaulting to Bangla."""
     value = request.cookies.get("ll_lang", "bn")
@@ -48,9 +86,12 @@ def lang_of(request: Request) -> str:
 
 def ctx(request: Request, **kw) -> dict:
     """Build the base template context every screen receives."""
-    session = security.current_session(request.cookies.get(security.COOKIE))
+    token = request.cookies.get(security.COOKIE) or request.query_params.get("session_token")
+    session = security.current_session(token)
     lang = lang_of(request)
     user = session["user"] if session else None
+    lan_ip = get_lan_ip()
+    public_base_url, is_tunnel = get_public_base_url(request)
     catalog_buyers = []
     catalog_products = []
     last_selftest = None
@@ -85,6 +126,10 @@ def ctx(request: Request, **kw) -> dict:
         "github_oauth": oauth.enabled(),
         "guest_login": DEMO_LOGIN,
         "is_guest": permissions.is_guest(session),
+        "public_base_url": public_base_url,
+        "is_tunnel": is_tunnel,
+        "lan_ip": lan_ip,
+        "session_token": token or "",
     }
     context.update(kw)
     return context

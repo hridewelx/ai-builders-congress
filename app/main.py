@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import time
 
+import re
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
@@ -22,8 +23,34 @@ from .web.routes import admin, auth, capture, dashboard, decisions, lots, report
 log = logging.getLogger("lotline")
 
 
+class SensitiveParamFilter(logging.Filter):
+    """Mask sensitive query string credentials like session_token from server logs."""
+
+    _pattern = re.compile(r"(session_token=)[^&\s'\"]+", re.IGNORECASE)
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if isinstance(record.msg, str):
+            record.msg = self._pattern.sub(r"\1[REDACTED]", record.msg)
+        if record.args:
+            cleaned_args = []
+            for arg in record.args:
+                if isinstance(arg, str):
+                    cleaned_args.append(self._pattern.sub(r"\1[REDACTED]", arg))
+                else:
+                    cleaned_args.append(arg)
+            record.args = tuple(cleaned_args)
+        return True
+
+
 def create_app() -> FastAPI:
     """Build the ASGI application."""
+    # Install sensitive credential filter on access loggers
+    param_filter = SensitiveParamFilter()
+    for name in ("uvicorn", "uvicorn.access", "uvicorn.error", "lotline"):
+        l = logging.getLogger(name)
+        if not any(isinstance(f, SensitiveParamFilter) for f in l.filters):
+            l.addFilter(param_filter)
+
     app = FastAPI(title=APP_TITLE, docs_url=None, redoc_url=None)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     errors.register(app)

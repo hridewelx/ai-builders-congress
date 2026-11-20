@@ -7,7 +7,12 @@ from ..core import db, security
 
 
 def session_of(request: Request):
-    return security.current_session(request.cookies.get(security.COOKIE))
+    token = request.cookies.get(security.COOKIE) or request.query_params.get("session_token")
+    if not token:
+        auth = request.headers.get("authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth[7:].strip()
+    return security.current_session(token)
 
 
 def current_user(request: Request) -> dict:
@@ -30,10 +35,32 @@ def check_csrf(request: Request, s: dict) -> None:
     if not security.check_csrf(s, token):
         raise HTTPException(status_code=403, detail="csrf")
     origin = request.headers.get("origin")
-    if origin:
-        host = request.headers.get("host", "")
-        if origin.split("://")[-1] != host:
-            raise HTTPException(status_code=403, detail="csrf")
+    if not origin:
+        return
+
+    origin_host = origin.split("://")[-1].split(":")[0].strip().lower()
+    host = request.headers.get("host", "").split(":")[0].strip().lower()
+
+    if origin_host == host:
+        return
+
+    client_ip = request.client.host if request.client else ""
+    if client_ip in ("127.0.0.1", "::1", "localhost", "testclient"):
+        from ..config import get_active_tunnel_host
+
+        expected_tunnel_host = get_active_tunnel_host()
+        fwd_host = request.headers.get("x-forwarded-host", "").split(":")[0].strip().lower()
+        fwd_proto = request.headers.get("x-forwarded-proto", "").strip().lower()
+
+        if (
+            expected_tunnel_host
+            and fwd_host == expected_tunnel_host
+            and origin_host == expected_tunnel_host
+            and fwd_proto == "https"
+        ):
+            return
+
+    raise HTTPException(status_code=403, detail="csrf")
 
 
 def auth_response_payload(s: dict) -> dict:

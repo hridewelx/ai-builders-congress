@@ -96,6 +96,84 @@
   </div>
 </div>
 
+{# --- Mobile Camera & Cloudinary Live Sync Card --- #}
+<div class="card" style="margin-bottom:16px;border-left:4px solid #10b981;background:var(--surface)">
+  <div class="pad-sm" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div class="row" style="gap:12px;align-items:center">
+      <span style="color:#090d16;background:#10b981;padding:8px;border-radius:8px;display:inline-flex">
+        {{ icons.icon('camera', 20) }}
+      </span>
+      <div>
+        <div style="font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px">
+          <span>{{ 'Automated Mobile Camera & Cloud Sync' if lang=='en' else 'স্বয়ংক্রিয় মোবাইল ক্যামেরা ও ক্লাউড সিঙ্ক' }}</span>
+          {% if cloudinary_configured %}
+            <span class="badge badge-success" style="font-size:11px">Cloudinary Active</span>
+          {% else %}
+            <span class="badge badge-neutral" style="font-size:11px">Local Storage Active</span>
+          {% endif %}
+          <span class="badge badge-info" id="liveSyncStatus" style="font-size:11px">● Live Sync</span>
+        </div>
+        <p class="small dim" style="margin:2px 0 0">
+          {{ 'No manual file browsing needed. Open mobile camera to snap and auto-upload directly into this lot.' if lang=='en' else 'ম্যানুয়ালি ফাইল ব্রাউজ করার প্রয়োজন নেই। মোবাইল ক্যামেরা খুলে ছবি তুললেই স্বয়ংক্রিয়ভাবে আপলোড হবে।' }}
+        </p>
+      </div>
+    </div>
+    <div class="row" style="gap:8px">
+      <a href="/lots/{{ lot.id }}/mobile-cam{% if session_token %}?session_token={{ session_token }}{% endif %}" target="_blank" class="btn primary" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('camera', 16) }}
+        <span>{{ 'Launch Mobile Camera' if lang=='en' else 'মোবাইল ক্যামেরা চালু করুন' }}</span>
+      </a>
+      <button class="btn subtle" type="button" data-dialog-open="qrModal" id="qrModalTrigger" onclick="toggleQrModal()" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('external-link', 14) }}
+        <span>{{ 'Scan Phone QR' if lang=='en' else 'ফোন কিউআর কোড' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+{# --- QR Code Modal --- #}
+<dialog class="dialog" id="qrModal" aria-labelledby="qrModal-title" style="max-width:440px;width:100%;border-radius:14px;padding:0;overflow:hidden">
+  <div class="dialog-head" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line,#e2e8f0)">
+    <h2 id="qrModal-title" style="font-size:16px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px">
+      {{ icons.icon('camera', 18) }}
+      <span>{{ 'Scan with Phone Camera' if lang=='en' else 'মোবাইল ক্যামেরা দিয়ে স্ক্যান করুন' }}</span>
+    </h2>
+    <button class="icon-btn" type="button" data-dialog-close aria-label="Close" style="background:transparent;border:none;cursor:pointer;padding:4px">
+      {{ icons.icon('x', 18) }}
+    </button>
+  </div>
+  <div class="dialog-body" style="padding:20px;text-align:center">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
+      <span id="tunnelBadge" class="chip {{ 'ok' if is_tunnel else 'dim' }}" style="font-size:11px">
+        {{ '🔒 HTTPS Tunnel Active' if is_tunnel else '📶 Local Network (LAN)' }}
+      </span>
+    </div>
+    <p class="small dim" style="margin-bottom:14px">
+      {{ 'Instantly opens the zero-click capture workflow for this lot on your mobile device.' if lang=='en' else 'কিউআর কোড স্ক্যান করলেই ফোনের ব্যাক ক্যামেরা সরাসরি চালু হবে এবং ছবি স্বয়ংক্রিয়ভাবে লটে আপলোড হবে।' }}
+    </p>
+    {% set mobile_target_url = (public_base_url ~ '/lots/' ~ lot.id ~ '/mobile-cam' ~ ('?session_token=' ~ session_token if session_token else '')) %}
+    <div style="background:#ffffff;padding:14px;border-radius:10px;display:inline-block;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,0.08);border:1px solid var(--line,#e2e8f0)">
+      <img id="qrCodeImg" src="/qr?text={{ mobile_target_url|urlencode }}" alt="Mobile Camera QR" style="width:220px;height:220px;display:block">
+    </div>
+    <div id="qrTargetText" style="background:var(--subtle,#f1f5f9);padding:8px 12px;border-radius:8px;font-family:monospace;font-size:12px;color:var(--text,#1e293b);margin-bottom:12px;word-break:break-all">
+      {{ mobile_target_url }}
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <a id="qrOpenDirectLink" href="{{ mobile_target_url }}" target="_blank" class="btn primary sm" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('external-link', 14) }}
+        <span>{{ 'Open on this device' if lang=='en' else 'এই ডিভাইসে খুলুন' }}</span>
+      </a>
+      <button class="btn subtle sm" type="button" id="copyQrUrlBtn" style="display:inline-flex;align-items:center;gap:6px">
+        {{ icons.icon('copy', 14) }}
+        <span>{{ 'Copy Link' if lang=='en' else 'লিঙ্ক কপি করুন' }}</span>
+      </button>
+    </div>
+  </div>
+  <div class="dialog-actions" style="padding:12px 20px;display:flex;justify-content:flex-end;border-top:1px solid var(--line,#e2e8f0);background:var(--subtle,#f8fafc)">
+    <button class="btn subtle sm" type="button" data-dialog-close>{{ 'Close' if lang=='en' else 'বন্ধ করুন' }}</button>
+  </div>
+</dialog>
+
 {# --- Add Unit Section --- #}
 {% if can_write %}
 {% set target_units = progress.required_units if progress.required_units else lot.lot_size %}
@@ -280,4 +358,133 @@
   </div>
   {% endfor %}
 </div>
+
+<script>
+  function toggleQrModal() {
+    var m = document.getElementById("qrModal");
+    if (!m) return;
+    if (typeof m.showModal === "function") {
+      if (m.open) {
+        if (typeof m.close === "function") m.close();
+        else m.removeAttribute("open");
+      } else {
+        m.showModal();
+      }
+    } else {
+      var isOpening = (m.style.display === "none" || !m.style.display || !m.hasAttribute("open"));
+      if (isOpening) {
+        m.setAttribute("open", "");
+        m.style.display = "block";
+      } else {
+        m.removeAttribute("open");
+        m.style.display = "none";
+      }
+    }
+    if (typeof window.refreshQrUrl === "function") {
+      window.refreshQrUrl();
+    }
+  }
+  window.toggleQrModal = toggleQrModal;
+
+  // Copy QR Url Button
+  document.addEventListener("DOMContentLoaded", function() {
+    var copyBtn = document.getElementById("copyQrUrlBtn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", function() {
+        var qrText = document.getElementById("qrTargetText");
+        if (qrText && qrText.textContent) {
+          navigator.clipboard.writeText(qrText.textContent.trim()).then(function() {
+            var orig = copyBtn.innerHTML;
+            copyBtn.innerText = "✓ Copied!";
+            setTimeout(function() { copyBtn.innerHTML = orig; }, 2000);
+          });
+        }
+      });
+    }
+  });
+
+  // --- Real-Time Gallery Live-Sync ---
+  (function() {
+    const lotId = {{ lot.id }};
+    const sessionToken = "{{ session_token or '' }}";
+    const liveSyncBadge = document.getElementById("liveSyncStatus");
+    let lastImageCount = {{ images_with_photo|length }};
+    let lastPublicBaseUrl = "{{ public_base_url }}";
+    let isChecking = false;
+
+    async function refreshQrUrl() {
+      try {
+        const res = await fetch(`/lots/${lotId}/views-status`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.public_base_url) {
+          lastPublicBaseUrl = data.public_base_url;
+          const targetUrl = data.public_base_url + `/lots/${lotId}/mobile-cam` + (sessionToken ? `?session_token=${sessionToken}` : '');
+          const qrImg = document.getElementById("qrCodeImg");
+          const qrText = document.getElementById("qrTargetText");
+          const tBadge = document.getElementById("tunnelBadge");
+          const directLink = document.getElementById("qrOpenDirectLink");
+          if (qrImg) qrImg.src = `/qr?text=` + encodeURIComponent(targetUrl);
+          if (qrText) qrText.textContent = targetUrl;
+          if (directLink) directLink.href = targetUrl;
+          if (tBadge) {
+            tBadge.textContent = data.is_tunnel ? "🔒 HTTPS Tunnel Active" : "📶 Local Network (LAN)";
+            tBadge.className = "chip " + (data.is_tunnel ? "ok" : "dim");
+          }
+        }
+      } catch (e) {}
+    }
+    window.refreshQrUrl = refreshQrUrl;
+
+    async function checkLiveUpdates() {
+      if (isChecking) return;
+      isChecking = true;
+      try {
+        const res = await fetch(`/lots/${lotId}/views-status`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Dynamic QR and Tunnel updates
+        if (data.public_base_url && data.public_base_url !== lastPublicBaseUrl) {
+          lastPublicBaseUrl = data.public_base_url;
+          const targetUrl = data.public_base_url + `/lots/${lotId}/mobile-cam` + (sessionToken ? `?session_token=${sessionToken}` : '');
+          const qrImg = document.getElementById("qrCodeImg");
+          const qrText = document.getElementById("qrTargetText");
+          const tBadge = document.getElementById("tunnelBadge");
+          if (qrImg) qrImg.src = `/qr?text=` + encodeURIComponent(targetUrl);
+          if (qrText) qrText.textContent = targetUrl;
+          if (tBadge) {
+            tBadge.textContent = data.is_tunnel ? "🔒 HTTPS Tunnel Active" : "📶 Local Network (LAN)";
+            tBadge.className = "chip " + (data.is_tunnel ? "ok" : "dim");
+          }
+        }
+
+        let currentImages = 0;
+        if (data && data.units) {
+          for (const u of data.units) {
+            for (const v of u.views) {
+              if (v.has_image) currentImages++;
+            }
+          }
+        }
+
+        if (currentImages !== lastImageCount) {
+          if (liveSyncBadge) {
+            liveSyncBadge.textContent = "● Synced! Refreshing...";
+            liveSyncBadge.className = "badge badge-success";
+          }
+          // Reload page to display new image thumbnails, proposals, and updated stepper
+          setTimeout(() => { window.location.reload(); }, 600);
+        }
+      } catch (e) {
+        // Quietly ignore transient network glitches in polling
+      } finally {
+        isChecking = false;
+      }
+    }
+
+    // Poll every 3.5 seconds
+    setInterval(checkLiveUpdates, 3500);
+  })();
+</script>
 {% endblock %}
