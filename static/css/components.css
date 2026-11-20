@@ -192,6 +192,14 @@
   background: var(--surface-subtle); color: var(--text); border-color: var(--line);
 }
 
+/* Keyboard focus: the --focus token is only a colour pair until something
+   spends it, so every interactive element draws the same two-tone ring. */
+:where(a, button, summary, [role="button"]):focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
 .btn.sm { min-height: 32px; padding: 5px 11px; font-size: 12px; border-radius: 6px; }
 
 .btn.danger {

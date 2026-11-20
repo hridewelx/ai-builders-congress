@@ -197,6 +197,16 @@ def test_focus_ring_is_visible_against_both_canvases():
             assert ratio >= 3, f"{theme}: focus ring on {surface} is {ratio:.2f}:1"
 
 
+def test_the_focus_ring_is_actually_drawn():
+    """A token nobody spends is not an indicator: some rule must apply it."""
+    sheets = [(path, path.read_text(encoding="utf-8")) for path in _cascade_order()]
+    spenders = [text for path, text in sheets if re.search(r"box-shadow:\s*var\(--focus\)", text)]
+    assert spenders, "no stylesheet applies --focus"
+    combined = chr(10).join(spenders)
+    for selector in ("a", "button", "input"):
+        assert re.search(r"[:,\s]" + selector + r"[\s,:)]", combined), f"--focus never reaches {selector}"
+
+
 # --------------------------------------------------------------------------
 # 3. the toggle exists everywhere and runs before paint
 # --------------------------------------------------------------------------
