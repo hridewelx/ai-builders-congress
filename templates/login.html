@@ -59,75 +59,17 @@
       {% endif %}
 
       {% if github_oauth %}
-      <a class="btn ghost lg" href="/api/auth/github" style="width:100%;margin-bottom:14px">
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" style="margin-right:8px">
+      <a class="signin" href="/api/auth/github">
+        <svg width="17" height="17" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
         </svg>
         {{ tr('login.github') }}
       </a>
-      <div class="divider"><span></span><b>{{ tr('login.or') }}</b><span></span></div>
+      {% else %}
+      <div class="auth-note" role="note">
+        {{ 'GitHub sign-in is not enabled on this instance. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET to turn it on.' if lang=='en' else 'এই ইনস্ট্যান্সে গিটহাব সাইন-ইন চালু নেই। চালু করতে GITHUB_CLIENT_ID ও GITHUB_CLIENT_SECRET সেট করুন।' }}
+      </div>
       {% endif %}
-
-      <form method="post" action="/login">
-        <div class="field">
-          <label for="email">{{ tr('login.email') }}</label>
-          <input id="email" name="email" type="email" autocomplete="username" required placeholder="inspector@lotline.demo" autocapitalize="none" spellcheck="false" autofocus>
-        </div>
-        <div class="field">
-          <label for="password">{{ tr('login.password') }}</label>
-          <div style="position:relative">
-            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••••" style="padding-right:40px">
-            <button type="button" class="icon-btn pass-toggle" id="passToggle" aria-label="{{ 'Show password' if lang=='en' else 'পাসওয়ার্ড দেখুন' }}" title="{{ 'Show password' if lang=='en' else 'পাসওয়ার্ড দেখুন' }}" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:4px">
-              {{ icons.icon('eye', 16) }}
-            </button>
-          </div>
-        </div>
-        <button class="btn primary lg" type="submit" style="width:100%">{{ tr('login.submit') }}</button>
-      </form>
-
-      <div class="divider"><span></span><b>{{ tr('login.demo') }}</b><span></span></div>
-
-      <div class="demo-grid">
-        <a class="demo-role" href="/demo/inspector">
-          <span class="demo-initial" aria-hidden="true">IN</span>
-          <span class="demo-info">
-            <span class="demo-name">{{ tr('common.inspector') }}</span>
-            <span class="demo-email">inspector@lotline.demo</span>
-          </span>
-        </a>
-        <a class="demo-role" href="/demo/supervisor">
-          <span class="demo-initial" aria-hidden="true">A</span>
-          <span class="demo-info">
-            <span class="demo-name">{{ 'Supervisor A' if lang=='en' else 'সুপারভাইজার এ' }}</span>
-            <span class="demo-email">supervisor@lotline.demo</span>
-          </span>
-        </a>
-        <a class="demo-role" href="/demo/admin">
-          <span class="demo-initial" aria-hidden="true">AD</span>
-          <span class="demo-info">
-            <span class="demo-name">{{ tr('common.admin') }}</span>
-            <span class="demo-email">admin@lotline.demo</span>
-          </span>
-        </a>
-        <form method="post" action="/login" style="margin:0">
-          <input type="hidden" name="email" value="lead@lotline.demo">
-          <input type="hidden" name="password" value="QualityFloor2026!">
-          <button class="demo-role" type="submit" aria-label="{{ 'Sign in as Supervisor B' if lang=='en' else 'সুপারভাইজার বি হিসেবে সাইন ইন' }}">
-            <span class="demo-initial" aria-hidden="true">B</span>
-            <span class="demo-info">
-              <span class="demo-name">{{ 'Supervisor B' if lang=='en' else 'সুপারভাইজার বি' }}</span>
-              <span class="demo-email">lead@lotline.demo</span>
-            </span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Backend limitation note: Temporary-password changes are not exposed via a dedicated change-password route in this build. -->
-      <div class="demo-box">
-        <span class="demo-box-lbl">{{ 'Demo credentials' if lang=='en' else 'ডেমো তথ্য' }}:</span>
-        <span>{{ 'Seeded accounts share' if lang=='en' else 'সকল অ্যাকাউন্টের একই পাসওয়ার্ড' }}</span>
-        <code>QualityFloor2026!</code>
-      </div>
     </div>
   </section>
 </div>

@@ -9,12 +9,13 @@
   .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .content { padding: 20px 24px 48px; }
   .topbar { padding: 10px 24px; }
-  .login { grid-template-columns: 1fr; min-height: 100vh; }
-  .login .left { padding: 32px 24px; min-height: auto; border-right: none; border-bottom: 1px solid #1e293b; }
+  /* Stacked, the sign-in card has to come first: it is the only way in. */
+  .login { display: flex; flex-direction: column; min-height: 100vh; }
+  .login .auth { order: -1; padding: 48px 20px 28px; }
+  .login .left { padding: 8px 24px 40px; min-height: auto; border-right: none; border-top: 1px solid #1e293b; }
   .login .hero-main { margin: 18px 0; padding: 0; }
-  .login h1 { font-size: clamp(28px, 5vw, 38px); }
-  .login .auth { padding: 32px 20px 48px; }
-  .login .auth-card { max-width: 420px; width: 100%; margin: 0 auto; padding: 28px 24px; }
+  .login h1 { font-size: clamp(26px, 5vw, 38px); }
+  .login .auth-card { max-width: 440px; width: 100%; margin: 0 auto; padding: 26px 22px; }
 }
 @media (max-width: 900px) {
   :root { --topbar-h: 60px; }
@@ -90,7 +91,6 @@
   .filter-pills .pill-btn { flex: 1; text-align: center; }
   .topbar { padding: 8px 12px; }
   .content { padding: 12px 12px 40px; }
-  .login .demo-grid { grid-template-columns: 1fr; }
   .login .proof { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .login .proof b { font-size: 18px; }
   .login .proof span { font-size: 11px; }

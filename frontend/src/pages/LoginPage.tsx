@@ -1,59 +1,20 @@
-import { useState, type FormEvent } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { ApiError } from "../lib/api";
+import { useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useSession } from "../lib/session";
 import { Icon } from "../components/ui";
 import { ThemeToggle } from "../components/ThemeToggle";
 
 export function LoginPage() {
-  const { authenticated, lang, t, data, login, demoLogin, setLang } = useSession();
-  const navigate = useNavigate();
+  const { authenticated, lang, t, data, setLang } = useSession();
   const location = useLocation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<"failed" | "rl" | "oauth" | "">(() => {
+  const [error] = useState<"failed" | "rl" | "oauth" | "">(() => {
     const value = new URLSearchParams(location.search).get("err");
     return value === "oauth" || value === "rl" ? value : "";
   });
-  const [busy, setBusy] = useState(false);
 
   if (authenticated) {
     return <Navigate to="/" replace />;
   }
-
-  const go = () => {
-    const from = (location.state as { from?: string } | null)?.from;
-    navigate(from && from !== "/login" ? from : "/", { replace: true });
-  };
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    try {
-      await login(email, password);
-      go();
-    } catch (caught) {
-      const detail = caught instanceof ApiError ? caught.detail : "";
-      setError(detail === "rl" ? "rl" : "failed");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const demo = async (role: "inspector" | "supervisor" | "admin") => {
-    setBusy(true);
-    setError("");
-    try {
-      await demoLogin(role);
-      go();
-    } catch {
-      setError("failed");
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <div className="login">
@@ -118,109 +79,19 @@ export function LoginPage() {
           ) : null}
 
           {data.github_oauth ? (
-            <>
-              <a className="btn ghost lg" href="/api/auth/github" style={{ width: "100%", marginBottom: 14 }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" style={{ marginRight: 8 }}>
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
-                </svg>
-                {t("login.github")}
-              </a>
-              <div className="divider"><span /><b>{t("login.or")}</b><span /></div>
-            </>
-          ) : null}
-
-          <form onSubmit={submit}>
-            <div className="field">
-              <label htmlFor="email">{t("login.email")}</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="username"
-                required
-                placeholder="inspector@lotline.demo"
-                autoCapitalize="none"
-                spellCheck={false}
-                autoFocus
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
+            <a className="signin" href="/api/auth/github">
+              <svg width="17" height="17" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+              </svg>
+              {t("login.github")}
+            </a>
+          ) : (
+            <div className="auth-note" role="note">
+              {lang === "en"
+                ? "GitHub sign-in is not enabled on this instance. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET to turn it on."
+                : "এই ইনস্ট্যান্সে গিটহাব সাইন-ইন চালু নেই। চালু করতে GITHUB_CLIENT_ID ও GITHUB_CLIENT_SECRET সেট করুন।"}
             </div>
-            <div className="field">
-              <label htmlFor="password">{t("login.password")}</label>
-              <div style={{ position: "relative" }}>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  placeholder="••••••••••••"
-                  style={{ paddingRight: 40 }}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <button
-                  type="button"
-                  className="icon-btn pass-toggle"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  onClick={() => setShowPassword((value) => !value)}
-                  style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--muted)", display: "flex", alignItems: "center", padding: 4 }}
-                >
-                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} />
-                </button>
-              </div>
-            </div>
-            <button className="btn primary lg" type="submit" style={{ width: "100%" }} disabled={busy}>
-              {t("login.submit")}
-            </button>
-          </form>
-
-          <div className="divider"><span /><b>{t("login.demo")}</b><span /></div>
-
-          <div className="demo-grid">
-            <button className="demo-role" type="button" onClick={() => demo("inspector")} disabled={busy}>
-              <span className="demo-initial" aria-hidden="true">IN</span>
-              <span className="demo-info">
-                <span className="demo-name">{t("common.inspector")}</span>
-                <span className="demo-email">inspector@lotline.demo</span>
-              </span>
-            </button>
-            <button className="demo-role" type="button" onClick={() => demo("supervisor")} disabled={busy}>
-              <span className="demo-initial" aria-hidden="true">A</span>
-              <span className="demo-info">
-                <span className="demo-name">{lang === "en" ? "Supervisor A" : "সুপারভাইজার এ"}</span>
-                <span className="demo-email">supervisor@lotline.demo</span>
-              </span>
-            </button>
-            <button className="demo-role" type="button" onClick={() => demo("admin")} disabled={busy}>
-              <span className="demo-initial" aria-hidden="true">AD</span>
-              <span className="demo-info">
-                <span className="demo-name">{t("common.admin")}</span>
-                <span className="demo-email">admin@lotline.demo</span>
-              </span>
-            </button>
-            <button
-              className="demo-role"
-              type="button"
-              onClick={() => {
-                setEmail("lead@lotline.demo");
-                setPassword("QualityFloor2026!");
-              }}
-            >
-              <span className="demo-initial" aria-hidden="true">B</span>
-              <span className="demo-info">
-                <span className="demo-name">{lang === "en" ? "Supervisor B" : "সুপারভাইজার বি"}</span>
-                <span className="demo-email">lead@lotline.demo</span>
-              </span>
-            </button>
-          </div>
-
-          <div className="demo-box">
-            <span className="demo-box-lbl">{lang === "en" ? "Demo credentials" : "ডেমো তথ্য"}:</span>
-            <span>{lang === "en" ? "Seeded accounts share" : "সকল অ্যাকাউন্টের একই পাসওয়ার্ড"}</span>
-            <code>QualityFloor2026!</code>
-          </div>
+          )}
         </div>
       </section>
     </div>
