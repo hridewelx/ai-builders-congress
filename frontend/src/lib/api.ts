@@ -22,6 +22,7 @@ export interface Bootstrap {
   demo_login: boolean;
   is_guest: boolean;
   github_oauth: boolean;
+  google_oauth: boolean;
   catalogs: {
     buyers: Array<{ id: number; name: string; country: string }>;
     products: Array<{ id: number; name: string; family: string }>;

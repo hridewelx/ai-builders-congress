@@ -11,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 from .. import i18n
 from ..config import DEMO_LOGIN, TEMPLATES_DIR, ZONES
 from ..core import permissions, security
-from ..services import oauth
+from ..services import google_oauth, oauth
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 templates.env.filters["fromjson"] = json.loads
@@ -124,6 +124,7 @@ def ctx(request: Request, **kw) -> dict:
         "catalog_products": catalog_products,
         "last_selftest": last_selftest,
         "github_oauth": oauth.enabled(),
+        "google_oauth": google_oauth.enabled(),
         "guest_login": DEMO_LOGIN,
         "is_guest": permissions.is_guest(session),
         "public_base_url": public_base_url,

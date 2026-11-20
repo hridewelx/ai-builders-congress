@@ -38,6 +38,7 @@ const FALLBACK: Bootstrap = {
   demo_login: false,
   is_guest: false,
   github_oauth: false,
+  google_oauth: false,
   catalogs: { buyers: [], products: [] },
   model: { model: "", detector: "", model_ok: false, card: {} },
   last_selftest: null,

@@ -55,20 +55,22 @@ def enabled() -> bool:
     return bool(client_id() and client_secret())
 
 
-def _state_key() -> bytes:
+def _state_key(secret: str | None = None) -> bytes:
     # Stable across restarts: an OAuth round trip must not fail because the
-    # development server reloaded while the user was on GitHub.
-    return (os.environ.get("LOTLINE_STATE_SECRET", "").strip() or client_secret()).encode()
+    # development server reloaded while the user was on the provider's site.
+    # Providers pass their own secret so a state signed for one provider cannot
+    # be replayed against another provider's callback.
+    return (os.environ.get("LOTLINE_STATE_SECRET", "").strip() or secret or client_secret()).encode()
 
 
-def new_state() -> str:
+def new_state(secret: str | None = None) -> str:
     """A signed, short-lived state value.
 
     The cookie is still set for browsers that keep it, but verification does
-    not depend on that cookie surviving GitHub's cross-site redirect.
+    not depend on that cookie surviving the provider's cross-site redirect.
     """
     raw = f"{secrets.token_urlsafe(16)}.{int(time.time())}"
-    signature = hmac.new(_state_key(), raw.encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(_state_key(secret), raw.encode(), hashlib.sha256).hexdigest()
     return f"{raw}.{signature}"
 
 
@@ -92,7 +94,7 @@ def authorize_url(state: str, request=None) -> str:
     return f"{AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
 
 
-def verify_state(cookie: str | None, state: str | None) -> bool:
+def verify_state(cookie: str | None, state: str | None, secret: str | None = None) -> bool:
     if not state:
         return False
     if cookie and hmac.compare_digest(str(cookie), str(state)):
@@ -101,7 +103,7 @@ def verify_state(cookie: str | None, state: str | None) -> bool:
     if len(parts) != 3:
         return False
     raw = ".".join(parts[:2])
-    expected = hmac.new(_state_key(), raw.encode(), hashlib.sha256).hexdigest()
+    expected = hmac.new(_state_key(secret), raw.encode(), hashlib.sha256).hexdigest()
     if not hmac.compare_digest(expected, parts[2]):
         return False
     try:
@@ -145,7 +147,7 @@ def _json_request(url: str, *, data: dict | None = None, token: str | None = Non
         with urllib.request.urlopen(request, timeout=15) as response:
             return json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, OSError, ValueError) as exc:
-        raise OAuthError(f"GitHub request failed: {type(exc).__name__}") from exc
+        raise OAuthError(f"OAuth request failed: {type(exc).__name__}") from exc
 
 
 def exchange_code(code: str, request=None) -> str:
@@ -179,7 +181,7 @@ def fetch_identity(token: str) -> tuple[str, str, str]:
     return email, display_name or login, login
 
 
-def login_or_create(email: str, display_name: str, login: str, ip: str = ""):
+def login_or_create(email: str, display_name: str, login: str, ip: str = "", provider: str = "github"):
     """Find the local account or create an inspector account for this demo.
 
     Existing accounts keep their role. OAuth is a login method, not a role
@@ -189,7 +191,7 @@ def login_or_create(email: str, display_name: str, login: str, ip: str = ""):
     if user:
         if user["status"] != "active":
             raise OAuthError("account is disabled")
-        db.audit(user["id"], user["display_name"], "auth.github", "app_user", user["id"],
+        db.audit(user["id"], user["display_name"], f"auth.{provider}", "app_user", user["id"],
                  after={"login": login}, ip=ip or None)
         return user
 
@@ -198,6 +200,6 @@ def login_or_create(email: str, display_name: str, login: str, ip: str = ""):
         "must_change,created_at) VALUES (1,?,?,?,?,'active',0,?)",
         (email, display_name, "inspector", security.hash_password(secrets.token_urlsafe(32)), db.now()))
     user = db.one("SELECT * FROM app_user WHERE id=?", (user_id,))
-    db.audit(user_id, display_name, "user.github_created", "app_user", user_id,
+    db.audit(user_id, display_name, f"user.{provider}_created", "app_user", user_id,
              after={"email": email, "login": login, "role": "inspector"}, ip=ip or None)
     return user

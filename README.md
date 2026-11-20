@@ -75,10 +75,12 @@ npm --prefix frontend run dev
 Or with make: `make seed`, `make run`, `make test`, `make data`, `make reset`
 (or `run.bat` / `./run.sh` for the backend).
 
-Open <http://127.0.0.1:5173>. The login page offers two ways in, and no more:
-**Continue with GitHub** (appears once `GITHUB_CLIENT_ID` and
-`GITHUB_CLIENT_SECRET` are set; otherwise the page says what to configure
-instead of showing a dead button) and **Continue as guest**, which opens the
+Open <http://127.0.0.1:5173>. The login page offers guest access plus any OAuth
+providers that are configured: **Continue with GitHub** (once
+`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` are set) and **Continue with Google**
+(once `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set). An unconfigured
+provider is not shown as a dead button; when neither is configured the page says
+what to set. **Continue as guest** opens the
 seeded demo read-only — every lot, review and decision is visible, and every
 write is refused by the role guards, in both the web UI and the API. The
 `/demo/inspector`, `/demo/supervisor` and `/demo/admin` links still sign in
@@ -224,7 +226,7 @@ decision, because it changes the count.
 - Server-side sessions (30 min idle / 8 h absolute), HttpOnly + SameSite=Lax,
   CSRF double-submit on every POST, Origin check.
 - Progressive login delay (0 → 30 s → doubling, capped 15 min) per account+IP.
-- Optional GitHub OAuth login alongside password and demo access; tokens are not stored.
+- Optional GitHub and Google OAuth login alongside password and demo access; provider tokens are used once and never stored.
 - Single role per user, enforced server-side on every route (Admin is blocked
   from images, review and report).
 - Every state change writes an `audit_event`; decisions, overrides and model

@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 from .. import i18n
 from ..config import DEMO_LOGIN
 from ..core import db, security
-from ..services import oauth
+from ..services import google_oauth, oauth
 from .deps import check_csrf, clear_session_cookies, current_user, session_of, set_session_cookies
 from .serializers import bootstrap, catalogs, clean, model_info
 
@@ -50,53 +50,78 @@ def _oauth_failure(request: Request | None = None, message: str = "oauth") -> Re
     response = RedirectResponse(f"/login?err={message}", status_code=303,
                                 headers={"Cache-Control": "no-store"})
     response.delete_cookie(oauth.STATE_COOKIE, path="/")
+    response.delete_cookie(google_oauth.STATE_COOKIE, path="/")
+    return response
+
+
+def _oauth_start(request: Request, provider, label: str) -> RedirectResponse:
+    """Send the browser to an OAuth provider with a signed state cookie."""
+    if not provider.enabled():
+        raise HTTPException(status_code=404, detail="not_configured")
+    state = provider.new_state()
+    response = RedirectResponse(provider.authorize_url(state, request), status_code=303,
+                                headers={"Cache-Control": "no-store"})
+    response.set_cookie(
+        provider.STATE_COOKIE, state, httponly=True, samesite="lax", path="/",
+        secure=security.COOKIE_SECURE, max_age=provider.STATE_TTL)
+    log.info("Starting %s OAuth login", label)
+    return response
+
+
+def _oauth_callback(request: Request, provider, label: str,
+                    code: str, state: str, error: str) -> RedirectResponse:
+    """Finish an OAuth dance and issue the same session a password login would."""
+    if not provider.enabled():
+        raise HTTPException(status_code=404, detail="not_configured")
+    if session_of(request):
+        return RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
+    if error or not code:
+        log.warning("%s OAuth callback rejected: %s", label, error or "no code")
+        return _oauth_failure(request)
+    if not provider.verify_state(request.cookies.get(provider.STATE_COOKIE), state):
+        log.warning("%s OAuth callback rejected: state mismatch", label)
+        return _oauth_failure(request)
+    try:
+        token = provider.exchange_code(code, request)
+        email, display_name, login = provider.fetch_identity(token)
+        ip = request.client.host if request.client else ""
+        user = provider.login_or_create(email, display_name, login, ip=ip)
+        provider.remember_code(code)
+    except provider.OAuthError as exc:
+        if provider.completed_code(code):
+            log.info("%s OAuth callback replayed after a successful login", label)
+            return RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
+        log.warning("%s OAuth callback rejected: %s", label, exc)
+        return _oauth_failure(request)
+    cookie, csrf = security.create_session(user["id"], ip)
+    response = RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
+    set_session_cookies(response, cookie, csrf, samesite="lax")
+    response.delete_cookie(provider.STATE_COOKIE, path="/")
     return response
 
 
 @router.get("/auth/github")
 def github_login(request: Request):
     """Start the GitHub OAuth dance for either UI (link/redirect)."""
-    if not oauth.enabled():
-        raise HTTPException(status_code=404, detail="not_configured")
-    state = oauth.new_state()
-    response = RedirectResponse(oauth.authorize_url(state, request), status_code=303,
-                                headers={"Cache-Control": "no-store"})
-    response.set_cookie(
-        oauth.STATE_COOKIE, state, httponly=True, samesite="lax", path="/",
-        secure=security.COOKIE_SECURE, max_age=oauth.STATE_TTL)
-    return response
+    return _oauth_start(request, oauth, "GitHub")
 
 
 @router.get("/auth/github/callback", name="github_callback")
 def github_callback(request: Request, code: str = "", state: str = "", error: str = ""):
-    """Finish the dance and issue the same session a password login would."""
-    if not oauth.enabled():
-        raise HTTPException(status_code=404, detail="not_configured")
-    if session_of(request):
-        return RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
-    if error or not code:
-        log.warning("GitHub OAuth callback rejected: %s", error or "no code")
-        return _oauth_failure(request)
-    if not oauth.verify_state(request.cookies.get(oauth.STATE_COOKIE), state):
-        log.warning("GitHub OAuth callback rejected: state mismatch")
-        return _oauth_failure(request)
-    try:
-        token = oauth.exchange_code(code, request)
-        email, display_name, login = oauth.fetch_identity(token)
-        ip = request.client.host if request.client else ""
-        user = oauth.login_or_create(email, display_name, login, ip=ip)
-        oauth.remember_code(code)
-    except oauth.OAuthError as exc:
-        if oauth.completed_code(code):
-            log.info("GitHub OAuth callback replayed after a successful login")
-            return RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
-        log.warning("GitHub OAuth callback rejected: %s", exc)
-        return _oauth_failure(request)
-    cookie, csrf = security.create_session(user["id"], ip)
-    response = RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
-    set_session_cookies(response, cookie, csrf, samesite="lax")
-    response.delete_cookie(oauth.STATE_COOKIE, path="/")
-    return response
+    """Finish the GitHub dance and issue the same session a password login would."""
+    return _oauth_callback(request, oauth, "GitHub", code, state, error)
+
+
+@router.get("/auth/google")
+def google_login(request: Request):
+    """Start the Google OAuth dance for either UI (link/redirect)."""
+    return _oauth_start(request, google_oauth, "Google")
+
+
+@router.get("/auth/google/callback", name="google_callback")
+def google_callback(request: Request, code: str = "", state: str = "", error: str = ""):
+    """Finish the Google dance and issue the same session a password login would."""
+    return _oauth_callback(request, google_oauth, "Google", code, state, error)
 
 
 @router.get("/bootstrap")

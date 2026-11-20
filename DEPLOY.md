@@ -98,18 +98,29 @@ docker run -p 8077:8077 -v lotline_data:/data lotline
 | `GITHUB_CLIENT_ID` | unset | enables “Continue with GitHub” when paired with the secret |
 | `GITHUB_CLIENT_SECRET` | unset | GitHub OAuth App secret; never commit it |
 | `GITHUB_REDIRECT_URI` | derived from the request | must be `https://<app>/api/auth/github/callback` in production |
+| `GOOGLE_CLIENT_ID` | unset | enables “Continue with Google” when paired with the secret |
+| `GOOGLE_CLIENT_SECRET` | unset | Google OAuth client secret; never commit it |
+| `GOOGLE_REDIRECT_URI` | derived from the request | must be `https://<app>/api/auth/google/callback` in production |
 
-## Optional GitHub login
+## Optional GitHub and Google login
 
-The demo works without this. To enable it, create a GitHub **OAuth App** with:
+The demo works without either provider. To enable GitHub, create a GitHub
+**OAuth App** with:
 
 - Homepage URL: `https://<app>.onrender.com`
 - Authorization callback URL: `https://<app>.onrender.com/api/auth/github/callback`
 
-Then set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and `GITHUB_REDIRECT_URI` on
-the service. New GitHub users are created as **inspectors**; use the seeded demo
-buttons to show supervisor/admin roles. The GitHub token is used once and is not
-stored.
+To enable Google, create an **OAuth client ID** of type *Web application* in the
+Google Cloud console with:
+
+- Authorised JavaScript origin: `https://<app>.onrender.com`
+- Authorised redirect URI: `https://<app>.onrender.com/api/auth/google/callback`
+
+Then set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI`,
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `GOOGLE_REDIRECT_URI` on the
+service as needed. Only a verified email from either provider can sign in. New
+OAuth users are created as **inspectors**; use the seeded demo buttons to show
+supervisor/admin roles. Provider tokens are used once and are not stored.
 
 ## Before a *real* pilot (not the demo)
 
