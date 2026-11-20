@@ -45,6 +45,16 @@
       if (!boxLayer) return;
       boxLayer.style.width = mainImage.offsetWidth + "px";
       boxLayer.style.height = mainImage.offsetHeight + "px";
+      // A label above a box near the right edge would be clipped by the viewer,
+      // so those labels hang from the box's right edge instead of its left.
+      $$(".box[data-pid]").forEach(function (box) {
+        var tag = box.querySelector(".tag");
+        if (!tag) return;
+        var right = (parseFloat(box.style.left) || 0) + (parseFloat(box.style.width) || 0);
+        var flip = right > 55;
+        tag.style.left = flip ? "auto" : "-2px";
+        tag.style.right = flip ? "-2px" : "auto";
+      });
     }
     if (mainImage.complete) sizeLayer();
     mainImage.addEventListener("load", sizeLayer);
