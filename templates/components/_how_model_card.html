@@ -9,6 +9,7 @@
       </div>
     </div>
     <div class="pad-sm">
+      <div class="tblwrap">
       <table class="model-card-table">
         <caption class="sr-only">{{ 'Model specification and evaluation parameters' if lang=='en' else 'মডেল স্পেসিফিকেশন ও মূল্যায়ন পরামিতি' }}</caption>
         <tbody>
@@ -142,6 +143,7 @@
           {{ 'IoU threshold in plain words: A proposal is counted as a hit if its box overlaps the ground truth by at least 5% (IoU ≥ 0.05).' if lang=='en' else 'IoU থ্রেশহোল্ড সহজ কথায়: প্রস্তাবিত বক্স এবং প্রকৃত ত্রুটির মাঝে অন্তত ৫% ওভারল্যাপ থাকলে সেটিকে সফল শনাক্তকরণ ধরা হয়েছে।' }}
         </p>
 
+        <div class="tblwrap">
         <table class="table" style="font-size:12px">
           <caption class="sr-only">{{ 'Defect detection recall breakdown' if lang=='en' else 'ত্রুটি শনাক্তকরণ রিকল বিবরণ' }}</caption>
           <thead>
@@ -162,6 +164,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
 
         {% set clean_views = ev.get('views', {}).get('total', 16) - (ev.get('rows', [])|sum(attribute='n')) %}
         <div class="small dim mt-2" style="line-height:1.5">

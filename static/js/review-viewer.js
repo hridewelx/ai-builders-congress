@@ -39,6 +39,17 @@
     var panning = false, startX = 0, startY = 0, baseX = 0, baseY = 0;
     var moved = false;
 
+    // The layer must be exactly the image's box, otherwise a proposal box drawn at
+    // 40% lands 40% of the container instead of 40% of the photo.
+    function sizeLayer() {
+      if (!boxLayer) return;
+      boxLayer.style.width = mainImage.offsetWidth + "px";
+      boxLayer.style.height = mainImage.offsetHeight + "px";
+    }
+    if (mainImage.complete) sizeLayer();
+    mainImage.addEventListener("load", sizeLayer);
+    window.addEventListener("resize", sizeLayer);
+
     function apply() {
       var transform = "translate(" + panX + "px," + panY + "px) scale(" + scale + ")";
       mainImage.style.transform = transform;

@@ -170,6 +170,8 @@
   min-width: 220px;
   max-width: 380px;
 }
+/* the search box and the filter pills sit on one line: match their heights */
+.search-wrap input { height: 36px; }
 .search-icon {
   position: absolute;
   left: 10px;
@@ -186,7 +188,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11.5px;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
   color: var(--muted);
   margin-top: 5px;
 }

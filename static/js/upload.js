@@ -8,6 +8,20 @@
   /* ----------------------------------------------------------------
      Upload validation: JPEG/PNG + 15 MB, Drag & Drop + Live Preview
   ---------------------------------------------------------------- */
+  /* Show the chosen filename in our own chrome, not the native control's. */
+  $$(".file-pick input[type=file]").forEach(function (input) {
+    var label = input.closest(".file-pick");
+    var name = label && label.querySelector("[data-file-name]");
+    if (!name) return;
+    var idle = name.textContent;
+    input.addEventListener("change", function () {
+      var picked = input.files && input.files[0];
+      name.textContent = picked ? picked.name : idle;
+      name.title = name.textContent;
+      name.classList.toggle("is-chosen", !!picked);
+    });
+  });
+
   $$(".upload-form").forEach(function (form) {
     var input = form.querySelector(".upload-input");
     var result = form.querySelector(".upload-result");

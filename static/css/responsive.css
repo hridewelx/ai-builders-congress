@@ -34,6 +34,27 @@
   .rail-head .rail-close { display: inline-grid; }
   .menu-btn { display: inline-grid; }
   .topbar { padding: 8px 16px; }
+  /* a page title is not decoration: wrap to two lines instead of cutting a Bengali word */
+  .topbar h1 {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 17px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+  /* horizontal rails: show that there is more to the right */
+  .tabs, .pipeline, .stepper, .filter-pills {
+    scroll-snap-type: x proximity;
+    scroll-padding-left: 4px;
+    box-shadow: inset -14px 0 12px -14px rgba(15, 23, 42, 0.35);
+  }
+  .tabs a, .pipeline-step, .filter-pills > * { scroll-snap-align: start; }
+  .tabs a:last-child, .pipeline-step:last-child { margin-right: 12px; }
+  /* wide tables scroll; the shadow says so instead of looking cut */
+  .tblwrap { box-shadow: inset -14px 0 12px -14px rgba(15, 23, 42, 0.3); }
   .content { padding: 16px 16px 48px; }
   .foot { padding: 0 16px 20px; }
   .pipeline { overflow-x: auto; }
@@ -55,7 +76,13 @@
   .topbar .sub, .crumb, .top-demo, .role-pill, .user-name { display: none; }
 }
 @media (max-width: 640px) {
-  .kpi-grid { grid-template-columns: 1fr; }
+  /* two KPIs per row: the four numbers are the point of the dashboard, not four screens */
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kpi .n { font-size: 21px; }
+  .kpi .lbl { font-size: 11.5px; }
+  .kpi { padding: 12px 13px; }
+  .topbar h1 { font-size: 16px; }
+  .tblwrap table { min-width: 0; }
   .lot-cards-grid { grid-template-columns: 1fr; }
   .lot-toolbar { flex-direction: column; align-items: stretch; }
   .search-wrap { max-width: 100%; }
@@ -67,6 +94,17 @@
   .login .proof { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .login .proof b { font-size: 18px; }
   .login .proof span { font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .topbar h1 { font-size: 15.5px; }
+  .btn, .pill-btn { min-height: 32px; }
+}
+/* Touch screens get finger-sized controls regardless of the width. */
+@media (pointer: coarse) {
+  .pill-btn, .tabs a, .btn.sm { min-height: 36px; }
+  .icon-btn, .theme-toggle, .menu-btn { min-width: 36px; min-height: 36px; }
+  select, input, textarea { font-size: 16px; }  /* stops iOS zooming the form on focus */
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
