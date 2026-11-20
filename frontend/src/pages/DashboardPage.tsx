@@ -193,7 +193,7 @@ export function DashboardPage() {
                     <div className="workspace-subtitle">{t("dash.active_lots_subtitle")}</div>
                   </div>
                   <div className="btnrow btnrow-gap">
-                    {user && user.role !== "admin" ? (
+                    {user && user.role !== "admin" && !session.is_guest ? (
                       <Button href="/lots/new" variant="primary" size="sm" icon="plus">{t("nav.new_lot")}</Button>
                     ) : null}
                     <Button href="/lots" variant="ghost" size="sm" iconAfter="arrow-right">{t("nav.lots")}</Button>

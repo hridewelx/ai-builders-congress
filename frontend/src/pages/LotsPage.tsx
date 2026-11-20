@@ -16,7 +16,7 @@ interface LotsData {
 }
 
 export function LotsPage() {
-  const { t, lang, user } = useSession();
+  const { t, lang, user, data: session } = useSession();
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
   const [state, setState] = useState(params.get("state") || "");
@@ -82,7 +82,7 @@ export function LotsPage() {
               {params.toString() ? <Link className="btn sm ghost" to="/lots">{lang === "en" ? "Reset" : "রিসেট"}</Link> : null}
             </div>
 
-            {user && user.role !== "admin" ? (
+            {user && user.role !== "admin" && !session.is_guest ? (
               <div className="right" style={{ marginLeft: "auto" }}>
                 <Link className="btn sm primary" to="/lots/new">
                   <Icon name="plus" size={14} />

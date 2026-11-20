@@ -162,6 +162,11 @@
 .rail-user .who { min-width: 0; flex: 1; }
 .rail-user .who b { display: block; font-size: 13px; color: #f8fafc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rail-user .who span { font-size: 11px; color: #94a3b8; text-transform: capitalize; }
+.rail-user .who span.guest-tag {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.03em;
+  text-transform: none; color: var(--lime);
+}
+
 .rail-user form { margin: 0; }
 .rail-user .btn.ghost { color: #94a3b8; border-color: #1e293b; padding: 6px 8px; }
 .rail-user .btn.ghost:hover { color: #fff; background: rgba(255, 255, 255, 0.08); border-color: #334155; }

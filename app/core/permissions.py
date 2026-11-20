@@ -1,13 +1,33 @@
 """Role, ownership and organisation rules shared by the API and web routes."""
 from __future__ import annotations
 
+GUEST_EMAIL = "guest@lotline.demo"
+
 
 def organization_id(session: dict) -> int:
     return int(session["user"]["organization_id"])
 
 
+def is_guest(session: dict | None) -> bool:
+    """The guest account reads the staged demo and changes nothing.
+
+    The session holds a sqlite3.Row, which supports [] but not .get().
+    """
+    try:
+        user = session["user"] if session else None
+        email = user["email"] if user else ""
+    except (KeyError, IndexError, TypeError):
+        return False
+    return (email or "").strip().lower() == GUEST_EMAIL
+
+
 def can_write_lot(session: dict, lot) -> bool:
-    """Supervisors write every lot; an inspector writes only lots they created."""
+    """Supervisors write every lot; an inspector writes only lots they created.
+
+    The guest never writes, whatever the lot or the owner.
+    """
+    if is_guest(session):
+        return False
     role = session["user"]["role"]
     return role == "supervisor" or (role == "inspector" and lot["created_by"] == session["user"]["id"])
 

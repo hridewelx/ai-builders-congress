@@ -70,6 +70,14 @@
         {{ 'GitHub sign-in is not enabled on this instance. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET to turn it on.' if lang=='en' else 'এই ইনস্ট্যান্সে গিটহাব সাইন-ইন চালু নেই। চালু করতে GITHUB_CLIENT_ID ও GITHUB_CLIENT_SECRET সেট করুন।' }}
       </div>
       {% endif %}
+
+      {% if guest_login %}
+      <a class="signin signin-guest" href="/guest">
+        {{ icons.icon('eye', 17) }}
+        {{ tr('login.guest') }}
+      </a>
+      <p class="signin-hint">{{ tr('login.guest_hint') }}</p>
+      {% endif %}
     </div>
   </section>
 </div>

@@ -7,7 +7,7 @@ import os
 from ...core import db
 from .. import detector, vision
 from .. import review as service
-from .fixtures import add_buyer, add_clause, add_lot, add_user
+from .fixtures import add_buyer, add_clause, add_guest, add_lot, add_user
 from .models import register_live_model
 from .photos import BASE_COLORS, settle_view, upload_photo
 
@@ -15,6 +15,7 @@ from .photos import BASE_COLORS, settle_view, upload_photo
 def run(force: bool = False) -> None:
     db.init()
     if db.one("SELECT id FROM organization") and not force:
+        add_guest()
         register_live_model()
         return
     if force:
@@ -30,6 +31,7 @@ def run(force: bool = False) -> None:
     sup = add_user("supervisor@lotline.demo", "Farhan Chowdhury", "supervisor")
     add_user("lead@lotline.demo", "Ayesha Karim", "supervisor")
     insp = add_user("inspector@lotline.demo", "Rakib Hasan", "inspector")
+    add_guest()
     db.x("INSERT INTO product(organization_id,name,family) VALUES (1,'Essential Crew Tee','knit — single jersey tee')")
 
     nordika = add_buyer("Nordika Retail", "Sweden")

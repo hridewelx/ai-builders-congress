@@ -85,7 +85,11 @@
       <span class="avatar" aria-hidden="true">{{ user.display_name[:1] }}</span>
       <div class="who">
         <b>{{ user.display_name }}</b>
+        {% if is_guest %}
+        <span class="guest-tag">{{ tr('guest.label') }}</span>
+        {% else %}
         <span>{{ tr('common.' ~ user.role) }}</span>
+        {% endif %}
       </div>
     </div>
   </aside>

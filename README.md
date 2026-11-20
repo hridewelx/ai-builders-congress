@@ -75,13 +75,15 @@ npm --prefix frontend run dev
 Or with make: `make seed`, `make run`, `make test`, `make data`, `make reset`
 (or `run.bat` / `./run.sh` for the backend).
 
-Open <http://127.0.0.1:5173>. The login page offers exactly one way in:
-**Continue with GitHub**, which appears once `GITHUB_CLIENT_ID` and
-`GITHUB_CLIENT_SECRET` are set; without them the page says so instead of
-showing a dead button. For the staged demo, open `/demo/inspector`,
-`/demo/supervisor` or `/demo/admin` directly (needs `LOTLINE_DEMO=1`) — those
-links sign in without a password. Seeded accounts otherwise share the password
-`QualityFloor2026!`.
+Open <http://127.0.0.1:5173>. The login page offers two ways in, and no more:
+**Continue with GitHub** (appears once `GITHUB_CLIENT_ID` and
+`GITHUB_CLIENT_SECRET` are set; otherwise the page says what to configure
+instead of showing a dead button) and **Continue as guest**, which opens the
+seeded demo read-only — every lot, review and decision is visible, and every
+write is refused by the role guards, in both the web UI and the API. The
+`/demo/inspector`, `/demo/supervisor` and `/demo/admin` links still sign in
+with full rights (needs `LOTLINE_DEMO=1`), and seeded accounts share the
+password `QualityFloor2026!`.
 
 The legacy server-rendered pages remain at <http://127.0.0.1:8077> as a
 reference implementation; the React app in `frontend/` is the current UI and

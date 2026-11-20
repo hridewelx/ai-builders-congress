@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "../lib/session";
 import { Icon } from "../components/ui";
 import { ThemeToggle } from "../components/ThemeToggle";
 
 export function LoginPage() {
-  const { authenticated, lang, t, data, setLang } = useSession();
+  const { authenticated, lang, t, data, setLang, demoLogin } = useSession();
   const location = useLocation();
-  const [error] = useState<"failed" | "rl" | "oauth" | "">(() => {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<"failed" | "rl" | "oauth" | "">(() => {
     const value = new URLSearchParams(location.search).get("err");
     return value === "oauth" || value === "rl" ? value : "";
   });
@@ -15,6 +17,20 @@ export function LoginPage() {
   if (authenticated) {
     return <Navigate to="/" replace />;
   }
+
+  const guest = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await demoLogin("guest");
+      const from = (location.state as { from?: string } | null)?.from;
+      navigate(from && from !== "/login" ? from : "/", { replace: true });
+    } catch {
+      setError("failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="login">
@@ -92,6 +108,16 @@ export function LoginPage() {
                 : "এই ইনস্ট্যান্সে গিটহাব সাইন-ইন চালু নেই। চালু করতে GITHUB_CLIENT_ID ও GITHUB_CLIENT_SECRET সেট করুন।"}
             </div>
           )}
+
+          {data.demo_login ? (
+            <>
+              <button className="signin signin-guest" type="button" onClick={guest} disabled={busy}>
+                <Icon name="eye" size={17} />
+                {t("login.guest")}
+              </button>
+              <p className="signin-hint">{t("login.guest_hint")}</p>
+            </>
+          ) : null}
         </div>
       </section>
     </div>

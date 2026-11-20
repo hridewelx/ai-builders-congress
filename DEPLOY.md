@@ -146,12 +146,13 @@ access to `hridewelx/ai-builders-congress` (invite sent from the repo settings).
 1. Render → **New → Blueprint** → pick the repo → **Apply**. `render.yaml` sets
    the plan, the health check and `LOTLINE_DATA=/tmp/lotline`; accept it as-is.
 2. Wait for the build (~4–6 min: Debian slim + CPU-only wheels, no torch).
-3. `/healthz` goes green, then open the URL. The login page shows a single
-   **Continue with GitHub** button, and says what to configure when the OAuth
-   app is absent — there is no password form and no demo-account picker.
-   Judges reach the staged data at `/demo/inspector`, `/demo/supervisor` or
-   `/demo/admin` (needs `LOTLINE_DEMO=1`); seeded accounts share
-   `QualityFloor2026!` if you would rather sign in through `POST /login`.
+3. `/healthz` goes green, then open the URL. The login page shows **Continue
+   with GitHub** (only once the OAuth app is configured; otherwise it says
+   what is missing) and **Continue as guest**, which enters the staged demo
+   read-only with one click — that is the judge path and it needs no OAuth
+   app. There is no password form: `/demo/inspector`, `/demo/supervisor` and
+   `/demo/admin` still sign in with full rights (`LOTLINE_DEMO=1`), and seeded
+   accounts share `QualityFloor2026!` for `POST /login`.
 4. Verify from any machine with the repo checked out:
 
 ```bash

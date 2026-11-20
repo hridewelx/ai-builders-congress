@@ -26,8 +26,10 @@ def lang_of(request: Request) -> str:
 def bootstrap_payload(request: Request) -> dict:
     session = session_of(request)
     payload = bootstrap()
+    from ..core import permissions
     payload.update({
         "authenticated": bool(session),
+        "is_guest": permissions.is_guest(session),
         "lang": lang_of(request),
         "user": clean(session["user"]) if session else None,
         "csrf": session["session"]["csrf"] if session else "",
@@ -137,7 +139,8 @@ def demo_login(request: Request, role: str):
         raise HTTPException(status_code=404, detail="not_found")
     emails = {"inspector": "inspector@lotline.demo",
               "supervisor": "supervisor@lotline.demo",
-              "admin": "admin@lotline.demo"}
+              "admin": "admin@lotline.demo",
+              "guest": "guest@lotline.demo"}
     if role not in emails:
         raise HTTPException(status_code=404, detail="not_found")
     user = db.one("SELECT * FROM app_user WHERE email=?", (emails[role],))

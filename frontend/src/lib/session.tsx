@@ -19,7 +19,7 @@ interface SessionValue {
   reason: (code: string) => { title: string; text: string; next: string };
   setLang: (lang: Lang) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  demoLogin: (role: "inspector" | "supervisor" | "admin") => Promise<void>;
+  demoLogin: (role: "inspector" | "supervisor" | "admin" | "guest") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<unknown>;
 }
@@ -36,6 +36,7 @@ const FALLBACK: Bootstrap = {
   zones: ["I", "II", "III"],
   human_classes: [],
   demo_login: false,
+  is_guest: false,
   github_oauth: false,
   catalogs: { buyers: [], products: [] },
   model: { model: "", detector: "", model_ok: false, card: {} },
@@ -118,7 +119,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const demoLogin = useCallback(
-    async (role: "inspector" | "supervisor" | "admin") => {
+    async (role: "inspector" | "supervisor" | "admin" | "guest") => {
       const next = await api.post<Bootstrap>(`/api/auth/demo/${role}`);
       adopt(next);
       await queryClient.invalidateQueries();

@@ -49,15 +49,12 @@ def login(request: Request, email: str = Form(""), password: str = Form("")):
     return resp
 
 
-@router.get("/demo/{role}")
-def demo_login(request: Request, role: str):
-    if not DEMO_LOGIN:
-        raise Denied(404, "not_found")
-    emails = {"inspector": "inspector@lotline.demo", "supervisor": "supervisor@lotline.demo",
-              "admin": "admin@lotline.demo"}
-    if role not in emails:
-        raise Denied(404, "not_found")
-    user = db.one("SELECT * FROM app_user WHERE email=?", (emails[role],))
+DEMO_EMAILS = {"inspector": "inspector@lotline.demo", "supervisor": "supervisor@lotline.demo",
+               "admin": "admin@lotline.demo", "guest": "guest@lotline.demo"}
+
+
+def _demo_sign_in(request: Request, email: str) -> RedirectResponse:
+    user = db.one("SELECT * FROM app_user WHERE email=?", (email,))
     if not user:
         raise Denied(404, "not_found")
     cookie, csrf = security.create_session(user["id"], request.client.host if request.client else "")
@@ -67,6 +64,21 @@ def demo_login(request: Request, role: str):
     resp.set_cookie("ll_csrf", csrf, httponly=False, samesite="strict", secure=security.COOKIE_SECURE,
                     max_age=security.SESSION_ABSOLUTE)
     return resp
+
+
+@router.get("/guest")
+def guest_login(request: Request):
+    """Read-only entry for a visitor: no password, no write, everything visible."""
+    if not DEMO_LOGIN:
+        raise Denied(404, "not_found")
+    return _demo_sign_in(request, "guest@lotline.demo")
+
+
+@router.get("/demo/{role}")
+def demo_login(request: Request, role: str):
+    if not DEMO_LOGIN or role not in DEMO_EMAILS:
+        raise Denied(404, "not_found")
+    return _demo_sign_in(request, DEMO_EMAILS[role])
 
 
 @router.post("/logout")

@@ -53,8 +53,9 @@ def service_lot_in_org(s: dict, lot_id: int):
 
 
 def require_role(request: Request, *roles: str):
+    from ..core.permissions import is_guest
     s = require_user(request)
-    if s["user"]["role"] not in roles:
+    if is_guest(s) or s["user"]["role"] not in roles:
         db.audit(
             s["user"]["id"],
             s["user"]["display_name"],
@@ -80,9 +81,9 @@ def assert_csrf(request: Request, s: dict, token: str | None) -> None:
 
 
 def can_write_lot(s: dict, lot) -> bool:
-    """Supervisors write every lot; an inspector writes only lots they created."""
-    role = s["user"]["role"]
-    return role == "supervisor" or (role == "inspector" and lot["created_by"] == s["user"]["id"])
+    """Same rule as the API: see app/core/permissions.py."""
+    from ..core.permissions import can_write_lot as rule
+    return rule(s, lot)
 
 
 def ensure_write(request: Request, s: dict, lot_row) -> None:

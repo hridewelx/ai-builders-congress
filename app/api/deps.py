@@ -18,7 +18,8 @@ def current_user(request: Request) -> dict:
 
 
 def role_required(s: dict, *roles: str) -> dict:
-    if s["user"]["role"] not in roles:
+    from ..core.permissions import is_guest
+    if is_guest(s) or s["user"]["role"] not in roles:
         raise HTTPException(status_code=403, detail="not_allowed")
     return s
 

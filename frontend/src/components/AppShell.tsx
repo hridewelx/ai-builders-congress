@@ -136,7 +136,7 @@ export function AppShell({
           <span className="avatar" aria-hidden="true">{user.display_name.slice(0, 1)}</span>
           <div className="who">
             <b>{user.display_name}</b>
-            <span>{t(`common.${user.role}`)}</span>
+            {data.is_guest ? <span className="guest-tag">{t("guest.label")}</span> : <span>{t(`common.${user.role}`)}</span>}
           </div>
         </div>
       </aside>

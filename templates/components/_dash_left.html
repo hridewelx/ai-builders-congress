@@ -12,7 +12,7 @@
           </div>
         </div>
         <div class="btnrow btnrow-gap">
-          {% if user.role in ('inspector', 'supervisor') %}
+          {% if user.role in ('inspector', 'supervisor') and not is_guest %}
           <a class="btn sm primary" href="/lots/new">
             {{ icons.icon('plus', 14) }}
             <span>{{ tr('nav.new_lot') }}</span>

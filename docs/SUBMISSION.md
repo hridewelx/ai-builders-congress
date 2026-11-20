@@ -59,8 +59,10 @@ plan, the counts, the reason codes and the reviewer.
 
 ## Judge quick path (60 seconds)
 
-1. `https://<app>.onrender.com/demo/supervisor` — one click, no signup. (The
-   login page itself is GitHub-only, so nothing has to be typed either way.)
+1. `https://<app>.onrender.com` → **Continue as guest** — one click, no signup,
+   no OAuth app needed. It opens the staged demo read-only, so a judge can walk
+   the whole product and cannot damage the data the next judge sees. (For full
+   rights: `/demo/supervisor`.)
 2. Open lot **LT-2026-019** → it shows `ESCALATE_CRITICAL_UNREVIEWED`: an
    unreviewed critical proposal blocks a decision.
 3. Review one photo, confirm or reject the box, close the view.

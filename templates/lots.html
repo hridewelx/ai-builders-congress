@@ -52,7 +52,7 @@
       </div>
 
       {# New Lot Action (Inspector & Supervisor Only) #}
-      {% if user.role in ('inspector','supervisor') %}
+      {% if user.role in ('inspector','supervisor') and not is_guest %}
       <div class="right" style="margin-left:auto">
         <a class="btn sm primary" href="/lots/new">
           {{ icons.icon('plus', 14) }}

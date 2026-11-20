@@ -9,8 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from .. import i18n
-from ..config import TEMPLATES_DIR, ZONES
-from ..core import security
+from ..config import DEMO_LOGIN, TEMPLATES_DIR, ZONES
+from ..core import permissions, security
 from ..services import oauth
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
@@ -66,6 +66,7 @@ def ctx(request: Request, **kw) -> dict:
     context = {
         "request": request,
         "user": user,
+        "permissions": permissions,
         "csrf": session["session"]["csrf"] if session else "",
         "lang": lang,
         "tr": lambda key, **kw: i18n.t(key, lang, **kw),
@@ -82,6 +83,8 @@ def ctx(request: Request, **kw) -> dict:
         "catalog_products": catalog_products,
         "last_selftest": last_selftest,
         "github_oauth": oauth.enabled(),
+        "guest_login": DEMO_LOGIN,
+        "is_guest": permissions.is_guest(session),
     }
     context.update(kw)
     return context

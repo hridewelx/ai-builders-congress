@@ -6,10 +6,18 @@ from .. import review as service
 
 DEMO_PASSWORD = "QualityFloor2026!"
 
-def add_user(email, name, role, must_change=0):
+def add_user(email, name, role, must_change=0, password=DEMO_PASSWORD):
     return db.x("INSERT INTO app_user(organization_id,email,display_name,role,password_hash,status,must_change,created_at)"
                 " VALUES (1,?,?,?,?,'active',?,?)",
-                (email, name, role, security.hash_password(DEMO_PASSWORD), must_change, db.now()))
+                (email, name, role, security.hash_password(password), must_change, db.now()))
+
+
+def add_guest():
+    """A read-only account for visitors: no lot, no write, no known password."""
+    import secrets
+    if db.one("SELECT id FROM app_user WHERE email=?", ("guest@lotline.demo",)):
+        return None
+    return add_user("guest@lotline.demo", "Guest", "inspector", password=secrets.token_urlsafe(32))
 
 
 def add_buyer(name, country):
