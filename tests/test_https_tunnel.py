@@ -24,7 +24,7 @@ from app.core import db, security
 from app.main import SensitiveParamFilter
 from app.web.deps import Denied, assert_csrf
 from app.web.pages import get_public_base_url
-from app.web.routes.capture import qr_code_image, views_status
+from app.web.routes.capture import qr_code_image
 
 
 @pytest.fixture(scope="module", autouse=True)

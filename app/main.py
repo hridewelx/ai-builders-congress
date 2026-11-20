@@ -7,9 +7,9 @@ This module only wires configuration, error handling and HTTP routes together.
 from __future__ import annotations
 
 import logging
+import re
 import time
 
-import re
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 

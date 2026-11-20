@@ -12,14 +12,13 @@ from __future__ import annotations
 
 import io
 from pathlib import Path
+
 import pytest
 from PIL import Image
-from starlette.requests import Request
 
 from app.core import db
-from app.services import review as service
 from app.services import cloudinary
-from app.web.pages import ctx, templates
+from app.services import review as service
 
 
 @pytest.fixture(scope="module", autouse=True)

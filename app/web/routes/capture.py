@@ -4,9 +4,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import io
-import json
 import os
-import time
 
 import numpy as np
 from fastapi import APIRouter, File, Form, Request, UploadFile

@@ -25,10 +25,10 @@ def capture(request: Request, lot_id: int):
     lot = _lot_or_404(lot_id, session)
     if session["user"]["role"] == "admin":
         raise HTTPException(status_code=403, detail="not_allowed")
+    from ...core import security
     from ...core.permissions import can_write_lot
     from ...services import cloudinary
     from ...web.pages import get_lan_ip, get_public_base_url
-    from ...core import security
 
     can_write = can_write_lot(session, lot) and lot["status"] != "decided"
     units = service.units_with_views(lot_id)
