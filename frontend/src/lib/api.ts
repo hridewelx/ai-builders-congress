@@ -20,6 +20,7 @@ export interface Bootstrap {
   zones: string[];
   human_classes: string[];
   demo_login: boolean;
+  github_oauth: boolean;
   catalogs: {
     buyers: Array<{ id: number; name: string; country: string }>;
     products: Array<{ id: number; name: string; family: string }>;

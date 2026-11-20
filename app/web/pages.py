@@ -11,6 +11,7 @@ from fastapi.templating import Jinja2Templates
 from .. import i18n
 from ..config import TEMPLATES_DIR, ZONES
 from ..core import security
+from ..services import oauth
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 templates.env.filters["fromjson"] = json.loads
@@ -80,11 +81,19 @@ def ctx(request: Request, **kw) -> dict:
         "catalog_buyers": catalog_buyers,
         "catalog_products": catalog_products,
         "last_selftest": last_selftest,
+        "github_oauth": oauth.enabled(),
     }
     context.update(kw)
     return context
 
 
 def page(request: Request, name: str, status_code: int = 200, **kw) -> HTMLResponse:
-    """Render a Jinja template with the shared context."""
-    return templates.TemplateResponse(request, name, ctx(request, **kw), status_code=status_code)
+    """Render a Jinja template with the shared context.
+
+    HTML is never cached: a cached login page or a cached "redirect to login"
+    makes an OAuth callback appear to have done nothing until a refresh.
+    """
+    response = templates.TemplateResponse(request, name, ctx(request, **kw),
+                                          status_code=status_code)
+    response.headers["Cache-Control"] = "no-store"
+    return response

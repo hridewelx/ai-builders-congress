@@ -14,14 +14,19 @@ def register(app: FastAPI) -> None:
     @app.exception_handler(Denied)
     async def denied_handler(request: Request, exc: Denied):
         if exc.status == 401:
-            return RedirectResponse("/login", status_code=303)
-        return templates.TemplateResponse(
+            return RedirectResponse("/login", status_code=303,
+                                    headers={"Cache-Control": "no-store"})
+        response = templates.TemplateResponse(
             request, "error.html", ctx(request, code=exc.status, message=exc.message),
             status_code=exc.status,
         )
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.exception_handler(404)
     async def notfound(request: Request, exc):
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             request, "error.html", ctx(request, code=404, message="not_found"), status_code=404,
         )
+        response.headers["Cache-Control"] = "no-store"
+        return response

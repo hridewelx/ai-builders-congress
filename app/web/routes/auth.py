@@ -18,8 +18,10 @@ router = APIRouter(tags=["auth"])
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     if sess_of(request):
-        return RedirectResponse("/", status_code=303)
-    return page(request, "login.html", active="login")
+        return RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store"})
+    response = page(request, "login.html", active="login")
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @router.post("/login")

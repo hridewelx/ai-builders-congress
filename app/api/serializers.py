@@ -9,7 +9,7 @@ from ..config import DEMO_LOGIN, ZONES
 from ..core import db
 from ..domain import engine
 from ..domain.reason_catalog import REASON_CATALOG
-from ..services import detector, vision
+from ..services import detector, oauth, vision
 from ..services import review as service
 from ..services.stats import load_model_card
 
@@ -40,6 +40,7 @@ def bootstrap() -> dict:
         "zones": ZONES,
         "human_classes": list(vision.HUMAN_CLASSES),
         "demo_login": DEMO_LOGIN,
+        "github_oauth": oauth.enabled(),
     }
 
 

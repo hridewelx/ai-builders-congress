@@ -39,11 +39,18 @@ def auth_response_payload(s: dict) -> dict:
     return {"user": s["user"], "csrf": s["session"]["csrf"]}
 
 
-def set_session_cookies(response: Response, cookie: str, csrf: str) -> None:
-    response.set_cookie(security.COOKIE, cookie, httponly=True, samesite="strict",
+def set_session_cookies(response: Response, cookie: str, csrf: str,
+                        samesite: str = "strict") -> None:
+    """Issue the session pair. OAuth callbacks must use ``lax``.
+
+    A session cookie set in a response to GitHub's cross-site redirect is not
+    reliably sent on the immediately following navigation when it is marked
+    Strict, which looks like "login again until you refresh".
+    """
+    response.set_cookie(security.COOKIE, cookie, httponly=True, samesite=samesite,
                         secure=security.COOKIE_SECURE, max_age=security.SESSION_ABSOLUTE,
                         path="/")
-    response.set_cookie("ll_csrf", csrf, httponly=False, samesite="strict",
+    response.set_cookie("ll_csrf", csrf, httponly=False, samesite=samesite,
                         secure=security.COOKIE_SECURE, max_age=security.SESSION_ABSOLUTE,
                         path="/")
 

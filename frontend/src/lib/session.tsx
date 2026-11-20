@@ -36,6 +36,7 @@ const FALLBACK: Bootstrap = {
   zones: ["I", "II", "III"],
   human_classes: [],
   demo_login: false,
+  github_oauth: false,
   catalogs: { buyers: [], products: [] },
   model: { model: "", detector: "", model_ok: false, card: {} },
   last_selftest: null,

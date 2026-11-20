@@ -95,6 +95,21 @@ docker run -p 8077:8077 -v lotline_data:/data lotline
 | `LOTLINE_SECURE_COOKIE` | `0` | set to `1` behind HTTPS so the session cookie is `Secure` |
 | `LOTLINE_INFERENCE_MODE` | `background` | `background` queues scoring on a worker thread; `sync` keeps it in the request (tests, scripts) |
 | `LOTLINE_DATABASE_URL` | unset | `postgresql://` DSN for a pilot; leave unset to keep the demo's SQLite file |
+| `GITHUB_CLIENT_ID` | unset | enables “Continue with GitHub” when paired with the secret |
+| `GITHUB_CLIENT_SECRET` | unset | GitHub OAuth App secret; never commit it |
+| `GITHUB_REDIRECT_URI` | derived from the request | must be `https://<app>/api/auth/github/callback` in production |
+
+## Optional GitHub login
+
+The demo works without this. To enable it, create a GitHub **OAuth App** with:
+
+- Homepage URL: `https://<app>.onrender.com`
+- Authorization callback URL: `https://<app>.onrender.com/api/auth/github/callback`
+
+Then set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and `GITHUB_REDIRECT_URI` on
+the service. New GitHub users are created as **inspectors**; use the seeded demo
+buttons to show supervisor/admin roles. The GitHub token is used once and is not
+stored.
 
 ## Before a *real* pilot (not the demo)
 

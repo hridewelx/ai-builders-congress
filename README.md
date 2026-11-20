@@ -218,6 +218,7 @@ decision, because it changes the count.
 - Server-side sessions (30 min idle / 8 h absolute), HttpOnly + SameSite=Lax,
   CSRF double-submit on every POST, Origin check.
 - Progressive login delay (0 → 30 s → doubling, capped 15 min) per account+IP.
+- Optional GitHub OAuth login alongside password and demo access; tokens are not stored.
 - Single role per user, enforced server-side on every route (Admin is blocked
   from images, review and report).
 - Every state change writes an `audit_event`; decisions, overrides and model
