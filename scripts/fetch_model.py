@@ -22,7 +22,7 @@ import zipfile
 from pathlib import Path
 
 ALLOWED = {"det_v2.onnx", "calibration_v2.json", "operating_point_v2.json",
-           "MODEL_CARD.md", "eval_test_v2.json"}
+           "MODEL_CARD.md", "eval_test_v2.json", "model_card_trained.json"}
 
 
 def sha256_bytes(data: bytes) -> str:

@@ -25,6 +25,7 @@ MEMBERS = {
     "operating_point_v2.json": Path("data/models/operating_point_v2.json"),
     "MODEL_CARD.md": Path("docs/MODEL_CARD.md"),
     "eval_test_v2.json": Path("data/models/eval_test_v2.json"),
+    "model_card_trained.json": Path("data/models/model_card_trained.json"),
 }
 
 

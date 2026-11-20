@@ -18,8 +18,8 @@ COPY . .
 # build with them verifies the checksum and fails closed on any mismatch.
 # Fetch before seeding so the model card records the backend that will serve
 # uploads.
-ARG LOTLINE_MODEL_URL=""
-ARG LOTLINE_MODEL_SHA256=""
+ARG LOTLINE_MODEL_URL="https://huggingface.co/gumloop/lotline-det-v2/resolve/main/lotline-det-v2.zip"
+ARG LOTLINE_MODEL_SHA256="25cc27f48d5b1f3be4420d11f9fa1bfdf0a72b00be17500bae29ad3ff57a1f35"
 RUN if [ -n "$LOTLINE_MODEL_URL" ]; then \
       python scripts/fetch_model.py --url "$LOTLINE_MODEL_URL" --sha256 "$LOTLINE_MODEL_SHA256" --dest data/models; \
     else \
