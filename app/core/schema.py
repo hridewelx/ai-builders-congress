@@ -137,6 +137,11 @@ CREATE TABLE IF NOT EXISTS image (
   is_current INTEGER NOT NULL DEFAULT 1,
   purged INTEGER NOT NULL DEFAULT 0,
   uploaded_by INTEGER NOT NULL REFERENCES app_user(id),
+  cloudinary_url TEXT,
+  cloudinary_public_id TEXT,
+  captured_at TEXT,
+  inspection_id INTEGER,
+  inspector_id INTEGER,
   created_at TEXT NOT NULL
 );
 

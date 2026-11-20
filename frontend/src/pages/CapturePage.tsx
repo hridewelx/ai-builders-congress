@@ -7,6 +7,7 @@ import { num, pct } from "../lib/format";
 import { AppShell } from "../components/AppShell";
 import { LotTabs } from "../components/LotTabs";
 import { Button, ErrorState, Icon, Note, Pipeline, Spinner, Toast } from "../components/ui";
+import { MobileCameraModal } from "../components/MobileCameraModal";
 
 interface CaptureData {
   lot: { id: number; lot_code: string; buyer_name: string; lot_size: number; status: string };
@@ -18,6 +19,11 @@ interface CaptureData {
   }> }>;
   progress: { units: number; required_units: number; views: number; reviewed: number; pending: number; pct_units: number };
   can_write: boolean;
+  cloudinary_configured?: boolean;
+  lan_ip?: string;
+  public_base_url?: string;
+  is_tunnel?: boolean;
+  session_token?: string;
 }
 
 export function CapturePage() {
@@ -35,6 +41,8 @@ export function CapturePage() {
   const [busy, setBusy] = useState(false);
   const [side, setSide] = useState<"all" | "front" | "back">("all");
   const [jump, setJump] = useState("all");
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
+  const [cameraModalMode, setCameraModalMode] = useState<"camera" | "qr">("camera");
   const formRefs = useRef<Record<number, HTMLFormElement | null>>({});
 
   if (isLoading) return <AppShell title={t("cap.title")} active="lots"><Spinner /></AppShell>;
@@ -137,6 +145,43 @@ export function CapturePage() {
           </div>
           <div className="small" style={{ background: "var(--amber-bg)", color: "var(--amber-ink)", border: "1px solid var(--amber-line)", padding: "6px 10px", borderRadius: 6 }}>
             {lang === "en" ? 'iPhone HEIC not supported → Camera: "Most Compatible"' : 'আইফোন HEIC সমর্থিত নয় → ক্যামেরা: "Most Compatible"'}
+          </div>
+        </div>
+      </div>
+
+      {/* Automated Mobile Camera & Cloud Sync Banner */}
+      <div className="card" style={{ marginBottom: 16, borderLeft: "4px solid #10b981" }}>
+        <div className="pad-sm" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div className="row" style={{ gap: 12, alignItems: "center" }}>
+            <span style={{ color: "var(--navy)", background: "var(--lime)", padding: 8, borderRadius: 8, display: "inline-flex" }}>
+              <Icon name="camera" size={20} />
+            </span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: "14.5px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span>{lang === "en" ? "Automated Mobile Camera & Cloud Sync" : "স্বয়ংক্রিয় মোবাইল ক্যামেরা ও ক্লাউড সিঙ্ক"}</span>
+                {data.cloudinary_configured ? (
+                  <span className="badge badge-success" style={{ fontSize: 11 }}>Cloudinary Active</span>
+                ) : (
+                  <span className="badge badge-neutral" style={{ fontSize: 11 }}>Local Storage</span>
+                )}
+                <span className="badge badge-info" style={{ fontSize: 11 }}>● Zero Browsing</span>
+              </div>
+              <p className="small dim" style={{ margin: "2px 0 0" }}>
+                {lang === "en"
+                  ? "No manual file browsing needed. Open mobile camera to snap and auto-upload directly into this lot."
+                  : "ম্যানুয়ালি ফাইল ব্রাউজ করার প্রয়োজন নেই। মোবাইল ক্যামেরা খুলে ছবি তুললেই স্বয়ংক্রিয়ভাবে আপলোড হবে।"}
+              </p>
+            </div>
+          </div>
+          <div className="row" style={{ gap: 8 }}>
+            <Button variant="primary" size="sm" onClick={() => { setCameraModalMode("camera"); setCameraModalOpen(true); }}>
+              <Icon name="camera" size={15} />
+              <span>{lang === "en" ? "Launch Mobile Camera" : "মোবাইল ক্যামেরা চালু করুন"}</span>
+            </Button>
+            <Button variant="subtle" size="sm" onClick={() => { setCameraModalMode("qr"); setCameraModalOpen(true); }}>
+              <Icon name="external-link" size={14} />
+              <span>{lang === "en" ? "Scan Phone QR" : "ফোন কিউআর কোড"}</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -271,6 +316,24 @@ export function CapturePage() {
           </div>
         ) : null}
       </div>
+
+      {cameraModalOpen && (
+        <MobileCameraModal
+          lotId={id}
+          lotCode={lot.lot_code}
+          units={units}
+          cloudinaryConfigured={data.cloudinary_configured}
+          lanIp={data.lan_ip}
+          publicBaseUrl={data.public_base_url}
+          isTunnel={data.is_tunnel}
+          sessionToken={data.session_token}
+          initialMode={cameraModalMode}
+          onClose={() => setCameraModalOpen(false)}
+          onUploadSuccess={async () => {
+            await queryClient.invalidateQueries({ queryKey: ["capture", id] });
+          }}
+        />
+      )}
     </AppShell>
   );
 }

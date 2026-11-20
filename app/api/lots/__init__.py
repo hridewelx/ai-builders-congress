@@ -14,4 +14,6 @@ router = APIRouter()
 for module in (dashboard, plan, capture, review):
     router.include_router(module.router)
 
-__all__ = ["router", "_ensure_write"]
+from .capture import tunnel_status
+
+__all__ = ["router", "_ensure_write", "tunnel_status"]
