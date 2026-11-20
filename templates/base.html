@@ -148,6 +148,12 @@
     <main class="content" id="main-content">
       {% if ok and not suppress_default_flash %}<div class="note ok" style="margin-bottom:14px" role="status">{{ tr('flash.' ~ ok) }}</div>{% endif %}
       {% if err and not suppress_default_flash %}<div class="note bad" style="margin-bottom:14px" role="alert">{{ tr('err.' ~ err) }}</div>{% endif %}
+      {% if is_guest %}
+      <div class="guest-banner" role="note">
+        {{ icons.icon('lock', 16) }}
+        <span><b>{{ tr('guest.label') }}</b> · {{ tr('guest.warning') }}</span>
+      </div>
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
     <footer class="foot">

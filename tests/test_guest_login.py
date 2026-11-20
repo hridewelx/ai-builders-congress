@@ -93,6 +93,15 @@ def test_guest_reads_the_working_pages(monkeypatch):
         assert client.get(path).status_code == 200, path
 
 
+def test_guest_pages_show_a_read_only_warning(monkeypatch):
+    client = _signed_in_guest(monkeypatch)
+    client.cookies.set("ll_lang", "en")
+    for path in ("/", "/lots"):
+        body = client.get(path).text
+        assert "guest-banner" in body
+        assert "Creating lots" in body
+
+
 def test_guest_is_refused_the_supervisor_and_admin_pages(monkeypatch):
     client = _signed_in_guest(monkeypatch)
     for path in ("/admin", "/audit"):

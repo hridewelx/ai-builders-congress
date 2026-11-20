@@ -194,6 +194,14 @@ export function AppShell({
         </header>
 
         <main className="content" id="main-content">
+          {data.is_guest ? (
+            <div className="guest-banner" role="note">
+              <Icon name="lock" size={16} />
+              <span>
+                <b>{t("guest.label")}</b> · {t("guest.warning")}
+              </span>
+            </div>
+          ) : null}
           {children}
         </main>
         <footer className="foot">
