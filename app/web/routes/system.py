@@ -37,7 +37,7 @@ def readyz():
         "detector": backend,
         "model": detector.MODEL_NAME if trained else None,
         "weights_loaded": trained,
-        "threshold": detector.DEFAULT_THRESHOLD,
+        "threshold": detector.review_threshold(),
         "note": "trained detector is serving" if trained else
                 "numpy baseline is serving; no trained weights in this build",
     })

@@ -60,8 +60,14 @@ def split_records(records: list[Record], val_fraction: float = VAL_FRACTION, see
                     val_classes[box[0]] += 1
 
 
-def export(records: list[Record], out: Path, source_meta: dict) -> dict:
-    """Write images/, labels/, data.yaml and manifest.json."""
+def export(records: list[Record], out: Path, source_meta: dict,
+           strip_metadata: bool = False) -> dict:
+    """Write images/, labels/, data.yaml and manifest.json.
+
+    ``strip_metadata`` re-encodes every image without EXIF, which is required for
+    consented factory photos: a phone JPEG carries GPS, and copying the bytes
+    would copy the location of the factory floor into the dataset.
+    """
     if out.exists():
         shutil.rmtree(out)
     for split in ("train", "val", "test"):
@@ -72,7 +78,11 @@ def export(records: list[Record], out: Path, source_meta: dict) -> dict:
     for index, record in enumerate(records):
         name = f"{record.source}_{index:05d}"
         image_target = out / "images" / record.split / f"{name}{record.path.suffix.lower()}"
-        shutil.copy2(record.path, image_target)
+        if strip_metadata:
+            with Image.open(record.path) as source:
+                source.convert("RGB").save(image_target, quality=95)
+        else:
+            shutil.copy2(record.path, image_target)
         with Image.open(record.path) as im:
             width, height = im.size
         lines = []

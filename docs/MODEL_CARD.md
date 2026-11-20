@@ -14,7 +14,7 @@ Regenerated from saved metrics `eval_test_v2.json` without re-running the test s
 - Same-factory caveat: every image here comes from the same four BDFD9 factories and capture sessions. Neither this split nor validation estimates performance in a new factory.
 - Pooled diagnostic across all evaluated images: 0.9561 (reported for completeness, never as the held-out factory estimate)
 - Split policy: BDFD9's official test folder is held out; `python -m ml.verify_split` must pass before this card is published.
-- Review threshold: 0.55 chosen on validation (maximum recall subject to precision >= 0.75); this test table was scored at 0.5, which is never re-tuned on test.
+- Review threshold: 0.5 chosen on validation (maximum recall subject to precision >= 0.75); this test table was scored at 0.5, which is never re-tuned on test.
 
 ## Per class (BDFD9 fabric close-ups)
 

@@ -127,3 +127,56 @@ def test_screen_sets_hashes_and_factory_group(tmp_path):
     assert accepted[0].sha256 == sha256_file(photos / "a.jpg")
     assert accepted[0].phash == dhash(photos / "a.jpg")
     assert accepted[0].group == "Factory A"
+
+
+def test_import_refuses_to_delete_a_training_dataset(tmp_path):
+    photos = tmp_path / "photos"
+    _photo(photos / "a.jpg")
+    _annotations(photos, [{"file": "a.jpg", "split": "train", "seed": 1, "defects": []}])
+    consent = _consent(photos, ["a.jpg,2026-11-19,QM,Factory A,"])
+    training = tmp_path / "det_v2"
+    (training / "images" / "train").mkdir(parents=True)
+    (training / "labels" / "train").mkdir(parents=True)
+    marker = training / "images" / "train" / "keep.jpg"
+    marker.write_bytes(b"real training data")
+
+    with pytest.raises(SystemExit, match="training dataset"):
+        imp.import_photos(photos, consent, training, "external_a", reference=training)
+    assert marker.exists(), "the guard must raise before anything is deleted"
+
+
+def test_import_refuses_a_folder_that_is_not_a_previous_import(tmp_path):
+    photos = tmp_path / "photos"
+    _photo(photos / "a.jpg")
+    _annotations(photos, [{"file": "a.jpg", "split": "train", "seed": 1, "defects": []}])
+    consent = _consent(photos, ["a.jpg,2026-11-19,QM,Factory A,"])
+    elsewhere = tmp_path / "someone_elses"
+    elsewhere.mkdir()
+    (elsewhere / "notes.txt").write_text("not an import", encoding="utf-8")
+
+    with pytest.raises(SystemExit, match="does not look like a previous consent import"):
+        imp.import_photos(photos, consent, elsewhere, "external_a", reference=tmp_path / "empty")
+    assert (elsewhere / "notes.txt").exists()
+
+
+def test_import_strips_exif_from_copied_photos(tmp_path):
+    photos = tmp_path / "photos"
+    photos.mkdir(parents=True)
+    exif = Image.Exif()
+    exif[0x010F] = "PhoneMake"                        # Make
+    exif[0x0110] = "PhoneModel"                       # Model
+    gps = exif.get_ifd(0x8825)
+    gps[1] = "N"                                      # GPSLatitudeRef
+    gps[2] = (23.0, 46.0, 0.0)                        # GPSLatitude
+    pixels = np.random.default_rng(7).integers(0, 255, (96, 96, 3), dtype=np.uint8)
+    Image.fromarray(pixels).save(photos / "a.jpg", quality=95, exif=exif)
+    _annotations(photos, [{"file": "a.jpg", "split": "train", "seed": 1, "defects": []}])
+    consent = _consent(photos, ["a.jpg,2026-11-19,QM,Factory A,"])
+
+    imp.import_photos(photos, consent, tmp_path / "out", "external_a",
+                      reference=tmp_path / "empty")
+    copied = next((tmp_path / "out" / "images").rglob("*.jpg"))
+    with Image.open(copied) as image:
+        kept = image.getexif()
+    assert not kept, "EXIF must not survive the import"
+    assert 0x8825 not in kept, "GPS block must not survive the import"

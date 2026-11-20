@@ -33,8 +33,12 @@ EVAL_RESULT = MODELS / "eval_test_v2.json"
 
 STAGES: dict[str, dict] = {
     "data": {
-        "about": "build det_v2 and verify the official test folder was never trained on",
-        "steps": [["-m", "ml.data", "prepare"], ["-m", "ml.verify_split"]],
+        "about": ("verify the built det_v2 and that the official test folder was never "
+                  "trained on; the build itself takes its sources on the command line"),
+        "manual": ("python -m ml.data build --source staged=data/dataset/v1 "
+                   "--source bdfd9=data/raw/bdfd9/BDFD9 "
+                   "--licence generated --licence 'CC BY 4.0' --out data/dataset/det_v2"),
+        "steps": [["-m", "ml.verify_split"]],
         "outputs": ["data/dataset/det_v2", "docs/split_integrity.json"],
     },
     "train": {
@@ -131,6 +135,7 @@ def plan(stage: str | None = None) -> list[dict]:
     names = [stage] if stage else ORDER
     return [{"stage": name, "about": STAGES[name]["about"],
              "commands": ["python " + " ".join(step) for step in STAGES[name]["steps"]],
+             "manual": STAGES[name].get("manual"),
              "outputs": STAGES[name]["outputs"]} for name in names]
 
 

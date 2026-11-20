@@ -197,6 +197,26 @@ def _display_path(value: str) -> str:
 
 
 
+TEST_SPLIT_LOCK = MODELS / "eval_test_v2.json"
+
+
+def guard_test_once(out: Path, force: bool, reason: str) -> None:
+    """The test split is scored once. A second score needs a stated reason.
+
+    ``ml.pipeline`` refuses a repeat too; this is the same rule at the point where
+    the measurement is actually taken, so the CLI cannot sidestep it.
+    """
+    existing = [path for path in (out, TEST_SPLIT_LOCK) if path.exists()]
+    if not existing:
+        return
+    if not force:
+        raise SystemExit(
+            f"the test split is already scored ({existing[0]}); re-scoring it needs "
+            "--force --reason \"why\"")
+    if len(reason.strip()) < 20:
+        raise SystemExit("--force needs --reason with a real explanation (20+ characters)")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate a detector checkpoint.")
     parser.add_argument("--checkpoint", type=Path, default=MODELS / "det_v2b.pt")
@@ -222,7 +242,13 @@ def main() -> None:
                         help="reliability bins from ml.reliability (optional)")
     parser.add_argument("--leakage", type=Path, default=Path("docs/leakage_probe.json"),
                         help="stricter leakage-probe report (optional)")
+    parser.add_argument("--force", action="store_true",
+                        help="score the test split again even though a result exists")
+    parser.add_argument("--reason", default="",
+                        help="why the test split is being scored a second time (required with --force)")
     args = parser.parse_args()
+    if args.split == "test" and not args.from_json:
+        guard_test_once(args.out, args.force, args.reason)
     if args.from_json:
         import torch
         metrics = json.loads(args.from_json.read_text(encoding="utf-8"))
@@ -244,6 +270,8 @@ def main() -> None:
         print(f"wrote {args.card} and {args.card_json} from {args.from_json}")
         return
     metrics = evaluate_checkpoint(args.checkpoint, args.data, args.split, args.score_threshold)
+    if args.force and args.reason.strip():
+        metrics["rescored_reason"] = args.reason.strip()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     import torch

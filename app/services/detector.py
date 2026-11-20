@@ -22,27 +22,25 @@ from PIL import Image, ImageFilter
 from app.services import vision
 
 try:  # one name for the model, owned by the training package
-    from ml.config import MODEL_NAME, MODEL_VERSION
+    from ml.config import MODEL_NAME, MODEL_VERSION, active_threshold
 except ImportError:  # pragma: no cover - ml/ ships with the repo
     MODEL_NAME, MODEL_VERSION = "frcnn-mnv3-v2", "det_v2"
+
+    def active_threshold(default: float = 0.5) -> float:
+        return default
 MODEL_DOMAIN = ("BDFD9 factory fabric close-ups plus staged knit panels; "
                 "not finished-garment inspection")
 ONNX_PATH = os.environ.get("LOTLINE_ONNX", "data/models/det_v2.onnx")
 CALIBRATION_PATH = os.environ.get("LOTLINE_CALIBRATION", "data/models/calibration_v2.json")
 CLASSES = ["hole", "oil_stain", "needle_line", "dropped_stitch"]
-OPERATING_POINT = "data/models/operating_point_v2.json"
+
+# The recorded operating point is the only default; ml.config owns where it lives.
+DEFAULT_THRESHOLD = active_threshold()
 
 
-def recorded_threshold(default: float = 0.5) -> float:
-    """Threshold chosen on validation by ``ml.operating_point`` (env still overrides)."""
-    try:
-        with open(OPERATING_POINT, encoding="utf-8") as fh:
-            return float(json.load(fh)["chosen_threshold"])
-    except (OSError, KeyError, ValueError, TypeError):
-        return default
-
-
-DEFAULT_THRESHOLD = recorded_threshold()
+def review_threshold() -> float:
+    """The threshold in force right now: the environment wins over the record."""
+    return float(os.environ.get("LOTLINE_DETECT_THRESHOLD", DEFAULT_THRESHOLD))
 
 _session = None
 _calibration: dict | None = None
@@ -186,7 +184,7 @@ def detect_onnx(rgb: np.ndarray, top_k: int = 6) -> dict:
     # allowzero=1 so a frame with no proposals reshapes to empty tensors.
     boxes, scores, labels = session.run(None, {session.get_inputs()[0].name: tensor})[:3]
 
-    threshold = float(os.environ.get("LOTLINE_DETECT_THRESHOLD", DEFAULT_THRESHOLD))
+    threshold = review_threshold()
     calibration = _load_calibration()
     temperature = float(calibration.get("runtime_temperature", calibration.get("temperature", 1.0)))
     detections: list[dict] = []

@@ -33,7 +33,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from .config import CLASSES, DATA
+from .config import CLASSES, DATA, DET
 from .data import Record, dhash, export, hamming, read_jsonl, sha256_file
 
 CONSENT_COLUMNS = ("file", "consent_date", "consent_by", "factory")
@@ -125,8 +125,32 @@ def screen(records: list[Record], consent: dict[str, dict],
     return accepted, refused
 
 
+def guard_target(out: Path, reference: Path, force: bool = False) -> None:
+    """An import may replace a previous import of its own; it may never eat a dataset.
+
+    ``--out data/dataset/det_v2`` used to delete the training set. A target is
+    only overwritten when its manifest proves it is an earlier import.
+    """
+    target = out.resolve()
+    for protected in (reference.resolve(), DET.resolve()):
+        if target == protected or protected in target.parents:
+            raise SystemExit(f"refusing to write into {out}: that is a training dataset, not an import")
+    if not target.exists():
+        return
+    try:
+        previous = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        previous = {}
+    looks_like_import = bool(previous.get("domain")) and bool(previous.get("consent_file"))
+    if not looks_like_import and not force:
+        raise SystemExit(
+            f"refusing to delete {out}: it does not look like a previous consent import "
+            "(no manifest with a domain and consent file). Pass --force if you are sure.")
+
+
 def import_photos(photos: Path, consent_path: Path, out: Path, domain: str,
-                  reference: Path | None = None, dry_run: bool = False) -> dict:
+                  reference: Path | None = None, dry_run: bool = False,
+                  force: bool = False) -> dict:
     consent = read_consent(consent_path)
     if not (photos / "annotations.jsonl").exists():
         raise SystemExit(f"no annotations.jsonl in {photos}; boxes are required, not optional")
@@ -153,9 +177,10 @@ def import_photos(photos: Path, consent_path: Path, out: Path, domain: str,
 
     if not accepted:
         raise SystemExit("nothing to import: every photo was refused")
+    guard_target(out, reference or (DATA / "dataset" / "det_v2"), force)
     if out.exists():
         shutil.rmtree(out)
-    manifest = export(accepted, out, meta)
+    manifest = export(accepted, out, meta, strip_metadata=True)
     (out / "consent.json").write_text(
         json.dumps({"granted": consent_faces, "refused": refused}, indent=2, ensure_ascii=False),
         encoding="utf-8")
@@ -172,9 +197,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--reference", type=Path, default=None,
                         help="dataset to check for copies (default: det_v2)")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--force", action="store_true",
+                        help="overwrite a target folder that is not a previous import")
     args = parser.parse_args(argv)
     report = import_photos(args.photos, args.consent, args.out, args.domain,
-                           reference=args.reference, dry_run=args.dry_run)
+                           reference=args.reference, dry_run=args.dry_run, force=args.force)
     print(json.dumps(report, indent=2, ensure_ascii=False))
     if report["refused"]:
         print(f"{report['refused'].__len__()} photo(s) refused — see the report above")
